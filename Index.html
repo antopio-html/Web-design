@@ -1,2 +1,264 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MicroBio — simulateur de vie microbienne (vue du haut)</title>
+<style>
+  :root{--bg:#0b0f14;--panel:#0f1a22;--panel2:#0c141a;--ink:#e8f3ff;--muted:#9fb8c8;--shadow:0 10px 30px rgba(0,0,0,.35)}
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:radial-gradient(1400px 800px at 18% 12%, #0e1720 0%, var(--bg) 65%);color:var(--ink);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif;overflow:hidden}
+  canvas{display:block}
+  .topbar{position:fixed;left:12px;right:12px;top:12px;height:64px;display:flex;align-items:center;gap:12px;padding:8px 12px;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));border:1px solid rgba(173,216,230,.18);border-radius:14px;backdrop-filter:blur(10px);box-shadow:var(--shadow);z-index:10}
+  .pill{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid rgba(255,255,255,.08);border-radius:999px;padding:8px 12px}
+  .btn{background:linear-gradient(180deg,#17303a,#0f1f27);border:1px solid rgba(255,255,255,.08);color:var(--ink);border-radius:10px;padding:8px 12px;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 8px 20px rgba(0,0,0,.2)}
+  .btn:hover{filter:brightness(1.08)}
+  .btn.active{outline:2px solid rgba(255,255,255,.25)}
+  .kbd{font-family:ui-monospace,Menlo,Consolas,monospace;background:#0b1216;border:1px solid rgba(255,255,255,.1);padding:2px 6px;border-radius:6px;font-size:12px}
+  .right{margin-left:auto;display:flex;align-items:center;gap:10px}
+  #game{position:fixed;inset:0;z-index:1}
+  #log{position:fixed;left:12px;bottom:12px;right:12px;min-height:38px;display:flex;align-items:center;padding:6px 12px;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));border:1px solid rgba(173,216,230,.18);border-radius:14px;backdrop-filter:blur(10px);box-shadow:var(--shadow);z-index:10;color:var(--muted);font-size:12px}
+  #help{position:fixed;right:12px;top:90px;width:380px;background:var(--panel2);border:1px solid rgba(255,255,255,.08);border-radius:14px;box-shadow:var(--shadow);padding:12px;font-size:12px;color:var(--muted);z-index:10}
+  #help h3{margin:0 0 8px 0;color:var(--ink);font-size:14px}
+  #test{position:fixed;left:12px;top:90px;min-width:260px;max-width:420px;background:var(--panel2);border:1px solid rgba(255,255,255,.08);border-radius:14px;box-shadow:var(--shadow);padding:10px 12px;font-size:12px;color:var(--muted);display:none;z-index:10}
+  #test h3{margin:0 0 8px 0;color:var(--ink);font-size:14px}
+  #test .ok{color:#83e0a3}
+  #test .ko{color:#ff7b7b}
+  #speciesPicker{max-width:420px;overflow:auto;white-space:nowrap}
+  #speciesUI{position:fixed;right:12px;bottom:64px;width:420px;max-height:70vh;overflow:auto;background:var(--panel2);border:1px solid rgba(255,255,255,.08);border-radius:14px;box-shadow:var(--shadow);padding:12px;z-index:10}
+  #speciesUI h3{margin:6px 0 8px 0;color:var(--ink);font-size:14px}
+  #speciesList{display:flex;flex-direction:column;gap:10px}
+  .row{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:center;background:#0b1319;border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:8px}
+  .sw{width:22px;height:22px;border-radius:6px;border:1px solid rgba(0,0,0,.3)}
+  .row .meta{display:grid;grid-template-columns:1fr;gap:6px}
+  .tags{display:flex;flex-wrap:wrap;gap:6px}
+  .tag{background:#0c141a;border:1px solid rgba(255,255,255,.06);border-radius:999px;padding:2px 8px;font-size:11px}
+  .actions{display:flex;gap:8px;flex-wrap:wrap}
+  .inline{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .field{display:flex;flex-direction:column;gap:6px}
+  .field label{font-size:11px;color:var(--muted)}
+  input[type="range"],input[type="number"],input[type="text"]{background:#091219;color:var(--ink);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:6px;font-size:12px}
+  .toolbar{display:grid;grid-template-columns:1fr;gap:10px;background:#0b1216;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:10px;margin-bottom:10px}
+  .seg{display:flex;gap:8px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+  <canvas id="game"></canvas>
 
-test 
+  <div class="topbar">
+    <div class="pill">👾 Pop: <b id="pop">0</b> · Naiss/min: <b id="bpm">0</b> · Morts/min: <b id="dpm">0</b></div>
+    <div class="pill">
+      <label>Vitesse</label>
+      <input id="speed" type="range" min="0.25" max="3" step="0.25" value="1" />
+      <span id="speedVal">1x</span>
+    </div>
+    <div class="pill">
+      <label>Pinceau</label>
+      <input id="brush" type="range" min="1" max="28" step="1" value="6" />
+      <span id="brushVal">6</span>
+    </div>
+    <div class="pill" id="toolPill">
+      <label>Outil</label>
+      <button class="btn" id="toolN">🍞 Nutriment <span class="kbd">N</span></button>
+      <button class="btn" id="toolM">🧫 Microbes <span class="kbd">M</span></button>
+      <button class="btn" id="toolE">🧽 Effacer <span class="kbd">E</span></button>
+    </div>
+    <div class="pill" id="speciesPicker"><label>Espèce dépôt</label></div>
+    <div class="pill" id="scoreboard">🏁</div>
+    <div class="right">
+      <button class="btn" id="pulseFood">💥 Impulsion nutriments</button>
+      <button class="btn" id="toggleHeat">🌡️ Heatmap</button>
+      <button class="btn" id="pause">⏸️ Pause</button>
+      <button class="btn" id="reset">🔄 Reset</button>
+    </div>
+  </div>
+
+  <div id="help">
+    <h3>MicroBio — règles</h3>
+    <ul>
+      <li>Vue du haut d'une boîte de Petri : nutriments (heatmap) + microbes cartoon.</li>
+      <li>Microbes : chimio-tactisme, consommation, reproduction, mort.</li>
+      <li>Outils : peindre nutriments, spawn d'une espèce, effacer.</li>
+    </ul>
+  </div>
+
+  <div id="speciesUI">
+    <div class="toolbar">
+      <div class="seg">
+        <button class="btn" id="toolN2">Nutriments</button>
+        <button class="btn" id="toolM2">Spawn espèce</button>
+        <button class="btn" id="toolE2">Effacer</button>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Taille pinceau</label><input id="brush2" type="range" min="1" max="28" step="1" value="6"><small id="brush2v">6</small></div>
+        <div class="field"><label>Intensité nutriments</label><input id="nutPow" type="range" min="0.05" max="1" step="0.05" value="0.30"><small id="nutPowv">0.30</small></div>
+      </div>
+      <div class="grid3">
+        <div class="field"><label>Nombre spawn</label><input id="spawnCount" type="number" min="1" max="200" step="1" value="20"></div>
+        <div class="field"><label>Rayon spawn</label><input id="spawnRadius" type="number" min="0" max="20" step="1" value="6"></div>
+        <div class="field"><label>Drag continu</label><input id="spawnDrag" type="checkbox"></div>
+      </div>
+    </div>
+    <h3>Espèces</h3>
+    <div id="speciesList"></div>
+    <h3>Nouvelle espèce</h3>
+    <form id="addSpecies" class="grid3">
+      <input id="f_key" placeholder="Key" maxlength="2" required />
+      <input id="f_name" placeholder="Nom" required />
+      <input id="f_hue" type="number" min="0" max="360" step="1" placeholder="Hue" required />
+      <input id="f_speed" type="number" step="0.01" placeholder="Speed" required />
+      <input id="f_uptake" type="number" step="0.01" placeholder="Uptake" required />
+      <input id="f_maint" type="number" step="0.01" placeholder="Maint" required />
+      <input id="f_reprT" type="number" step="0.01" placeholder="ReproThr" required />
+      <input id="f_reprCD" type="number" step="0.01" placeholder="ReproCD" required />
+      <button class="btn" type="submit" style="grid-column:1/-1">Ajouter l'espèce</button>
+    </form>
+  </div>
+
+  <div id="test"><h3>Tests</h3><ul id="testList" style="margin:0 0 0 16px; padding:0"></ul></div>
+  <div id="log">Prêt.</div>
+
+<script>
+(function(){
+  const cv = document.getElementById('game');
+  const ctx = cv.getContext('2d');
+  const popEl = document.getElementById('pop');
+  const bpmEl = document.getElementById('bpm');
+  const dpmEl = document.getElementById('dpm');
+  const speedRange = document.getElementById('speed');
+  const speedVal = document.getElementById('speedVal');
+  const brushRange = document.getElementById('brush');
+  const brushVal = document.getElementById('brushVal');
+  const pauseBtn = document.getElementById('pause');
+  const resetBtn = document.getElementById('reset');
+  const pulseFoodBtn = document.getElementById('pulseFood');
+  const toggleHeatBtn = document.getElementById('toggleHeat');
+  const toolN = document.getElementById('toolN');
+  const toolM = document.getElementById('toolM');
+  const toolE = document.getElementById('toolE');
+  const toolN2 = document.getElementById('toolN2');
+  const toolM2 = document.getElementById('toolM2');
+  const toolE2 = document.getElementById('toolE2');
+  const nutPowEl = document.getElementById('nutPow');
+  const nutPowVal = document.getElementById('nutPowv');
+  const brush2 = document.getElementById('brush2');
+  const brush2v = document.getElementById('brush2v');
+  const spawnCountEl = document.getElementById('spawnCount');
+  const spawnRadiusEl = document.getElementById('spawnRadius');
+  const spawnDragEl = document.getElementById('spawnDrag');
+  const logEl = document.getElementById('log');
+  const testBox = document.getElementById('test');
+  const testList = document.getElementById('testList');
+  const sbEl = document.getElementById('scoreboard');
+  const speciesPicker = document.getElementById('speciesPicker');
+  const speciesList = document.getElementById('speciesList');
+  const addForm = document.getElementById('addSpecies');
+
+  let W=0,H=0,dpr=1, paused=false, simSpeed=1;
+  function resize(){
+    dpr = Math.max(1, Math.min(2, window.devicePixelRatio||1));
+    W=window.innerWidth; H=window.innerHeight;
+    cv.width=W*dpr; cv.height=H*dpr; cv.style.width=W+'px'; cv.style.height=H+'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    computeView();
+    draw();
+  }
+  window.addEventListener('resize', resize);
+
+  const GRID_W = 160, GRID_H = 100, DISH_MARGIN = 40; let TILE = 6; let view = {ox:0, oy:0, w:0, h:0};
+  function computeView(){
+    TILE = Math.max(1, Math.floor(Math.min((W-2*DISH_MARGIN)/GRID_W, (H-2*DISH_MARGIN)/GRID_H)));
+    view.w = GRID_W*TILE; view.h = GRID_H*TILE; view.ox = (W-view.w)/2; view.oy = (H-view.h)/2;
+  }
+  function toScreen(x,y){ return {x:view.ox + Math.floor(x)*TILE, y:view.oy + Math.floor(y)*TILE}; }
+  function toGrid(px,py){ return {x:(px - view.ox)/TILE, y:(py - view.oy)/TILE}; }
+
+  const field = new Float32Array(GRID_W*GRID_H);
+  const tmpField = new Float32Array(GRID_W*GRID_H);
+  function F(x,y){ x=x|0; y=y|0; if(x<0) x=(x%GRID_W+GRID_W)%GRID_W; else if(x>=GRID_W) x%=GRID_W; if(y<0) y=(y%GRID_H+GRID_H)%GRID_H; else if(y>=GRID_H) y%=GRID_H; return y*GRID_W+x; }
+
+  function seedField(){ for(let y=0;y<GRID_H;y++){ for(let x=0;x<GRID_W;x++){ const v=0.15+0.12*Math.sin(x*0.12)+0.1*Math.cos(y*0.2)+Math.random()*0.03; field[F(x,y)]=Math.max(0,v); } } }
+
+  const DIFF_RATE=0.18, DECAY=0.002, REPLENISH=0.002, UPTAKE_COEFF=0.6, BASE_YIELD=0.9, BASE_MAINT=0.12, BASE_REPRO_T=3.5, BASE_REPRO_CD=2.0, MAX_POP=6000;
+
+  const SPECIES=[
+    {key:'A',name:'Neutre',hue:190,speed:1,uptake:1,maint:1,reproT:1,reproCD:1},
+    {key:'B',name:'Rapide gourmande',hue:20,speed:1.35,uptake:1.05,maint:1.25,reproT:1.05,reproCD:0.95},
+    {key:'C',name:'Sobre lente',hue:120,speed:0.85,uptake:0.95,maint:0.8,reproT:0.95,reproCD:1.1},
+    {key:'D',name:'Prolifique',hue:300,speed:1,uptake:1.1,maint:1.15,reproT:0.86,reproCD:0.65}
+  ];
+
+  let microbes=[];
+  function newMicrobe(x,y,s=0){ x=(x%GRID_W+GRID_W)%GRID_W; y=(y%GRID_H+GRID_H)%GRID_H; const sp=SPECIES[s|0]||SPECIES[0]; const m={x,y,vx:(Math.random()*2-1)*0.5,vy:(Math.random()*2-1)*0.5,energy:1.5+Math.random()*0.5,age:0,reprCD:0,s:s|0,hue:sp.hue+(Math.random()*14-7),uptake:(0.9+Math.random()*0.3)*sp.uptake,speed:(1+Math.random()*0.4)*sp.speed,maint:BASE_MAINT*sp.maint,reprT:BASE_REPRO_T*sp.reproT,reprCooldown:BASE_REPRO_CD*sp.reproCD,yield:BASE_YIELD}; microbes.push(m); return m; }
+
+  let tool='N', brush=6, showHeat=true, currentSpecies=0, nutPow=0.30, spawnCount=20, spawnRadius=6, spawnDrag=false, lastSpawnMs=0;
+
+  function syncToolButtons(){ [toolN,toolM,toolE,toolN2,toolM2,toolE2].forEach(b=>b&&b.classList.remove('active')); if(tool==='N'){toolN&&toolN.classList.add('active'); toolN2&&toolN2.classList.add('active');} if(tool==='M'){toolM&&toolM.classList.add('active'); toolM2&&toolM2.classList.add('active');} if(tool==='E'){toolE&&toolE.classList.add('active'); toolE2&&toolE2.classList.add('active');} }
+  function setTool(t){ tool=t; syncToolButtons(); }
+  function setSpecies(i){ currentSpecies=Math.max(0,Math.min(i|0,SPECIES.length-1)); renderSpeciesPicker(); }
+
+  const pointer={x:0,y:0,down:false};
+  function onPointerDown(e){ pointer.down=true; onPointerMove(e); applyTool(true); }
+  function onPointerMove(e){ const p=e.touches?e.touches[0]:e; pointer.x=p.clientX; pointer.y=p.clientY; if(pointer.down) applyTool(false); }
+  function onPointerUp(){ pointer.down=false; }
+  window.addEventListener('mousedown', onPointerDown); window.addEventListener('mousemove', onPointerMove); window.addEventListener('mouseup', onPointerUp);
+  window.addEventListener('touchstart', onPointerDown, {passive:false}); window.addEventListener('touchmove', onPointerMove, {passive:false}); window.addEventListener('touchend', onPointerUp);
+
+  function spawnAt(gx,gy){ const R=spawnRadius; for(let k=0;k<spawnCount;k++){ const a=Math.random()*Math.PI*2; const r=Math.random()*R; newMicrobe((gx+Math.cos(a)*r+GRID_W)%GRID_W,(gy+Math.sin(a)*r+GRID_H)%GRID_H,currentSpecies); } }
+
+  function applyTool(press){ const g=toGrid(pointer.x,pointer.y); const gx=Math.floor(g.x), gy=Math.floor(g.y); const r=brush|0; if(r<=0) return; if(tool==='M'){ const now=performance.now(); if(press || (spawnDrag && now-lastSpawnMs>80)){ spawnAt(g.x,g.y); lastSpawnMs=now; } return; } for(let y=gy-r;y<=gy+r;y++){ for(let x=gx-r;x<=gx+r;x++){ const dx=x-gx,dy=y-gy; if(dx*dx+dy*dy>r*r) continue; const i=F(x,y); if(tool==='N') field[i]=Math.min(2, field[i]+nutPow); else if(tool==='E') field[i]=Math.max(0, field[i]-nutPow*1.6); } } }
+
+  document.addEventListener('keydown',(e)=>{ if(e.key==='n'||e.key==='N') setTool('N'); else if(e.key==='m'||e.key==='M') setTool('M'); else if(e.key==='e'||e.key==='E') setTool('E'); else if(/^[1-9]$/.test(e.key)){ const idx=parseInt(e.key,10)-1; if(idx<SPECIES.length) setSpecies(idx);} else if(e.key===' '){ paused=!paused; pauseBtn.textContent=paused?'▶️ Reprendre':'⏸️ Pause'; }});
+
+  toolN.onclick=()=>setTool('N'); toolM.onclick=()=>setTool('M'); toolE.onclick=()=>setTool('E');
+  toolN2.onclick=()=>setTool('N'); toolM2.onclick=()=>setTool('M'); toolE2.onclick=()=>setTool('E');
+  brushRange.oninput=()=>{ brush=parseInt(brushRange.value,10); brushVal.textContent=brush; brush2.value=String(brush); brush2v.textContent=String(brush); };
+  brush2.oninput=()=>{ brush=parseInt(brush2.value,10); brush2v.textContent=brush2.value; brushRange.value=String(brush); brushVal.textContent=String(brush); };
+  nutPowEl.oninput=()=>{ nutPow=parseFloat(nutPowEl.value); nutPowVal.textContent=nutPowEl.value; };
+  spawnCountEl.oninput=()=>{ spawnCount=Math.max(1,Math.min(200, parseInt(spawnCountEl.value,10)||1)); };
+  spawnRadiusEl.oninput=()=>{ spawnRadius=Math.max(0,Math.min(20, parseInt(spawnRadiusEl.value,10)||0)); };
+  spawnDragEl.onchange=()=>{ spawnDrag=!!spawnDragEl.checked; };
+
+  speedRange.oninput=()=>{ simSpeed=parseFloat(speedRange.value); speedVal.textContent=simSpeed+'x'; };
+  pauseBtn.onclick=()=>{ paused=!paused; pauseBtn.textContent=paused?'▶️ Reprendre':'⏸️ Pause'; };
+  resetBtn.onclick=()=>{ hardReset(); };
+  pulseFoodBtn.onclick=()=>{ pulseFood(); };
+  toggleHeatBtn.onclick=()=>{ showHeat=!showHeat; };
+
+  function pulseFood(){ const cx=(Math.random()*GRID_W)|0, cy=(Math.random()*GRID_H)|0, R=8+Math.random()*14; for(let y=cy-R;y<=cy+R;y++) for(let x=cx-R;x<=cx+R;x++){ const dx=x-cx,dy=y-cy; if(dx*dx+dy*dy<=R*R){ const i=F(x,y); field[i]=Math.min(2, field[i]+0.8);} } log('Impulsion de nutriments.'); }
+
+  let births=0,deaths=0; let birthsWindow=[],deathsWindow=[]; let time=0;
+  function step(dt){ const a=DIFF_RATE*dt, decay=DECAY*dt, rep=REPLENISH*dt; for(let y=0;y<GRID_H;y++){ for(let x=0;x<GRID_W;x++){ const i=F(x,y); const v=field[i]; const n=field[F(x+1,y)]+field[F(x-1,y)]+field[F(x,y+1)]+field[F(x,y-1)]; let nv=v+a*(n-4*v)-decay+rep; if(nv<0) nv=0; if(nv>2) nv=2; tmpField[i]=nv; } } field.set(tmpField); const maxSpeed=3.5; for(let i=microbes.length-1;i>=0;i--){ const m=microbes[i]; m.age+=dt; if(m.reprCD>0) m.reprCD-=dt; const gx= (field[F(m.x+1,m.y)]-field[F(m.x-1,m.y)])*0.5; const gy=(field[F(m.x,m.y+1)]-field[F(m.x,m.y-1)])*0.5; m.vx+=(gx*0.8+(Math.random()*2-1)*0.6)*m.speed*dt; m.vy+=(gy*0.8+(Math.random()*2-1)*0.6)*m.speed*dt; const spd=Math.hypot(m.vx,m.vy); if(spd>maxSpeed){ m.vx*=maxSpeed/spd; m.vy*=maxSpeed/spd; } m.x=(m.x+m.vx*dt+GRID_W)%GRID_W; m.y=(m.y+m.vy*dt+GRID_H)%GRID_H; const idx=F(m.x,m.y); const c=field[idx]; const uptake=Math.min(c, UPTAKE_COEFF*m.uptake*dt); m.energy+=uptake*m.yield; field[idx]=Math.max(0,c-uptake); m.energy-=m.maint*dt; if(m.energy>=m.reprT && m.reprCD<=0 && microbes.length<MAX_POP){ m.energy*=0.5; m.reprCD=m.reprCooldown; const child={...m, x:(m.x+(Math.random()*2-1)*0.6+GRID_W)%GRID_W, y:(m.y+(Math.random()*2-1)*0.6+GRID_H)%GRID_H, vx:-m.vx*0.2, vy:-m.vy*0.2, reprCD:m.reprCooldown*0.5}; microbes.push(child); births++; birthsWindow.push(time);} if(m.energy<=0){ microbes.splice(i,1); deaths++; deathsWindow.push(time);} } const win=time-60; while(birthsWindow.length && birthsWindow[0]<win) birthsWindow.shift(); while(deathsWindow.length && deathsWindow[0]<win) deathsWindow.shift(); }
+
+  function draw(){ ctx.clearRect(0,0,W,H); ctx.save(); ctx.translate(view.ox,view.oy); ctx.fillStyle='rgba(255,255,255,0.03)'; ctx.fillRect(0,0,view.w,view.h); ctx.restore(); if(showHeat) drawHeatmap(); drawMicrobes(); drawHUD(); drawScoreboard(); }
+  function drawHeatmap(){ for(let y=0;y<GRID_H;y++){ for(let x=0;x<GRID_W;x++){ const v=Math.max(0,Math.min(1,field[F(x,y)]/1.2)); const p=toScreen(x,y); ctx.fillStyle=`rgba(${Math.floor(40+160*v)},${Math.floor(80+140*v)},${Math.floor(120+70*v)},0.85)`; ctx.fillRect(p.x,p.y,TILE,TILE); } } }
+  function drawMicrobes(){ for(const m of microbes){ const p=toScreen(m.x,m.y); const r=3+Math.min(5,m.energy*0.6); ctx.save(); ctx.translate(p.x+TILE*0.5,p.y+TILE*0.5); ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.fillStyle=`hsla(${m.hue},80%,65%,0.95)`; ctx.fill(); ctx.strokeStyle='rgba(0,0,0,0.35)'; ctx.lineWidth=1; ctx.stroke(); ctx.fillStyle='rgba(255,255,255,0.9)'; ctx.beginPath(); ctx.arc(r*0.25,-r*0.2,r*0.35,0,Math.PI*2); ctx.fill(); ctx.fillStyle='rgba(20,20,20,0.9)'; ctx.beginPath(); ctx.arc(r*0.3,-r*0.2,r*0.18,0,Math.PI*2); ctx.fill(); ctx.restore(); } }
+  function drawHUD(){ popEl.textContent=microbes.length; bpmEl.textContent=birthsWindow.length; dpmEl.textContent=deathsWindow.length; }
+  function drawScoreboard(){ const counts=new Array(SPECIES.length).fill(0); for(const m of microbes){ counts[m.s|0]=(counts[m.s|0]||0)+1; } const labels=counts.map((n,i)=>`${SPECIES[i].key}:${n|0}`).join(' · '); sbEl.innerHTML=`🏁 ${labels} · <b id="champ"></b>`; let max=-1,idx=-1; for(let i=0;i<counts.length;i++){ if(counts[i]>max){ max=counts[i]; idx=i; } } const cnode=sbEl.querySelector('#champ'); if(cnode) cnode.textContent=max>0?`Dominante: ${SPECIES[idx].key}`:'—'; }
+
+  function addTestResult(name,ok,details=''){ testBox.style.display='block'; const li=document.createElement('li'); li.innerHTML=`<span class="${ok?'ok':'ko'}">${ok?'✔':'✖'}</span> ${name}${details?' — '+details:''}`; testList.appendChild(li); if(!ok) console.error('[Test Failed]',name,details); }
+  function snapshot(){ return { field:new Float32Array(field), microbes:JSON.parse(JSON.stringify(microbes)), births, deaths, birthsWindow:[...birthsWindow], deathsWindow:[...deathsWindow], time, currentSpecies } }
+  function restore(s){ field.set(s.field); microbes=s.microbes; births=s.births; deaths=s.deaths; birthsWindow=s.birthsWindow; deathsWindow=s.deathsWindow; time=s.time; currentSpecies=s.currentSpecies; }
+  function mulberry32(a){ return function(){ let t=a+=0x6D2B79F5; t=Math.imul(t^t>>>15,t|1); t^=t+Math.imul(t^t>>>7,t|61); return ((t^(t>>>14))>>>0)/4294967296; } }
+  function withSeed(seed,fn){ const orig=Math.random; const r=mulberry32(seed>>>0); Math.random=()=>r(); try{return fn();} finally{ Math.random=orig; } }
+  function sumField(){ let s=0; for(let i=0;i<field.length;i++) s+=field[i]; return s; }
+  function runSelfTests(){ const wasPaused=paused; paused=true; withSeed(1,()=>{ const snap1=snapshot(); for(let i=0;i<field.length;i++) field[i]=0; microbes.length=0; for(let i=0;i<10;i++) newMicrobe(GRID_W/2,GRID_H/2,0); for(let t=0;t<5;t++){ step(1); time+=1; } addTestResult('T1: No food → pop diminue', microbes.length<10,`pop=${microbes.length}`); restore(snap1); }); withSeed(2,()=>{ const snap2=snapshot(); for(let i=0;i<field.length;i++) field[i]=0; const cx=(GRID_W/2)|0, cy=(GRID_H/2)|0; for(let y=cy-6;y<=cy+6;y++) for(let x=cx-6;x<=cx+6;x++){ const dx=x-cx,dy=y-cy; if(dx*dx+dy*dy<=36){ field[F(x,y)]=1.5; } } microbes.length=0; newMicrobe(cx,cy,0); for(let t=0;t<12;t++){ step(1); time+=1; } addTestResult('T2: Food patch → pop augmente', microbes.length>1,`pop=${microbes.length}`); restore(snap2); }); withSeed(3,()=>{ const snap3=snapshot(); for(let i=0;i<field.length;i++) field[i]=Math.random()*1.5; for(let t=0;t<10;t++){ step(0.5); time+=0.5; } let ok=true; for(let i=0;i<field.length;i++){ if(!Number.isFinite(field[i])){ ok=false; break; } } addTestResult('T3: Diffusion → pas de NaN', ok); restore(snap3); }); const snap6=snapshot(); const sum0=sumField(); const pop0=microbes.length; const first0=microbes[0]?{x:microbes[0].x,y:microbes[0].y}:null; field.fill(0); newMicrobe(0,0,0); time+=3; step(1); restore(snap6); const sum1=sumField(); const pop1=microbes.length; const posOk=!first0||(Math.abs(microbes[0].x-first0.x)<1e-6&&Math.abs(microbes[0].y-first0.y)<1e-6); addTestResult('T6: Snapshot/Restore fidèle', Math.abs(sum1-sum0)<1e-6 && pop1===pop0 && posOk); paused=wasPaused; }
+
+  let last=performance.now(); function loop(t){ const dt=Math.min(0.05,(t-last)/1000)*(paused?0:simSpeed); last=t; if(dt>0){ time+=dt; step(dt); } draw(); requestAnimationFrame(loop);} 
+
+  function hardReset(){ seedField(); microbes.length=0; for(let i=0;i<12;i++){ newMicrobe(Math.random()*GRID_W,Math.random()*GRID_H,0); } births=0; deaths=0; birthsWindow.length=0; deathsWindow.length=0; time=0; setSpecies(0); log('Nouveau monde microbien.'); }
+  function log(s){ logEl.textContent=s; }
+
+  function renderSpeciesPicker(){ speciesPicker.innerHTML='<label>Espèce dépôt</label>'; SPECIES.forEach((sp,i)=>{ const b=document.createElement('button'); b.className='btn'+(i===currentSpecies?' active':''); b.textContent=sp.key||String.fromCharCode(65+i); b.style.borderColor='hsla('+sp.hue+',70%,60%,.35)'; b.onclick=()=>setSpecies(i); speciesPicker.appendChild(b); }); }
+  function renderSpeciesList(){ speciesList.innerHTML=''; SPECIES.forEach((sp,i)=>{ const row=document.createElement('div'); row.className='row'; const sw=document.createElement('div'); sw.className='sw'; sw.style.background=`hsl(${sp.hue} 70% 60%)`; const meta=document.createElement('div'); meta.className='meta'; const title=document.createElement('div'); title.innerHTML=`<b>${sp.key}</b> — ${sp.name}`; const tags=document.createElement('div'); tags.className='tags'; const mk=(k,v)=>{ const el=document.createElement('span'); el.className='tag'; el.textContent=`${k}:${typeof v==='number'?v.toFixed(2):v}`; return el; }; ['hue','speed','uptake','maint','reproT','reproCD'].forEach(k=>tags.appendChild(mk(k,sp[k]))); const actions=document.createElement('div'); actions.className='actions'; const sel=document.createElement('button'); sel.className='btn'; sel.textContent='Sélectionner'; sel.onclick=()=>setSpecies(i); const inputN=document.createElement('input'); inputN.type='number'; inputN.min='1'; inputN.max='200'; inputN.step='1'; inputN.value='30'; inputN.style.width='80px'; const inputR=document.createElement('input'); inputR.type='number'; inputR.min='0'; inputR.max='20'; inputR.step='1'; inputR.value='6'; inputR.style.width='80px'; const spawn=document.createElement('button'); spawn.className='btn'; spawn.textContent='Spawn ici (centre)'; spawn.onclick=()=>{ const n=parseInt(inputN.value,10)||0; const r=parseInt(inputR.value,10)||0; const cx=GRID_W/2, cy=GRID_H/2; for(let k=0;k<n;k++){ const a=Math.random()*Math.PI*2; const rad=Math.random()*r; newMicrobe((cx+Math.cos(a)*rad+GRID_W)%GRID_W,(cy+Math.sin(a)*rad+GRID_H)%GRID_H,i); } }; actions.appendChild(sel); actions.appendChild(inputN); actions.appendChild(inputR); actions.appendChild(spawn); meta.appendChild(title); meta.appendChild(tags); meta.appendChild(actions); row.appendChild(sw); row.appendChild(meta); speciesList.appendChild(row); }); }
+
+  function init(){ resize(); seedField(); for(let i=0;i<10;i++) newMicrobe(Math.random()*GRID_W,Math.random()*GRID_H,0); setSpecies(0); renderSpeciesPicker(); renderSpeciesList(); syncToolButtons(); brush2.value=brushRange.value; brush2v.textContent=brush2.value; nutPowVal.textContent=nutPowEl.value; runSelfTests(); requestAnimationFrame(loop); }
+
+  init();
+})();
+</script>
+</body>
+</html>
