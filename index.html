@@ -1,462 +1,514 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>olea mellis — Huile d'olive & miel ultra premium</title>
-  <meta name="description" content="olea mellis — Maison artisanale d'huile d'olive et de miel ultra premium, 100% naturel, issu de terroirs d'exception.">
-  <meta name="theme-color" content="#0E0E0E">
-  <meta property="og:title" content="olea mellis — Huile d'olive & miel ultra premium">
-  <meta property="og:description" content="Maison artisanale d'huile d'olive et de miel 100% naturel, terroirs d'exception.">
-  <meta property="og:type" content="website">
-  <meta property="og:image" content="logo.png">
-  <link rel="icon" href="logo.png">
-  <style>
-    /* ---------- Design tokens ---------- */
-    :root{
-      --bg:#0b0b0b; --elev:#121212; --ink:#f5f5f2; --muted:#b9b9b2; --gold:#d6b56d;
-      --line:#222; --radius:14px; --shadow:0 10px 30px rgba(0,0,0,.35);
-    }
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>olea mellis — Huile d'olive & miel ultra premium</title>
+<meta name="description" content="olea mellis — Maison artisanale d'huile d'olive et de miel ultra premium, 100% naturel, issu de terroirs d'exception.">
+<meta name="theme-color" content="#0E0E0E">
+<link rel="icon" href="logo.png">
+<style>
+/* ===================== */
+/*        TOKENS         */
+/* ===================== */
+:root{
+  /* Couleurs */
+  --bg:#090909; --surface:#0e0e0f; --ink:#f6f7f9; --muted:#b8bdc7; --gold:#e0c27a; --line:#1b1d20;
+  /* Rayons & ombres */
+  --radius:18px; --soft-radius:14px;
+  --shadow-xl:0 30px 80px rgba(0,0,0,.45);
+  --shadow-lg:0 18px 40px rgba(0,0,0,.35);
+  --shadow-md:0 10px 24px rgba(0,0,0,.25);
+  /* Typo & rythme */
+  --fs-xxl:clamp(40px,6.5vw,68px);
+  --fs-xl:clamp(28px,4.6vw,44px);
+  --fs-lg:clamp(18px,2.3vw,22px);
+  --fs-md:16px;
+  --line-height:1.7;
+  --space-section: min(14vh, 160px);
+  --space-block: 28px;
+}
 
-    /* Reset & base */
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0; background:var(--bg); color:var(--ink);
-      font:16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
-      text-rendering:optimizeLegibility;
-    }
-    img{max-width:100%; display:block}
-    a{color:var(--ink); text-decoration:none}
-    a:hover{opacity:.92}
-    .container{max-width:1120px; margin:auto; padding:0 20px}
-    .display{font-size:clamp(32px,6vw,56px); line-height:1.1; letter-spacing:.3px; margin:0 0 .6rem}
-    .lead{font-size:clamp(16px,2.5vw,20px); color:var(--muted); margin:.2rem 0 1rem}
-    .small{font-size:.85rem} .muted{color:var(--muted)}
+/* Reset */
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; background:linear-gradient(180deg,#090909,#0b0c0d);
+  color:var(--ink);
+  font:var(--fs-md)/var(--line-height) system-ui,-apple-system,"Segoe UI",Roboto,Arial,"Noto Sans","Apple Color Emoji","Segoe UI Emoji";
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+img{max-width:100%; display:block}
+a{color:var(--ink); text-decoration:none}
+a:hover{opacity:.95}
 
-    /* Buttons */
-    .btn{display:inline-flex; align-items:center; gap:.5rem; padding:.9rem 1.1rem; border-radius:999px;
-         border:1px solid var(--gold); background:var(--gold); color:#121212; font-weight:600; letter-spacing:.2px;
-         cursor:pointer; transition:.2s transform ease,.2s opacity ease;}
-    .btn:hover{transform:translateY(-1px)}
-    .btn.ghost{background:transparent; color:var(--ink); border-color:var(--ink)}
-    .pill{padding:.45rem .8rem; border-radius:999px; border:1px solid var(--line); background:#0d0d0d; color:var(--ink)}
+.container{max-width:1240px; margin:auto; padding:0 28px}
+.section{padding:var(--space-section) 0; border-top:1px solid var(--line)}
+.section:first-of-type{border-top:0}
 
-    /* Cards & sections */
-    .card{background:linear-gradient(180deg,#0E0E0E,#0A0A0A); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:1.2rem}
-    .section{padding:72px 0; border-top:1px solid var(--line)}
-    .section.alt{background:#0e0e0e}
-    .section__head h2{margin:0 0 .2rem}
-    .section__head p{margin:.2rem 0 1rem; color:var(--muted)}
+/* ===================== */
+/*        HEADER         */
+/* ===================== */
+.site-header{
+  position:sticky; top:0; z-index:60;
+  background:rgba(10,11,12,.6);
+  backdrop-filter:saturate(150%) blur(10px);
+  border-bottom:1px solid rgba(255,255,255,.04);
+  transition:background-color .25s ease,border-color .25s ease;
+}
+.site-header.scrolled{background:rgba(10,11,12,.85)}
+.site-header .row{display:flex; align-items:center; justify-content:space-between; gap:18px; padding:16px 0}
+.brand{display:flex; align-items:center; gap:14px}
+.brand__logo{height:36px; width:auto; border-radius:10px; object-fit:cover; box-shadow:var(--shadow-md)}
+.brand__name{font-weight:700; letter-spacing:.5px; opacity:.92}
 
-    /* Header */
-    .site-header{
-      position:sticky; top:0; inset-inline:0; z-index:50; background:rgba(10,10,10,.75);
-      backdrop-filter:saturate(160%) blur(10px); border-bottom:1px solid #111;
-    }
-    .site-header .container{display:flex; align-items:center; justify-content:space-between; gap:12px}
-    .brand{display:flex; align-items:center; gap:.75rem}
-    .brand__logo{height:28px; width:auto; border-radius:6px; object-fit:contain; background:#0d0d0d}
-    .brand__name{font-weight:700; letter-spacing:.4px}
-    .nav__toggle{display:none; border:1px solid var(--line); background:#0d0d0d; color:var(--ink); border-radius:10px; padding:.5rem .65rem}
-    .nav__menu{display:flex; align-items:center; gap:16px; list-style:none; margin:0; padding:0}
-    .nav__menu .divider{width:1px; height:18px; background:#222}
-    @media (max-width:860px){
-      .nav__toggle{display:block}
-      .nav__menu{position:fixed; right:16px; top:64px; background:#0d0d0d; border:1px solid var(--line); border-radius:12px; padding:12px; display:none; flex-direction:column; gap:8px}
-      .nav__menu.open{display:flex}
-      #backdrop{position:fixed; inset:0; background:rgba(0,0,0,.35); backdrop-filter: blur(1px)}
-    }
+.nav__toggle{display:none; border:1px solid var(--line); background:#0e1013; color:var(--ink); border-radius:12px; padding:.6rem .7rem}
+.nav__menu{display:flex; align-items:center; gap:22px; list-style:none; margin:0; padding:0}
+.nav__menu .divider{width:1px; height:22px; background:#202328}
+.pill{padding:.5rem .9rem; border-radius:999px; border:1px solid #262a30; background:#0e1013}
 
-    /* Hero */
-    .hero{position:relative; padding:92px 0 40px; overflow:hidden}
-    .hero__row{display:grid; grid-template-columns:1.2fr .8fr; gap:24px; align-items:center}
-    @media (max-width:980px){ .hero__row{grid-template-columns:1fr} }
-    .hero__media{display:grid; gap:16px; justify-items:end}
-    .hero__media .mock{width:min(260px,70%); aspect-ratio:1/1; border:1px solid #1b1b1b; border-radius:12px; background:#0a0a0a url('produit1.png') center/cover no-repeat; box-shadow:0 30px 80px rgba(0,0,0,.6)}
-    .hero__media .mock.alt{background-image:url('produit2.png')}
-    .hero__badges{display:flex; gap:8px; flex-wrap:wrap; margin-top:28px}
-    .badge{border:1px solid #1f1f1f; color:var(--muted); padding:.4rem .7rem; border-radius:999px}
+@media (max-width:900px){
+  .nav__toggle{display:block}
+  .nav__menu{
+    position:fixed; right:28px; top:76px;
+    display:none; flex-direction:column; gap:10px;
+    background:#0d0f12; border:1px solid #20242a; border-radius:14px; padding:14px;
+    box-shadow:var(--shadow-lg);
+  }
+  .nav__menu.open{display:flex}
+  #backdrop{position:fixed; inset:0; background:rgba(0,0,0,.35); backdrop-filter:blur(1px)}
+}
 
-    /* Product cards */
-    .cards{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px}
-    @media (max-width:860px){ .cards{grid-template-columns:1fr} }
-    .product{display:grid; grid-template-columns:120px 1fr; gap:16px; align-items:start}
-    @media (max-width:600px){ .product{grid-template-columns:1fr} }
-    .product__img{width:100%; aspect-ratio:3/4; border-radius:12px; border:1px solid #1b1b1b; object-fit:cover; background:#0a0a0a}
-    .product__name{margin:.2rem 0 .2rem; font-weight:700; letter-spacing:.3px}
-    .product__note{color:var(--muted); margin:.2rem 0 .8rem}
-    .product__specs{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:.6rem 0 1rem}
-    .product__specs div{border:1px dashed #1b1b1b; border-radius:10px; padding:.5rem .6rem}
-    .product__specs dt{font-weight:600}
-    .product__specs dd{margin:0; color:var(--muted)}
+/* ===================== */
+/*         HERO          */
+/* ===================== */
+.hero{padding:calc(var(--space-section) + 40px) 0 var(--space-section); overflow:hidden}
+.hero .grid{display:grid; grid-template-columns:1.2fr .8fr; gap:56px; align-items:center}
+@media (max-width:1000px){ .hero .grid{grid-template-columns:1fr; gap:40px} }
 
-    /* Grids & lists */
-    .grid-2{display:grid; grid-template-columns:1.2fr .8fr; gap:24px}
-    .grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:16px}
-    @media (max-width:980px){ .grid-2,.grid-3{grid-template-columns:1fr} }
-    .ticks{padding-left:1rem}
-    .ticks li{margin:.2rem 0; list-style:"✓  "}
-    .qr-placeholder{
-      width:96px; height:96px; display:grid; place-items:center; border-radius:10px;
-      border:1px dashed #2a2a2a; color:var(--muted); font-weight:700; letter-spacing:2px
-    }
+.display{font-size:var(--fs-xxl); line-height:1.08; letter-spacing:.3px; margin:0 0 16px}
+.lead{font-size:var(--fs-lg); color:var(--muted); margin:0 0 26px; max-width:72ch}
+.cta-row{display:flex; gap:14px; flex-wrap:wrap}
 
-    /* Contact */
-    .contact label{display:block; margin:.3rem 0}
-    .contact input,.contact textarea{
-      width:100%; background:#0c0c0c; border:1px solid #202020; color:var(--ink);
-      border-radius:10px; padding:.8rem .9rem; outline:none;
-    }
-    .contact input:focus,.contact textarea:focus{border-color:#333}
-    .checkbox{display:flex; gap:.6rem; align-items:center; color:var(--muted)}
-    .socials{display:flex; gap:12px; margin-top:12px}
-    .social{border:1px solid var(--line); padding:.55rem .8rem; border-radius:999px}
+.btn{
+  display:inline-flex; align-items:center; gap:.55rem;
+  padding:1rem 1.2rem; border-radius:999px; font-weight:700; letter-spacing:.2px;
+  border:1px solid var(--gold); background:var(--gold); color:#141414;
+  transition:transform .2s ease, box-shadow .2s ease, background-color .2s ease;
+  box-shadow:0 8px 20px rgba(224,194,122,.15);
+}
+.btn:hover{transform:translateY(-2px); box-shadow:0 14px 32px rgba(224,194,122,.22)}
+.btn.ghost{background:transparent; color:var(--ink); border-color:#2b3036; box-shadow:none}
+.btn.ghost:hover{background:#121418}
 
-    /* Footer */
-    .site-footer{border-top:1px solid var(--line); padding:28px 0 40px}
-    .foot{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap}
-    .foot__brand{display:flex; align-items:center; gap:.6rem; color:var(--muted)}
-    .foot__logo{height:22px; width:auto; border-radius:5px; opacity:.9}
+.badges{display:flex; gap:10px; flex-wrap:wrap; margin-top:28px}
+.badge{border:1px solid #23272d; color:var(--muted); padding:.5rem .8rem; border-radius:999px; background:#0e1013}
 
-    /* Utilities */
-    .cta-row{display:flex; gap:12px; flex-wrap:wrap; margin-top:16px}
-    .skip-link{position:absolute; left:-999px; top:auto; width:1px; height:1px; overflow:hidden}
-    .skip-link:focus{left:8px; top:8px; width:auto; height:auto; background:#000; color:#fff; padding:.5rem .6rem; border-radius:8px}
-    [data-elevate]{transition:border-color .25s ease, background-color .25s ease}
-    [data-elevate].scrolled{background:rgba(10,10,10,.9); border-color:#151515}
+.hero-media{
+  min-height:380px; display:grid; gap:20px; justify-items:end; position:relative; isolation:isolate;
+}
+.hero-media .frame{
+  width:min(320px,70%); aspect-ratio:1/1; border-radius:16px; border:1px solid #23272d;
+  background:#0a0c0f center/cover no-repeat; box-shadow:var(--shadow-xl); will-change:transform;
+  transform:translateZ(0);
+}
+.hero-media .frame.one{background-image:url('produit1.png')}
+.hero-media .frame.two{background-image:url('produit2.png')}
 
-    /* Optional hint if images manquent */
-    .img-hint{display:none; font-size:.85rem; color:var(--muted)}
-    img[alt="logo olea mellis"].broken + .img-hint,
-    img.product__img.broken + .img-hint{display:block}
-  </style>
+/* ===================== */
+/*        CARDS          */
+/* ===================== */
+.cards{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:26px; margin-top:36px}
+@media (max-width:900px){ .cards{grid-template-columns:1fr} }
+
+.card{
+  background:linear-gradient(180deg,rgba(18,19,21,.65),rgba(11,12,14,.9));
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:32px;
+  box-shadow:var(--shadow-lg);
+}
+.product{display:grid; grid-template-columns:160px 1fr; gap:24px; align-items:start}
+@media (max-width:640px){ .product{grid-template-columns:1fr} }
+.product__img{
+  width:100%; aspect-ratio:3/4; border-radius:16px; border:1px solid #20242a;
+  background:#0a0c0f; object-fit:cover; box-shadow:var(--shadow-md);
+  transform:translateZ(0);
+}
+.product__name{margin:0 0 6px; font-size:clamp(18px,2.4vw,22px); font-weight:800; letter-spacing:.3px}
+.product__note{margin:0 0 16px; color:var(--muted)}
+.product__specs{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:14px 0 22px}
+.product__specs div{border:1px dashed #2a2f36; border-radius:12px; padding:.65rem .75rem}
+.product__specs dt{font-weight:700}
+.product__specs dd{margin:0; color:var(--muted)}
+
+.grid-2{display:grid; grid-template-columns:1.2fr .8fr; gap:40px}
+.grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:26px}
+@media (max-width:1000px){ .grid-2,.grid-3{grid-template-columns:1fr} }
+
+.ticks{padding-left:1rem}
+.ticks li{margin:.35rem 0; list-style:"✓  "; color:var(--ink)}
+
+.qr{
+  width:110px; height:110px; display:grid; place-items:center; border-radius:14px;
+  border:1px dashed #2a2f36; color:var(--muted); font-weight:800; letter-spacing:2px
+}
+
+/* ===================== */
+/*        CONTACT        */
+/* ===================== */
+.contact label{display:block; margin:.5rem 0}
+.contact input,.contact textarea{
+  width:100%; background:#0e1013; border:1px solid #23272d; color:var(--ink);
+  border-radius:12px; padding:1rem 1rem; outline:none; transition:border-color .2s ease, box-shadow .2s ease;
+}
+.contact input:focus,.contact textarea:focus{border-color:#2f353d; box-shadow:0 0 0 3px rgba(224,194,122,.15)}
+.checkbox{display:flex; gap:.7rem; align-items:center; color:var(--muted); margin:.4rem 0 1rem}
+.socials{display:flex; gap:12px; margin-top:14px}
+.social{border:1px solid #23272d; padding:.65rem .9rem; border-radius:999px; background:#0d0f12}
+.social:hover{background:#121418}
+
+/* ===================== */
+/*        FOOTER         */
+/* ===================== */
+.site-footer{border-top:1px solid var(--line); padding:60px 0 var(--space-section)}
+.foot{display:flex; align-items:center; justify-content:space-between; gap:18px; flex-wrap:wrap}
+.foot__brand{display:flex; align-items:center; gap:12px; color:var(--muted)}
+.foot__logo{height:26px; width:auto; border-radius:8px; opacity:.9}
+
+/* ===================== */
+/*   MOTION & REVEALS    */
+/* ===================== */
+:root{ --reveal-translate: 18px; }
+.reveal{opacity:0; transform:translateY(var(--reveal-translate));}
+.reveal.is-in{opacity:1; transform:none; transition:transform .8s cubic-bezier(.22,1,.36,1), opacity .8s ease;}
+/* Délai progressif */
+.reveal.delay-1{transition-delay:.05s} .reveal.delay-2{transition-delay:.12s} .reveal.delay-3{transition-delay:.18s}
+
+.hover-lift{transition:transform .25s ease, box-shadow .25s ease}
+.hover-lift:hover{transform:translateY(-6px); box-shadow:0 24px 48px rgba(0,0,0,.25)}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation:none !important; transition:none !important}
+  .reveal{opacity:1 !important; transform:none !important}
+}
+</style>
 </head>
 <body>
-  <a class="skip-link" href="#main">Aller au contenu</a>
+<a class="skip-link" href="#main" style="position:absolute;left:-999px;top:auto;width:1px;height:1px;overflow:hidden">Aller au contenu</a>
 
-  <!-- Header -->
-  <header class="site-header" data-elevate>
+<!-- ===================== HEADER ===================== -->
+<header class="site-header" id="hdr">
+  <div class="container row">
+    <a class="brand" href="#top">
+      <img src="logo.png" alt="logo olea mellis" class="brand__logo" onerror="this.style.opacity=.6">
+      <span class="brand__name">olea mellis</span>
+    </a>
+    <nav aria-label="Navigation principale">
+      <button class="nav__toggle" aria-expanded="false" aria-controls="menu">☰</button>
+      <ul id="menu" class="nav__menu">
+        <li><a href="#huiles">Huiles</a></li>
+        <li><a href="#miels">Miels</a></li>
+        <li><a href="#terroir">Terroir</a></li>
+        <li><a href="#savoir">Savoir-faire</a></li>
+        <li><a href="#contact">Contact</a></li>
+        <li class="divider" aria-hidden="true"></li>
+        <li><button id="lang" class="pill" data-lang="fr" aria-label="Changer de langue">FR</button></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <!-- ===================== HERO ===================== -->
+  <section id="top" class="hero">
+    <div class="container grid">
+      <div class="reveal">
+        <h1 class="display">Huile d’olive & miel ultra premium,<br>100% naturel.</h1>
+        <p class="lead">Issus de terroirs d’exception, élaborés en micro-lots avec une traçabilité absolue.</p>
+        <div class="cta-row">
+          <a href="#huiles" class="btn hover-lift">Découvrir la collection</a>
+          <a href="#contact" class="btn ghost hover-lift">Devenir revendeur</a>
+        </div>
+        <div class="badges">
+          <span class="badge reveal delay-1">Cold-Extracted</span>
+          <span class="badge reveal delay-2">Unheated Honey</span>
+          <span class="badge reveal delay-3">No Additives</span>
+        </div>
+      </div>
+
+      <div class="hero-media" aria-hidden="true">
+        <div class="frame one reveal"></div>
+        <div class="frame two reveal delay-2"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== HUILES ===================== -->
+  <section id="huiles" class="section">
     <div class="container">
-      <a class="brand" href="#top" aria-label="olea mellis — retour au début">
-        <img src="logo.png" alt="logo olea mellis" class="brand__logo" onerror="this.classList.add('broken')">
-        <span class="brand__name">olea mellis</span>
-      </a>
-      <nav class="nav" aria-label="Navigation principale">
-        <button class="nav__toggle" aria-expanded="false" aria-controls="menu">☰</button>
-        <ul id="menu" class="nav__menu">
-          <li><a href="#huiles" data-i18n="menu.oils">Huiles</a></li>
-          <li><a href="#miels" data-i18n="menu.honeys">Miels</a></li>
-          <li><a href="#terroir" data-i18n="menu.terroir">Terroir</a></li>
-          <li><a href="#savoir" data-i18n="menu.craft">Savoir-faire</a></li>
-          <li><a href="#contact" data-i18n="menu.contact">Contact</a></li>
-          <li class="divider" aria-hidden="true"></li>
-          <li><button id="lang" class="pill" data-lang="fr" aria-label="Changer de langue">FR</button></li>
+      <header class="reveal">
+        <h2 style="font-size:var(--fs-xl); margin:0 0 10px">Huiles d’olive</h2>
+        <p style="color:var(--muted); margin:0">Cuvées millésimées, pressées à froid &lt; 24h après récolte.</p>
+      </header>
+
+      <div class="cards">
+        <!-- Produit 1 -->
+        <article class="card product reveal hover-lift">
+          <img src="produit1.png" alt="Huile d'olive — Monocultivar Arbequina" class="product__img">
+          <div>
+            <h3 class="product__name">Olea Mellis • Monocultivar Arbequina</h3>
+            <p class="product__note">Fruité vert, amertume soyeuse, finale amande.</p>
+            <dl class="product__specs">
+              <div><dt>Acidité</dt><dd>&lt; 0,2%</dd></div>
+              <div><dt>Polyphénols</dt><dd>≥ 500 mg/kg</dd></div>
+              <div><dt>Origine</dt><dd>Terroir A</dd></div>
+            </dl>
+            <a href="#contact" class="btn ghost">Demander la fiche technique</a>
+          </div>
+        </article>
+
+        <!-- Produit 2 -->
+        <article class="card product reveal hover-lift delay-1">
+          <img src="produit2.png" alt="Huile d'olive — Blend Signature" class="product__img">
+          <div>
+            <h3 class="product__name">Olea Mellis • Blend Signature</h3>
+            <p class="product__note">Équilibre fruité/poivré, cuisine gastronomique.</p>
+            <dl class="product__specs">
+              <div><dt>Acidité</dt><dd>&lt; 0,25%</dd></div>
+              <div><dt>Polyphénols</dt><dd>≥ 450 mg/kg</dd></div>
+              <div><dt>Origine</dt><dd>Terroir B</dd></div>
+            </dl>
+            <a href="#contact" class="btn ghost">Demander la fiche technique</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== MIELS ===================== -->
+  <section id="miels" class="section" style="background:linear-gradient(180deg,rgba(18,19,21,.4),rgba(11,12,14,.8))">
+    <div class="container">
+      <header class="reveal">
+        <h2 style="font-size:var(--fs-xl); margin:0 0 10px">Miels</h2>
+        <p style="color:var(--muted); margin:0">Crus mono-floraux, non chauffés, non filtrés.</p>
+      </header>
+
+      <div class="cards">
+        <!-- Produit 3 -->
+        <article class="card product reveal hover-lift">
+          <img src="produit3.png" alt="Miel de Thym Sauvage" class="product__img">
+          <div>
+            <h3 class="product__name">Miel de Thym Sauvage</h3>
+            <p class="product__note">Puissant, balsamique, longueur exceptionnelle.</p>
+            <dl class="product__specs">
+              <div><dt>HMF</dt><dd>&lt; 10 mg/kg</dd></div>
+              <div><dt>Conductivité</dt><dd>0,7 mS/cm</dd></div>
+              <div><dt>Origine</dt><dd>Massif X</dd></div>
+            </dl>
+            <a href="#contact" class="btn ghost">Demander la fiche technique</a>
+          </div>
+        </article>
+
+        <!-- Produit 4 -->
+        <article class="card product reveal hover-lift delay-1">
+          <img src="produit4.png" alt="Miel d’Oranger" class="product__img">
+          <div>
+            <h3 class="product__name">Miel d’Oranger</h3>
+            <p class="product__note">Floral, délicatement citronné, texture fine.</p>
+            <dl class="product__specs">
+              <div><dt>HMF</dt><dd>&lt; 8 mg/kg</dd></div>
+              <div><dt>Conductivité</dt><dd>0,3 mS/cm</dd></div>
+              <div><dt>Origine</dt><dd>Vallée Y</dd></div>
+            </dl>
+            <a href="#contact" class="btn ghost">Demander la fiche technique</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TERROIR & TRACE ================= -->
+  <section id="terroir" class="section">
+    <div class="container grid-2">
+      <div class="reveal">
+        <h2 style="font-size:var(--fs-xl); margin:0 0 10px">Terroir & traçabilité</h2>
+        <p style="color:var(--muted); margin:0 0 16px; max-width:70ch">
+          Chaque millésime est tracé de la parcelle au flacon. Nos ruchers et
+          oliveraies sont situés sur des coteaux ensoleillés, avec des pratiques régénératives
+          et une irrigation raisonnée.
+        </p>
+        <ul class="ticks">
+          <li>Micro-lots numérotés</li>
+          <li>Analyse laboratoire indépendante</li>
+          <li>Chaîne du froid & pressage &lt; 24h</li>
         </ul>
-      </nav>
+      </div>
+      <div class="card reveal hover-lift delay-1">
+        <h3 style="margin:0 0 10px">Scannez. Vérifiez.</h3>
+        <p style="color:var(--muted); margin:0 0 16px">Chaque étiquette comporte un QR code menant au certificat d’analyse.</p>
+        <div class="qr">QR</div>
+        <small style="color:var(--muted)">Exemple de fiche : #AM-23-042</small>
+      </div>
     </div>
-  </header>
+  </section>
 
-  <main id="main">
-    <!-- Hero -->
-    <section id="top" class="hero">
-      <div class="container hero__row">
-        <div>
-          <h1 class="display" data-i18n="hero.title">Huile d’olive & miel ultra premium,<br> 100% naturel.</h1>
-          <p class="lead" data-i18n="hero.lead">Issus de terroirs d’exception, élaborés en micro-lots avec une traçabilité absolue.</p>
-          <div class="cta-row">
-            <a href="#huiles" class="btn" data-i18n="cta.discover">Découvrir la collection</a>
-            <a href="#contact" class="btn ghost" data-i18n="cta.wholesale">Devenir revendeur</a>
-          </div>
-          <div class="hero__badges">
-            <span class="badge">Cold-Extracted</span>
-            <span class="badge">Unheated Honey</span>
-            <span class="badge">No Additives</span>
-          </div>
-        </div>
-        <div class="hero__media" aria-hidden="true">
-          <div class="mock"></div>
-          <div class="mock alt"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Huiles -->
-    <section id="huiles" class="section">
-      <div class="container">
-        <header class="section__head">
-          <h2 data-i18n="oils.title">Huiles d’olive</h2>
-          <p data-i18n="oils.subtitle">Des cuvées millésimées, pressées à froid &lt; 24h après récolte.</p>
-        </header>
-
-        <div class="cards">
-          <!-- Produit 1 -->
-          <article class="card product">
-            <img src="produit1.png" alt="Huile d'olive — Monocultivar Arbequina" class="product__img" onerror="this.classList.add('broken')">
-            <div>
-              <h3 class="product__name">Olea Mellis • Monocultivar Arbequina</h3>
-              <p class="product__note" data-i18n="oils.note1">Fruité vert, amertume soyeuse, finale amande.</p>
-              <dl class="product__specs">
-                <div><dt>Acidité</dt><dd>&lt; 0,2%</dd></div>
-                <div><dt>Polyphénols</dt><dd>≥ 500 mg/kg</dd></div>
-                <div><dt>Origine</dt><dd>Terroir A</dd></div>
-              </dl>
-              <a href="#contact" class="btn ghost" data-i18n="cta.request">Demander la fiche technique</a>
-            </div>
-          </article>
-
-          <!-- Produit 2 -->
-          <article class="card product">
-            <img src="produit2.png" alt="Huile d'olive — Blend Signature" class="product__img" onerror="this.classList.add('broken')">
-            <div>
-              <h3 class="product__name">Olea Mellis • Blend Signature</h3>
-              <p class="product__note" data-i18n="oils.note2">Équilibre fruité/poivré, cuisine gastronomique.</p>
-              <dl class="product__specs">
-                <div><dt>Acidité</dt><dd>&lt; 0,25%</dd></div>
-                <div><dt>Polyphénols</dt><dd>≥ 450 mg/kg</dd></div>
-                <div><dt>Origine</dt><dd>Terroir B</dd></div>
-              </dl>
-              <a href="#contact" class="btn ghost" data-i18n="cta.request">Demander la fiche technique</a>
-            </div>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- Miels -->
-    <section id="miels" class="section alt">
-      <div class="container">
-        <header class="section__head">
-          <h2 data-i18n="honeys.title">Miels</h2>
-          <p data-i18n="honeys.subtitle">Crus mono-floraux, non chauffés, non filtrés.</p>
-        </header>
-
-        <div class="cards">
-          <!-- Produit 3 -->
-          <article class="card product">
-            <img src="produit3.png" alt="Miel de Thym Sauvage" class="product__img" onerror="this.classList.add('broken')">
-            <div>
-              <h3 class="product__name">Miel de Thym Sauvage</h3>
-              <p class="product__note" data-i18n="honeys.note1">Puissant, balsamique, longueur exceptionnelle.</p>
-              <dl class="product__specs">
-                <div><dt>HMF</dt><dd>&lt; 10 mg/kg</dd></div>
-                <div><dt>Conductivité</dt><dd>0,7 mS/cm</dd></div>
-                <div><dt>Origine</dt><dd>Massif X</dd></div>
-              </dl>
-              <a href="#contact" class="btn ghost" data-i18n="cta.request">Demander la fiche technique</a>
-            </div>
-          </article>
-
-          <!-- Produit 4 -->
-          <article class="card product">
-            <img src="produit4.png" alt="Miel d’Oranger" class="product__img" onerror="this.classList.add('broken')">
-            <div>
-              <h3 class="product__name">Miel d’Oranger</h3>
-              <p class="product__note" data-i18n="honeys.note2">Floral, délicatement citronné, texture fine.</p>
-              <dl class="product__specs">
-                <div><dt>HMF</dt><dd>&lt; 8 mg/kg</dd></div>
-                <div><dt>Conductivité</dt><dd>0,3 mS/cm</dd></div>
-                <div><dt>Origine</dt><dd>Vallée Y</dd></div>
-              </dl>
-              <a href="#contact" class="btn ghost" data-i18n="cta.request">Demander la fiche technique</a>
-            </div>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- Terroir & Traçabilité -->
-    <section id="terroir" class="section">
-      <div class="container grid-2">
-        <div>
-          <h2 data-i18n="terroir.title">Terroir & traçabilité</h2>
-          <p data-i18n="terroir.copy">
-            Chaque millésime est tracé de la parcelle au flacon. Nos ruchers et oliveraies sont situés
-            sur des coteaux ensoleillés, avec des pratiques régénératives et une irrigation raisonnée.
-          </p>
-          <ul class="ticks">
-            <li data-i18n="terroir.point1">Micro-lots numérotés</li>
-            <li data-i18n="terroir.point2">Analyse laboratoire indépendante</li>
-            <li data-i18n="terroir.point3">Chaîne du froid & pressage &lt; 24h</li>
-          </ul>
-        </div>
-        <div class="card">
-          <h3 data-i18n="trace.title">Scannez. Vérifiez.</h3>
-          <p data-i18n="trace.copy">Chaque étiquette comporte un QR code menant au certificat d’analyse.</p>
-          <div class="qr-placeholder" aria-hidden="true">QR</div>
-          <small data-i18n="trace.note">Exemple de fiche : #AM-23-042</small>
-        </div>
-      </div>
-    </section>
-
-    <!-- Savoir-faire -->
-    <section id="savoir" class="section alt">
-      <div class="container grid-3">
-        <article class="card">
-          <h3 data-i18n="craft.cold">Extraction à froid</h3>
-          <p data-i18n="craft.coldcopy">Température contrôlée &lt; 27°C pour préserver arômes et polyphénols.</p>
-        </article>
-        <article class="card">
-          <h3 data-i18n="craft.raw">Miel cru</h3>
-          <p data-i18n="craft.rawcopy">Jamais chauffé ni ultra-filtré. Cristallisation naturelle respectée.</p>
-        </article>
-        <article class="card">
-          <h3 data-i18n="craft.selection">Sélection parcellaire</h3>
-          <p data-i18n="craft.selectioncopy">Cuvées issues de parcelles identifiées, vendanges manuelles.</p>
-        </article>
-      </div>
-    </section>
-
-    <!-- Contact -->
-    <section id="contact" class="section">
-      <div class="container grid-2">
-        <div>
-          <h2 data-i18n="contact.title">Discutons</h2>
-          <p data-i18n="contact.copy">Chefs, épiceries fines, hôtels & spas : nous proposons des conditions pro et des formats adaptés.</p>
-          <ul class="ticks">
-            <li data-i18n="contact.point1">Dégustation sur demande</li>
-            <li data-i18n="contact.point2">Étiquetage bilingue FR/EN</li>
-            <li data-i18n="contact.point3">Expéditions soignées</li>
-          </ul>
-          <div class="socials">
-            <a href="#" aria-label="Instagram" class="social">Instagram</a>
-            <a href="#" aria-label="Facebook" class="social">Facebook</a>
-          </div>
-        </div>
-        <form class="card contact" name="contact" method="get" action="#">
-          <label>Nom<input type="text" name="name" required></label>
-          <label>Email<input type="email" name="email" required></label>
-          <label>Message<textarea name="message" rows="4" required></textarea></label>
-          <div class="row">
-            <label class="checkbox">
-              <input type="checkbox" required>
-              <span data-i18n="gdpr">J’accepte d’être recontacté·e par olea mellis.</span>
-            </label>
-          </div>
-          <button type="submit" class="btn" data-i18n="contact.send">Envoyer</button>
-          <p class="muted small" data-i18n="contact.alt">Ou écrivez-nous : <a href="mailto:contact@oleamellis.com">contact@oleamellis.com</a></p>
-        </form>
-      </div>
-    </section>
-  </main>
-
-  <!-- Footer -->
-  <footer class="site-footer">
-    <div class="container foot">
-      <div class="foot__brand">
-        <img src="logo.png" alt="" class="foot__logo" onerror="this.classList.add('broken')">
-        <span>olea mellis</span>
-      </div>
-      <nav aria-label="Pied de page" class="foot__nav">
-        <a href="#" data-i18n="footer.privacy">Confidentialité</a>
-        <a href="#" data-i18n="footer.terms">Mentions légales</a>
-      </nav>
-      <small>© <span id="year"></span> olea mellis — All rights reserved.</small>
+  <!-- ===================== SAVOIR-FAIRE ===================== -->
+  <section id="savoir" class="section">
+    <div class="container grid-3">
+      <article class="card reveal hover-lift">
+        <h3 style="margin:0 0 8px">Extraction à froid</h3>
+        <p style="color:var(--muted); margin:0">Température contrôlée &lt; 27°C pour préserver arômes et polyphénols.</p>
+      </article>
+      <article class="card reveal hover-lift delay-1">
+        <h3 style="margin:0 0 8px">Miel cru</h3>
+        <p style="color:var(--muted); margin:0">Jamais chauffé ni ultra-filtré. Cristallisation naturelle respectée.</p>
+      </article>
+      <article class="card reveal hover-lift delay-2">
+        <h3 style="margin:0 0 8px">Sélection parcellaire</h3>
+        <p style="color:var(--muted); margin:0">Cuvées issues de parcelles identifiées, vendanges manuelles.</p>
+      </article>
     </div>
-  </footer>
+  </section>
 
-  <!-- Mobile menu backdrop -->
-  <div id="backdrop" hidden></div>
+  <!-- ===================== CONTACT ===================== -->
+  <section id="contact" class="section">
+    <div class="container grid-2">
+      <div class="reveal">
+        <h2 style="font-size:var(--fs-xl); margin:0 0 10px">Discutons</h2>
+        <p style="color:var(--muted); margin:0 0 16px">Chefs, épiceries fines, hôtels & spas : conditions pro et formats adaptés.</p>
+        <ul class="ticks" style="margin:0 0 18px">
+          <li>Dégustation sur demande</li>
+          <li>Étiquetage bilingue FR/EN</li>
+          <li>Expéditions soignées</li>
+        </ul>
+        <div class="socials">
+          <a href="#" class="social hover-lift">Instagram</a>
+          <a href="#" class="social hover-lift">Facebook</a>
+        </div>
+      </div>
 
-  <script>
-    // Helpers
-    const $ = (s, el=document)=>el.querySelector(s);
-    const $$ = (s, el=document)=>[...el.querySelectorAll(s)];
+      <form class="card contact reveal hover-lift" name="contact" method="get" action="#">
+        <label>Nom<input type="text" name="name" required></label>
+        <label>Email<input type="email" name="email" required></label>
+        <label>Message<textarea name="message" rows="5" required></textarea></label>
+        <label class="checkbox"><input type="checkbox" required> J’accepte d’être recontacté·e par olea mellis.</label>
+        <button type="submit" class="btn">Envoyer</button>
+        <p class="muted" style="margin:.7rem 0 0">Ou écrivez-nous : <a href="mailto:contact@oleamellis.com">contact@oleamellis.com</a></p>
+      </form>
+    </div>
+  </section>
+</main>
 
-    // i18n (FR/EN)
-    const i18n = {
-      fr: {
-        "menu.oils":"Huiles","menu.honeys":"Miels","menu.terroir":"Terroir","menu.craft":"Savoir-faire","menu.contact":"Contact",
-        "hero.title":"Huile d’olive & miel ultra premium,<br> 100% naturel.",
-        "hero.lead":"Issus de terroirs d’exception, élaborés en micro-lots avec une traçabilité absolue.",
-        "cta.discover":"Découvrir la collection","cta.wholesale":"Devenir revendeur","cta.request":"Demander la fiche technique",
-        "oils.title":"Huiles d’olive","oils.subtitle":"Des cuvées millésimées, pressées à froid < 24h après récolte.",
-        "oils.note1":"Fruité vert, amertume soyeuse, finale amande.",
-        "oils.note2":"Équilibre fruité/poivré, cuisine gastronomique.",
-        "honeys.title":"Miels","honeys.subtitle":"Crus mono-floraux, non chauffés, non filtrés.",
-        "honeys.note1":"Puissant, balsamique, longueur exceptionnelle.","honeys.note2":"Floral, délicatement citronné, texture fine.",
-        "terroir.title":"Terroir & traçabilité","terroir.copy":"Chaque millésime est tracé de la parcelle au flacon. Nos ruchers et oliveraies sont situés sur des coteaux ensoleillés, avec des pratiques régénératives et une irrigation raisonnée.",
-        "terroir.point1":"Micro-lots numérotés","terroir.point2":"Analyse laboratoire indépendante","terroir.point3":"Chaîne du froid & pressage < 24h",
-        "trace.title":"Scannez. Vérifiez.","trace.copy":"Chaque étiquette comporte un QR code menant au certificat d’analyse.","trace.note":"Exemple de fiche : #AM-23-042",
-        "craft.cold":"Extraction à froid","craft.coldcopy":"Température contrôlée < 27°C pour préserver arômes et polyphénols.",
-        "craft.raw":"Miel cru","craft.rawcopy":"Jamais chauffé ni ultra-filtré. Cristallisation naturelle respectée.",
-        "craft.selection":"Sélection parcellaire","craft.selectioncopy":"Cuvées issues de parcelles identifiées, vendanges manuelles.",
-        "contact.title":"Discutons","contact.copy":"Chefs, épiceries fines, hôtels & spas : nous proposons des conditions pro et des formats adaptés.",
-        "contact.point1":"Dégustation sur demande","contact.point2":"Étiquetage bilingue FR/EN","contact.point3":"Expéditions soignées",
-        "gdpr":"J’accepte d’être recontacté·e par olea mellis.","contact.send":"Envoyer",
-        "contact.alt":"Ou écrivez-nous : <a href=\\"mailto:contact@oleamellis.com\\">contact@oleamellis.com</a>",
-        "footer.privacy":"Confidentialité","footer.terms":"Mentions légales"
-      },
-      en: {
-        "menu.oils":"Oils","menu.honeys":"Honeys","menu.terroir":"Terroir","menu.craft":"Craft","menu.contact":"Contact",
-        "hero.title":"Ultra-premium olive oil & honey,<br> 100% natural.",
-        "hero.lead":"From exceptional terroirs, crafted in micro-lots with full traceability.",
-        "cta.discover":"Explore the collection","cta.wholesale":"Become a stockist","cta.request":"Request the tech sheet",
-        "oils.title":"Olive oils","oils.subtitle":"Vintage cuvées, cold-pressed < 24h after harvest.",
-        "oils.note1":"Green fruitiness, silky bitterness, almond finish.",
-        "oils.note2":"Balanced fruit/pepper, made for gastronomy.",
-        "honeys.title":"Honeys","honeys.subtitle":"Raw, monofloral, never heated, never ultra-filtered.",
-        "honeys.note1":"Powerful, balsamic, remarkable length.","honeys.note2":"Floral, delicately citrusy, fine texture.",
-        "terroir.title":"Terroir & traceability","terroir.copy":"Each vintage is tracked from plot to bottle. Our apiaries and olive groves sit on sun-kissed slopes with regenerative practices and gentle irrigation.",
-        "terroir.point1":"Numbered micro-lots","terroir.point2":"Independent lab analysis","terroir.point3":"Cold chain & < 24h pressing",
-        "trace.title":"Scan. Verify.","trace.copy":"Every label includes a QR code linking to the certificate of analysis.","trace.note":"Sample lot: #AM-23-042",
-        "craft.cold":"Cold extraction","craft.coldcopy":"Temperature kept < 27°C to preserve aromas & polyphenols.",
-        "craft.raw":"Raw honey","craft.rawcopy":"Never heated or ultra-filtered. Natural crystallization respected.",
-        "craft.selection":"Parcel selection","craft.selectioncopy":"Cuvées from identified plots, hand-harvested.",
-        "contact.title":"Let’s talk","contact.copy":"For chefs, fine-food stores, hotels & spas: professional terms and tailored formats.",
-        "contact.point1":"Tastings on request","contact.point2":"Bilingual FR/EN labeling","contact.point3":"Careful shipping",
-        "gdpr":"I agree to be contacted by olea mellis.","contact.send":"Send",
-        "contact.alt":"Or write to us: <a href=\\"mailto:contact@oleamellis.com\\">contact@oleamellis.com</a>",
-        "footer.privacy":"Privacy","footer.terms":"Legal"
-      }
-    };
+<!-- ===================== FOOTER ===================== -->
+<footer class="site-footer">
+  <div class="container foot">
+    <div class="foot__brand">
+      <img src="logo.png" alt="" class="foot__logo">
+      <span>olea mellis</span>
+    </div>
+    <nav class="foot__nav" aria-label="Pied de page" style="display:flex;gap:16px">
+      <a href="#">Confidentialité</a>
+      <a href="#">Mentions légales</a>
+    </nav>
+    <small>© <span id="year"></span> olea mellis — All rights reserved.</small>
+  </div>
+</footer>
 
-    function setLang(lang){
-      const dict = i18n[lang] || i18n.fr;
-      document.querySelectorAll("#menu a,[data-i18n]").forEach(node=>{
-        const key = node.dataset.i18n; if(!key) return;
-        node.innerHTML = dict[key] || node.innerHTML;
-      });
-      const langBtn = document.getElementById("lang");
-      langBtn.textContent = lang.toUpperCase();
-      langBtn.dataset.lang = lang;
-      document.documentElement.lang = lang;
+<!-- Backdrop mobile -->
+<div id="backdrop" hidden></div>
+
+<script>
+/* ============ Helpers ============ */
+const $ = (s, el=document)=>el.querySelector(s);
+const $$ = (s, el=document)=>[...el.querySelectorAll(s)];
+
+/* ============ Header elevate + year ============ */
+function elevate(){ $("#hdr").classList.toggle("scrolled", window.scrollY>6); }
+document.addEventListener("DOMContentLoaded",()=>{ 
+  $("#year").textContent = new Date().getFullYear();
+  elevate(); 
+  window.addEventListener("scroll",elevate,{passive:true});
+});
+
+/* ============ Mobile menu ============ */
+const toggleBtn = document.querySelector(".nav__toggle");
+const menu = document.getElementById("menu");
+const backdrop = document.getElementById("backdrop");
+if(toggleBtn){
+  toggleBtn.addEventListener("click", ()=>{
+    const open = menu.classList.toggle("open");
+    toggleBtn.setAttribute("aria-expanded", open);
+    backdrop.hidden = !open;
+  });
+  backdrop.addEventListener("click", ()=>{
+    menu.classList.remove("open"); toggleBtn.setAttribute("aria-expanded","false"); backdrop.hidden = true;
+  });
+}
+
+/* ============ Parallax léger (hero cards) ============ */
+const frames = $$(".hero-media .frame");
+function parallax(){
+  const y = window.scrollY || 0;
+  const damp = Math.min(1, y/600);
+  frames.forEach((el,i)=>{
+    const dir = i%2===0?1:-1;
+    el.style.transform = `translateY(${damp*16*dir}px)`;
+  });
+}
+window.addEventListener("scroll", parallax, {passive:true});
+
+/* ============ Scroll reveal (IntersectionObserver) ============ */
+const reveals = $$(".reveal");
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add("is-in"); io.unobserve(e.target);
     }
+  });
+},{
+  threshold:.12,
+  rootMargin:"0px 0px -10% 0px"
+});
+reveals.forEach(n=>io.observe(n));
 
-    function toggleMenu(){
-      const menu = document.getElementById("menu");
-      const btn = document.querySelector(".nav__toggle");
-      const backdrop = document.getElementById("backdrop");
-      const open = menu.classList.toggle("open");
-      btn.setAttribute("aria-expanded", open);
-      backdrop.hidden = !open;
-      backdrop.onclick = () => { menu.classList.remove("open"); btn.setAttribute("aria-expanded", false); backdrop.hidden = true; };
-    }
+/* ============ Form (mailto) ============ */
+const form = document.forms.contact;
+if(form){
+  form.addEventListener("submit", (e)=>{
+    e.preventDefault();
+    const fd = new FormData(form);
+    const name = encodeURIComponent(fd.get("name")||"");
+    const email = encodeURIComponent(fd.get("email")||"");
+    const msg = encodeURIComponent(fd.get("message")||"");
+    const body = `Nom: ${name}%0D%0AEmail: ${email}%0D%0A%0D%0A${msg}`;
+    window.location.href = `mailto:contact@oleamellis.com?subject=Contact%20olea%20mellis&body=${body}`;
+  });
+}
 
-    function onSubmit(e){
-      e.preventDefault();
-      const data = new FormData(e.target);
-      const name = encodeURIComponent(data.get("name"));
-      const email = encodeURIComponent(data.get("email"));
-      const msg = encodeURIComponent(data.get("message"));
-      const body = `Nom: ${name}%0D%0AEmail: ${email}%0D%0A%0D%0A${msg}`;
-      window.location.href = `mailto:contact@oleamellis.com?subject=Contact%20olea%20mellis&body=${body}`;
-    }
-
-    function elevateOnScroll(){
-      const header = document.querySelector("[data-elevate]");
-      header.classList.toggle("scrolled", window.scrollY > 6);
-    }
-
-    // Init
-    document.addEventListener("DOMContentLoaded", () => {
-      setLang("fr");
-      document.getElementById("year").textContent = new Date().getFullYear();
-      document.querySelector(".nav__toggle").addEventListener("click", toggleMenu);
-      document.getElementById("lang").addEventListener("click", () => setLang(document.getElementById("lang").dataset.lang === "fr" ? "en" : "fr"));
-      document.querySelector("form.contact").addEventListener("submit", onSubmit);
-      window.addEventListener("scroll", elevateOnScroll, { passive:true });
-    });
-  </script>
+/* ============ Bascule FR/EN (option simple) ============ */
+/* Texte FR natif; si besoin je peux brancher une vraie i18n plus tard. */
+document.getElementById("lang").addEventListener("click", (e)=>{
+  const cur = e.currentTarget.dataset.lang || "fr";
+  const next = cur==="fr" ? "en" : "fr";
+  e.currentTarget.dataset.lang = next;
+  e.currentTarget.textContent = next.toUpperCase();
+  // Mini démo : change juste le H1 + CTA
+  const h1 = document.querySelector(".display");
+  const lead = document.querySelector(".lead");
+  const ctas = document.querySelectorAll(".cta-row .btn");
+  if(next==="en"){
+    h1.innerHTML = "Ultra-premium olive oil & honey,<br>100% natural.";
+    lead.textContent = "From exceptional terroirs, crafted in micro-lots with full traceability.";
+    ctas[0].textContent = "Explore the collection";
+    ctas[1].textContent = "Become a stockist";
+  }else{
+    h1.innerHTML = "Huile d’olive & miel ultra premium,<br>100% naturel.";
+    lead.textContent = "Issus de terroirs d’exception, élaborés en micro-lots avec une traçabilité absolue.";
+    ctas[0].textContent = "Découvrir la collection";
+    ctas[1].textContent = "Devenir revendeur";
+  }
+});
+</script>
 </body>
 </html>
