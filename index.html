@@ -1,187 +1,196 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>olea mellis — huile d’olive & miel ultra premium</title>
-<meta name="description" content="olea mellis — Maison artisanale premium. Huile d’olive & miel naturels, issus de terres choisies, cultures maîtrisées et histoire familiale.">
-<link rel="icon" href="logo.png">
+<meta name="description" content="olea mellis — Maison artisanale premium. Huile d’olive & miel naturels, issus de terres choisies, cultures maîtrisées et histoire familiale." />
+<link rel="icon" href="logo.png" />
 <style>
-/* ===============================
-   TOKENS (clair, luxe, aéré)
-==================================*/
+/* ================================
+   PALETTE CLAIRE (zéro noir)
+===================================*/
 :root{
-  /* Couleurs */
-  --bg:#FAFAF7;           /* ivoire clair */
-  --paper:#FFFFFF;        /* cartes */
-  --ink:#1a1a1a;          /* texte */
-  --muted:#6b6b6b;        /* texte secondaire */
-  --line:#eceae4;         /* traits subtils */
-  --gold:#C9A44F;         /* accent or doux */
+  /* Couleurs (tons ivoire/champagne) */
+  --ivory:#FAF9F4;  --paper:#FFFFFF;
+  --ink:#2F2F2F;    --muted:#7C7C78;
+  --line:#EEEAE1;   --gold:#CFB26B; --gold-ink:#3F3723;
 
   /* Typo & rythme */
-  --ff-sans: system-ui,-apple-system,"Segoe UI",Roboto,Arial,"Noto Sans";
-  --ff-serif: ui-serif, "Times New Roman", Georgia, "Iowan Old Style", serif;
+  --ff-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Arial;
+  --ff-serif: ui-serif, Georgia, "Times New Roman", "Iowan Old Style", serif;
 
-  --fs-hero: clamp(44px, 7.5vw, 88px);
-  --fs-h2: clamp(26px, 3.6vw, 44px);
-  --fs-lead: clamp(18px, 2.2vw, 22px);
+  --fs-hero: clamp(46px, 7vw, 88px);
+  --fs-h2: clamp(28px, 3.6vw, 44px);
+  --fs-lead: clamp(18px, 2.1vw, 22px);
   --fs-body: 17px;
-
   --lh: 1.75;
-  --radius: 22px;
 
-  /* Espaces (énormément d’air) */
-  --space-section: min(20vh, 220px);
-  --space-block: 28px;
+  /* Espaces (beaucoup d’air) */
+  --section: min(22vh, 240px);
+  --radius: 24px;
 
-  /* Ombres subtiles */
-  --shadow-lg: 0 40px 80px rgba(33,33,33,.06);
-  --shadow-md: 0 24px 48px rgba(33,33,33,.05);
-  --shadow-sm: 0 10px 24px rgba(33,33,33,.04);
+  /* Ombres (douces) */
+  --shadow-xl: 0 50px 120px rgba(90, 80, 50, .10);
+  --shadow-lg:  0 30px 70px rgba(90, 80, 50, .10);
+  --shadow-md:  0 16px 36px rgba(90, 80, 50, .08);
+  --shadow-sm:  0 8px 18px  rgba(90, 80, 50, .07);
 }
 
-/* Base & reset */
+/* Base */
 *{box-sizing:border-box}
 html,body{height:100%}
 body{
-  margin:0; background:linear-gradient(180deg,#FBFBF8 0%, #F7F6F1 100%);
+  margin:0;
+  background:
+    radial-gradient(1200px 600px at 10% -20%, #FFFDF7 0%, transparent 60%),
+    radial-gradient(1600px 800px at 110% 10%, #FFF6E5 0%, transparent 55%),
+    var(--ivory);
   color:var(--ink);
-  font:var(--fs-body)/var(--lh) var(--ff-sans);
+  font: var(--fs-body)/var(--lh) var(--ff-sans);
   -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
 }
 img{max-width:100%; display:block}
 a{color:inherit; text-decoration:none}
-.container{max-width:1200px; margin:auto; padding:0 32px}
-.section{padding:var(--space-section) 0; border-top:1px solid var(--line)}
-.section:first-of-type{border-top:0}
 
-/* Header — ultra simple, flottant */
+/* Layout */
+.container{max-width:1240px; margin:auto; padding:0 36px}
+.section{padding:var(--section) 0; border-top:1px solid var(--line)}
+.section:first-of-type{border-top:0}
+.center{text-align:center}
+
+/* ===== Header ===== */
 .header{
-  position:sticky; top:0; z-index:60;
-  background:rgba(255,255,255,.55);
+  position:sticky; top:0; z-index:50;
+  background:rgba(255,255,255,.66);
   backdrop-filter:saturate(150%) blur(10px);
-  border-bottom:1px solid rgba(0,0,0,.05);
+  border-bottom:1px solid rgba(210,200,180,.45);
   transition:background .25s ease, border-color .25s ease;
 }
-.header.scrolled{background:rgba(255,255,255,.8)}
-.header .row{display:flex; align-items:center; justify-content:space-between; gap:20px; padding:20px 0}
+.header.scrolled{background:rgba(255,255,255,.86)}
+.header .row{display:flex; align-items:center; justify-content:space-between; gap:20px; padding:18px 0}
 .brand{display:flex; align-items:center; gap:14px}
-.brand__logo{height:40px; width:auto; border-radius:10px; box-shadow:var(--shadow-sm)}
-.brand__name{font-family:var(--ff-serif); font-weight:700; letter-spacing:.4px}
+.brand__logo{height:40px; width:auto; border-radius:12px; box-shadow:var(--shadow-sm)}
+.brand__name{font-family:var(--ff-serif); font-weight:700; letter-spacing:.3px}
 
-/* Nav — minimal */
 .nav{display:flex; align-items:center; gap:22px}
-.nav a{opacity:.8; transition:opacity .2s ease}
-.nav a:hover{opacity:1}
-.nav__toggle{display:none}
+.nav__toggle{display:none; border:1px solid var(--line); background:#fff; color:var(--ink);
+             padding:.65rem .9rem; border-radius:14px; box-shadow:var(--shadow-sm)}
+.nav__links a{opacity:.8; transition:opacity .2s ease}
+.nav__links a:hover{opacity:1}
+
 @media (max-width:900px){
-  .nav__toggle{display:block; border:1px solid var(--line); background:#fff; padding:.6rem .8rem; border-radius:12px}
-  .nav__links{display:none; position:fixed; right:24px; top:88px; background:#fff; border:1px solid var(--line); border-radius:16px; padding:14px; box-shadow:var(--shadow-md)}
-  .nav__links.open{display:grid; gap:10px}
+  .nav__toggle{display:block}
+  .nav__links{
+    display:none; position:fixed; right:24px; top:88px;
+    background:linear-gradient(180deg,#FFFFFF 0%, #FFFCF5 100%);
+    border:1px solid var(--line); border-radius:16px; padding:16px; box-shadow:var(--shadow-lg)
+  }
+  .nav__links.open{display:grid; gap:12px}
 }
 
-/* Hero */
-.hero{padding:calc(var(--space-section) + 60px) 0 var(--space-section)}
-.hero .grid{display:grid; grid-template-columns:1.15fr .85fr; gap:80px; align-items:center}
-@media (max-width:1000px){ .hero .grid{grid-template-columns:1fr; gap:40px} }
+/* ===== Hero ===== */
+.hero{padding:calc(var(--section) + 60px) 0 var(--section)}
+.hero .grid{display:grid; grid-template-columns:1.1fr .9fr; gap:90px; align-items:center}
+@media (max-width:1000px){ .hero .grid{grid-template-columns:1fr; gap:48px} }
 
 .display{
   font-family:var(--ff-serif);
   font-size:var(--fs-hero);
-  line-height:1.05;
+  line-height:1.06;
   letter-spacing:.2px;
-  margin:0 0 22px;
+  margin:0 0 24px;
+  text-align:center;
 }
-.lead{font-size:var(--fs-lead); color:var(--muted); margin:0 0 32px; max-width:64ch}
-.cta{display:flex; gap:14px; flex-wrap:wrap}
+.lead{font-size:var(--fs-lead); color:var(--muted); margin:0 0 34px; max-width:64ch; margin-inline:auto; text-align:center}
+.cta{display:flex; gap:16px; flex-wrap:wrap; justify-content:center}
 .btn{
   display:inline-flex; align-items:center; gap:.6rem;
-  padding:1rem 1.25rem; border-radius:999px; font-weight:700; letter-spacing:.2px;
-  border:1px solid var(--gold); color:#222; background:var(--gold);
-  box-shadow:0 10px 30px rgba(201,164,79,.18);
+  padding:1.05rem 1.3rem; border-radius:999px; font-weight:700; letter-spacing:.2px;
+  border:1px solid var(--gold); background:var(--gold); color:var(--gold-ink);
+  box-shadow:0 14px 30px rgba(207,178,107,.22);
   transition:transform .25s ease, box-shadow .25s ease, background-color .25s ease;
 }
-.btn:hover{transform:translateY(-3px); box-shadow:0 18px 40px rgba(201,164,79,.28)}
-.btn.ghost{background:#fff; color:#222; border-color:#e7e3d7; box-shadow:var(--shadow-sm)}
+.btn:hover{transform:translateY(-3px); box-shadow:0 24px 50px rgba(207,178,107,.30)}
+.btn.ghost{background:#fff; color:var(--ink); border-color:#EDE6D7; box-shadow:var(--shadow-sm)}
 .btn.ghost:hover{transform:translateY(-2px)}
 
 .hero-art{
   min-height:420px; position:relative; isolation:isolate;
-  display:grid; gap:32px; justify-items:end;
+  display:grid; gap:36px; justify-items:center;
 }
 .frame{
-  width:min(420px,78%); aspect-ratio:1/1;
-  border-radius:24px; border:1px solid var(--line); background:#fff; box-shadow:var(--shadow-lg);
-  background-position:center; background-size:cover;
+  width:min(520px,88%); aspect-ratio:5/3;
+  border-radius:26px; border:1px solid var(--line);
+  background:#fff center/cover no-repeat; box-shadow:var(--shadow-xl);
   will-change:transform;
 }
-.frame.one{background-image:url('produit1.png')}
-.frame.two{background-image:url('produit2.png')}
+.frame.one{background-image:url('hero1.png')}
+.frame.two{background-image:url('hero2.png')}
 
-/* Cartes & blocs */
+/* ===== Sections & cartes ===== */
 .card{
   background:var(--paper);
   border:1px solid var(--line);
   border-radius:var(--radius);
-  padding:40px;
+  padding:44px;
   box-shadow:var(--shadow-md);
 }
-.card--ghost{
-  background:linear-gradient(180deg,#FFFFFF 0%, #FCFBF7 100%);
-  border:1px solid var(--line);
+.card--tint{
+  background:linear-gradient(180deg,#FFFFFF 0%, #FFFBF2 100%);
 }
 
-.grid-2{display:grid; grid-template-columns:1.1fr .9fr; gap:60px}
-.grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:36px}
+.grid-2{display:grid; grid-template-columns:1.1fr .9fr; gap:74px; align-items:center}
+.grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:38px; align-items:start}
 @media (max-width:1100px){ .grid-2{grid-template-columns:1fr} }
 @media (max-width:900px){ .grid-3{grid-template-columns:1fr} }
 
-/* Titres de section */
 .section h2{
   font-family:var(--ff-serif);
   font-size:var(--fs-h2);
   letter-spacing:.2px;
   margin:0 0 12px;
+  text-align:center;
 }
-.section .sub{
-  color:var(--muted);
-  margin:0 0 8px;
-  max-width:70ch;
+.section .sub{color:var(--muted); margin:0 0 10px; max-width:70ch; margin-inline:auto; text-align:center}
+
+/* ===== Vignettes images de section ===== */
+.figure{
+  display:grid; place-items:center;
+  padding:16px;
+}
+.figure__img{
+  width:min(780px, 100%); border-radius:22px; border:1px solid var(--line); box-shadow:var(--shadow-lg); object-fit:cover;
 }
 
-/* Produits */
-.cards{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:34px; margin-top:28px}
+/* ===== Produits ===== */
+.cards{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:38px; margin-top:32px; align-items:start}
 @media (max-width:900px){ .cards{grid-template-columns:1fr} }
-
-.product{
-  display:grid; grid-template-columns:180px 1fr; gap:26px; align-items:start;
-}
+.product{display:grid; grid-template-columns:220px 1fr; gap:28px; align-items:center}
 @media (max-width:640px){ .product{grid-template-columns:1fr} }
-
 .product__img{
   width:100%; aspect-ratio:3/4; border-radius:20px; border:1px solid var(--line);
   background:#fff; object-fit:cover; box-shadow:var(--shadow-sm);
 }
-.product__name{margin:0 0 8px; font-weight:800; letter-spacing:.3px}
+.product__name{margin:0 0 8px; font-weight:800; letter-spacing:.3px; text-align:left}
 .product__note{margin:0 0 16px; color:var(--muted)}
-.specs{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:14px 0 22px}
-.specs div{border:1px dashed #e8e4d9; border-radius:14px; padding:.7rem .85rem}
+.specs{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:16px 0 24px}
+.specs div{border:1px dashed #EDE6D7; border-radius:14px; padding:.8rem .95rem}
 .specs dt{font-weight:700}
 .specs dd{margin:0; color:var(--muted)}
 
-/* Footer */
-.footer{border-top:1px solid var(--line); padding:80px 0 var(--space-section)}
+/* ===== Contact / Footer ===== */
+.footer{border-top:1px solid var(--line); padding:90px 0 var(--section)}
 .foot{display:flex; align-items:center; justify-content:space-between; gap:18px; flex-wrap:wrap}
 .foot__brand{display:flex; align-items:center; gap:12px; color:var(--muted)}
 
-/* Motion — reveals, parallax, hover lift */
-:root{ --revealY: 26px; }
+/* ===== Motion (révélations & hover doux) ===== */
+:root{ --revealY: 28px; }
 .reveal{opacity:0; transform:translateY(var(--revealY));}
 .reveal.in{opacity:1; transform:none; transition:transform .9s cubic-bezier(.22,1,.36,1), opacity .9s ease;}
-.delay-1{transition-delay:.08s} .delay-2{transition-delay:.16s} .delay-3{transition-delay:.24s}
+.delay-1{transition-delay:.10s} .delay-2{transition-delay:.18s} .delay-3{transition-delay:.26s}
 .lift{transition:transform .28s ease, box-shadow .28s ease}
-.lift:hover{transform:translateY(-6px); box-shadow:0 24px 60px rgba(0,0,0,.08)}
+.lift:hover{transform:translateY(-6px); box-shadow:0 26px 60px rgba(90,80,50,.16)}
 
 @media (prefers-reduced-motion:reduce){
   *{animation:none !important; transition:none !important}
@@ -191,14 +200,14 @@ a{color:inherit; text-decoration:none}
 </head>
 <body>
 
-<!-- Header -->
+<!-- ===== Header ===== -->
 <header class="header" id="hdr">
   <div class="container row">
     <a class="brand" href="#top" aria-label="Retour au début">
-      <img src="logo.png" alt="logo olea mellis" class="brand__logo">
+      <img src="logo.png" alt="logo olea mellis" class="brand__logo" />
       <span class="brand__name">olea mellis</span>
     </a>
-    <nav class="nav" aria-label="Navigation principale">
+    <nav class="nav" aria-label="Navigation">
       <button class="nav__toggle" aria-expanded="false" aria-controls="menu">Menu</button>
       <div id="menu" class="nav__links">
         <a href="#maison">La Maison</a>
@@ -214,140 +223,136 @@ a{color:inherit; text-decoration:none}
 
 <main id="top">
 
-  <!-- HERO -->
+  <!-- ===== HERO ===== -->
   <section class="hero">
-    <div class="container grid">
-      <div class="reveal">
-        <h1 class="display">Huile d’olive & miel<br>ultra premium, naturellement.</h1>
-        <p class="lead">Un duo rare, façonné avec patience : matières premières choisies, gestes précis, temps maîtrisé.</p>
-        <div class="cta">
-          <a href="#produits" class="btn lift">Découvrir nos deux cuvées</a>
-          <a href="#contact" class="btn ghost lift">Nous écrire</a>
-        </div>
+    <div class="container hero__wrap">
+      <h1 class="display reveal center">Huile d’olive & miel<br>ultra premium, naturellement.</h1>
+      <p class="lead reveal center delay-1">Un duo rare, façonné avec patience : matières premières choisies, gestes précis, temps maîtrisé.</p>
+      <div class="cta reveal delay-2">
+        <a href="#produits" class="btn lift">Découvrir nos deux cuvées</a>
+        <a href="#contact" class="btn ghost lift">Nous écrire</a>
       </div>
 
-      <div class="hero-art">
+      <div class="hero-art" style="margin-top:60px">
         <div class="frame one reveal"></div>
         <div class="frame two reveal delay-2"></div>
       </div>
     </div>
   </section>
 
-  <!-- LA MAISON (qui nous sommes) -->
+  <!-- ===== LA MAISON ===== -->
   <section id="maison" class="section">
-    <div class="container grid-2">
-      <div class="reveal">
-        <h2>La Maison</h2>
-        <p class="sub">Une maison indépendante, née d’un attachement au goût juste et aux paysages qui l’inspirent.</p>
-        <div class="card card--ghost lift">
-          <p style="margin:0">
-            Nous travaillons en micro-lots, avec une traçabilité complète et un niveau d’exigence constant : cépages d’olive
-            sélectionnés, ruchers préservés, extractions à froid et aucune concession sur la pureté.
-          </p>
-        </div>
+    <div class="container">
+      <h2 class="reveal center">La Maison</h2>
+      <p class="sub reveal center delay-1">Indépendante, attachée au goût juste et aux paysages qui l’inspirent.</p>
+
+      <div class="figure reveal delay-2">
+        <img src="maison.png" alt="Atelier et univers olea mellis" class="figure__img" />
       </div>
-      <div class="reveal delay-1">
-        <div class="card lift">
-          <h3 style="margin-top:0">Notre signature</h3>
-          <p style="color:var(--muted)">
-            Des textures nettes, des arômes francs, un équilibre soyeux. Une esthétique sobre, lumineuse, qui laisse la place
-            à l’essentiel : le produit.
-          </p>
-        </div>
+
+      <div class="card card--tint lift reveal" style="max-width:980px; margin:40px auto 0">
+        <p style="margin:0; text-align:center">
+          Micro-lots, traçabilité complète, extraction à froid, et une seule promesse : pureté et équilibre.
+        </p>
       </div>
     </div>
   </section>
 
-  <!-- LES TERRES -->
+  <!-- ===== LES TERRES ===== -->
   <section id="terres" class="section">
-    <div class="container grid-2">
-      <div class="reveal">
-        <h2>Les Terres</h2>
-        <p class="sub">Des sols minéraux, un climat lumineux, des altitudes modérées : nos parcelles bénéficient d’une ventilation naturelle et d’un ensoleillement long.</p>
-        <div class="card card--ghost lift">
-          <ul style="padding-left:1rem; margin:0">
-            <li>Parcelles identifiées et suivies millésime par millésime</li>
-            <li>Irrigation raisonnée, respect des cycles</li>
-            <li>Récolte précoce pour la fraîcheur aromatique</li>
-          </ul>
-        </div>
+    <div class="container">
+      <h2 class="reveal center">Les Terres</h2>
+      <p class="sub reveal center delay-1">Sols minéraux, lumière généreuse, altitudes modérées : nos parcelles respirent.</p>
+
+      <div class="figure reveal delay-2">
+        <img src="terres.png" alt="Paysages d’oliveraies lumineux" class="figure__img" />
       </div>
-      <div class="reveal delay-1">
-        <div class="card lift">
-          <h3 style="margin-top:0">Lumière & vent</h3>
-          <p style="color:var(--muted)">
-            La circulation d’air limite les stress excessifs et garde les fleurs saines. L’amplitude thermique jour-nuit
-            concentre les composés volatils et polyphénols.
-          </p>
-        </div>
+
+      <div class="card lift reveal" style="max-width:980px; margin:40px auto 0">
+        <ul style="padding-left:1rem; margin:0; columns: 1; list-style: '—  '">
+          <li>Parcelles identifiées et suivies par millésime</li>
+          <li>Irrigation raisonnée, respect des cycles</li>
+          <li>Récolte précoce pour la fraîcheur aromatique</li>
+        </ul>
       </div>
     </div>
   </section>
 
-  <!-- CULTURES -->
+  <!-- ===== CULTURES ===== -->
   <section id="cultures" class="section">
-    <div class="container grid-3">
-      <article class="card lift reveal">
-        <h3 style="margin-top:0">Olives</h3>
-        <p class="sub">Variétés sélectionnées, maturité précise, extraction à froid &lt; 27 °C.</p>
-        <p style="margin:0">Pressurage rapide après récolte, oxydation maîtrisée, filtration douce.</p>
-      </article>
-      <article class="card lift reveal delay-1">
-        <h3 style="margin-top:0">Abeilles</h3>
-        <p class="sub">Miels crus mono-floraux : non chauffés, non ultra-filtrés.</p>
-        <p style="margin:0">Cristallisation naturelle respectée, profils floraux nets et persistants.</p>
-      </article>
-      <article class="card lift reveal delay-2">
-        <h3 style="margin-top:0">Temps</h3>
-        <p class="sub">Le temps juste : ni précipitation, ni excès.</p>
-        <p style="margin:0">Repos des lots, contrôle analytique, mise sous verre soignée.</p>
-      </article>
+    <div class="container">
+      <h2 class="reveal center">Cultures</h2>
+      <p class="sub reveal center delay-1">Olives, abeilles, et le temps — nos trois axes.</p>
+
+      <div class="grid-3" style="margin-top:36px">
+        <article class="card lift reveal">
+          <img src="cultures.png" alt="Détails d’olives et de fleurs" class="figure__img" style="aspect-ratio: 3/2; object-fit:cover; border-radius:18px" />
+          <h3 style="margin:18px 0 6px; text-align:center">Olives</h3>
+          <p class="sub" style="text-align:center; margin:0 0 6px">Variétés sélectionnées, maturité précise, extraction &lt; 27 °C.</p>
+          <p style="text-align:center; margin:0">Pressurage rapide, oxydation maîtrisée, filtration douce.</p>
+        </article>
+
+        <article class="card lift reveal delay-1">
+          <img src="histoire.png" alt="Savoir-faire apicole" class="figure__img" style="aspect-ratio: 3/2; object-fit:cover; border-radius:18px" />
+          <h3 style="margin:18px 0 6px; text-align:center">Abeilles</h3>
+          <p class="sub" style="text-align:center; margin:0 0 6px">Miels crus monofloraux : jamais chauffés, jamais ultra-filtrés.</p>
+          <p style="text-align:center; margin:0">Cristallisation naturelle respectée, profils floraux nets.</p>
+        </article>
+
+        <article class="card lift reveal delay-2">
+          <img src="maison.png" alt="Le temps juste" class="figure__img" style="aspect-ratio: 3/2; object-fit:cover; border-radius:18px" />
+          <h3 style="margin:18px 0 6px; text-align:center">Temps</h3>
+          <p class="sub" style="text-align:center; margin:0 0 6px">Ni précipitation, ni excès.</p>
+          <p style="text-align:center; margin:0">Repos des lots, contrôle analytique, mise sous verre soignée.</p>
+        </article>
+      </div>
     </div>
   </section>
 
-  <!-- HISTOIRE -->
+  <!-- ===== HISTOIRE ===== -->
   <section id="histoire" class="section">
     <div class="container">
-      <div class="reveal" style="max-width:88ch; margin-inline:auto">
-        <h2>Histoire</h2>
-        <p class="sub">Des gestes simples et sûrs, transmis, affinés, puis recomposés avec des outils contemporains.</p>
-        <div class="card card--ghost lift">
-          <p style="margin:0">
-            olea mellis naît d’une évidence : réunir deux filiations – l’olive et le miel – dans une même exigence. Nos cuvées
-            ne cherchent ni l’effet ni la mode ; elles visent la justesse, le calme, la profondeur.
-          </p>
-        </div>
+      <h2 class="reveal center">Histoire</h2>
+      <p class="sub reveal center delay-1">Des gestes transmis, affinés, recomposés avec des outils contemporains.</p>
+
+      <div class="figure reveal delay-2">
+        <img src="histoire.png" alt="Héritage et savoir-faire" class="figure__img" />
+      </div>
+
+      <div class="card card--tint lift reveal" style="max-width:980px; margin:40px auto 0">
+        <p style="margin:0; text-align:center">
+          olea mellis réunit deux filiations – l’olive et le miel – dans une même exigence.
+          Pas d’effet de mode : la justesse et la profondeur avant tout.
+        </p>
       </div>
     </div>
   </section>
 
-  <!-- PRODUITS -->
+  <!-- ===== PRODUITS ===== -->
   <section id="produits" class="section">
     <div class="container">
-      <div class="reveal" style="text-align:left">
-        <h2>Nos deux produits</h2>
-        <p class="sub">Deux signatures, complémentaires à table comme en dégustation pure.</p>
-      </div>
+      <h2 class="reveal center">Nos deux produits</h2>
+      <p class="sub reveal center delay-1">Deux signatures, complémentaires à table comme en dégustation pure.</p>
 
-      <div class="cards">
+      <div class="cards" style="margin-top:40px">
         <!-- Huile d'olive -->
         <article class="card product lift reveal">
-          <img src="produit1.png" alt="Huile d'olive — cuvée" class="product__img">
+          <img src="produit1.png" alt="Huile d'olive — cuvée signature" class="product__img" />
           <div>
             <h3 class="product__name">Huile d’olive — Cuvée Signature</h3>
-            <p class="product__note">Fruité vert élégant, amertume soyeuse, finale amande-poivre blanc.</p>
+            <p class="product__note">Fruité vert élégant, amertume soyeuse, finale amande–poivre blanc.</p>
             <dl class="specs">
               <div><dt>Acidité</dt><dd>&lt; 0,25 %</dd></div>
               <div><dt>Polyphénols</dt><dd>≥ 450 mg/kg</dd></div>
               <div><dt>Pressage</dt><dd>&lt; 24 h</dd></div>
             </dl>
-            <a href="#contact" class="btn ghost">Demander les détails</a>
+            <div class="center"><a href="#contact" class="btn ghost">Demander les détails</a></div>
           </div>
         </article>
 
         <!-- Miel -->
         <article class="card product lift reveal delay-1">
-          <img src="produit2.png" alt="Miel — cuvée" class="product__img">
+          <img src="produit2.png" alt="Miel — cuvée monoflorale" class="product__img" />
           <div>
             <h3 class="product__name">Miel — Cuvée Monoflorale</h3>
             <p class="product__note">Texture fine, longueur florale, équilibre délicat.</p>
@@ -356,60 +361,63 @@ a{color:inherit; text-decoration:none}
               <div><dt>Filtration</dt><dd>aucune ultra-filtration</dd></div>
               <div><dt>Chauffe</dt><dd>jamais</dd></div>
             </dl>
-            <a href="#contact" class="btn ghost">Demander les détails</a>
+            <div class="center"><a href="#contact" class="btn ghost">Demander les détails</a></div>
           </div>
         </article>
       </div>
     </div>
   </section>
 
-  <!-- CONTACT -->
+  <!-- ===== CONTACT ===== -->
   <section id="contact" class="section">
-    <div class="container grid-2">
-      <div class="reveal">
-        <h2>Contact</h2>
-        <p class="sub">Chefs, épiceries fines, hôtels & spas : nous répondons personnellement à chaque demande.</p>
-        <div class="card lift">
-          <p style="margin:0">Écrivez-nous : <a href="mailto:contact@oleamellis.com" style="border-bottom:1px solid #ddd">contact@oleamellis.com</a></p>
-        </div>
+    <div class="container">
+      <h2 class="reveal center">Contact</h2>
+      <p class="sub reveal center delay-1">Chefs, épiceries fines, hôtels & spas : réponse personnalisée à chaque demande.</p>
+
+      <div class="figure reveal delay-2">
+        <img src="contact.png" alt="Illustration de contact" class="figure__img" style="max-width:640px" />
       </div>
-      <form class="card lift reveal delay-1" name="contact" method="get" action="#">
-        <label>Nom<br><input type="text" name="name" required style="width:100%;padding:1rem;border:1px solid var(--line);border-radius:14px;background:#fff"></label>
+
+      <form class="card lift reveal" name="contact" method="get" action="#" style="max-width:880px; margin:40px auto 0">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:18px">
+          <label>Nom<br><input type="text" name="name" required style="width:100%;padding:1rem;border:1px solid var(--line);border-radius:16px;background:#fff"></label>
+          <label>Email<br><input type="email" name="email" required style="width:100%;padding:1rem;border:1px solid var(--line);border-radius:16px;background:#fff"></label>
+        </div>
         <div style="height:16px"></div>
-        <label>Email<br><input type="email" name="email" required style="width:100%;padding:1rem;border:1px solid var(--line);border-radius:14px;background:#fff"></label>
-        <div style="height:16px"></div>
-        <label>Message<br><textarea name="message" rows="6" required style="width:100%;padding:1rem;border:1px solid var(--line);border-radius:14px;background:#fff"></textarea></label>
-        <div style="height:18px"></div>
-        <button type="submit" class="btn">Envoyer</button>
-        <p style="color:var(--muted); margin:.8rem 0 0">Ou utilisez votre client mail : <a href="mailto:contact@oleamellis.com" style="border-bottom:1px solid #ddd">contact@oleamellis.com</a></p>
+        <label>Message<br><textarea name="message" rows="6" required style="width:100%;padding:1rem;border:1px solid var(--line);border-radius:16px;background:#fff"></textarea></label>
+        <div class="center" style="margin-top:18px">
+          <button type="submit" class="btn">Envoyer</button>
+          <p style="color:var(--muted); margin:.8rem 0 0">Ou : <a href="mailto:contact@oleamellis.com" style="border-bottom:1px solid #E6DFCF">contact@oleamellis.com</a></p>
+        </div>
       </form>
     </div>
   </section>
 
 </main>
 
-<!-- Footer -->
-<footer class="footer">
+<!-- ===== FOOTER ===== -->
+<footer class="footer" style="border-top:1px solid var(--line); background:
+  radial-gradient(800px 240px at 80% -20%, #FFF7E6 0%, transparent 60%),
+  var(--ivory)">
   <div class="container foot">
     <div class="foot__brand">
-      <img src="logo.png" alt="" style="height:26px;border-radius:8px;box-shadow:var(--shadow-sm)">
-      <span style="margin-left:10px">olea mellis</span>
+      <img src="logo.png" alt="" style="height:28px;border-radius:10px;box-shadow:var(--shadow-sm)" />
+      <span style="margin-left:10px;color:var(--muted)">olea mellis</span>
     </div>
-    <small>© <span id="year"></span> — Tous droits réservés.</small>
+    <small style="color:var(--muted)">© <span id="year"></span> — Tous droits réservés.</small>
   </div>
 </footer>
 
-<!-- Backdrop for mobile menu -->
+<!-- Backdrop mobile -->
 <div id="backdrop" hidden></div>
 
 <script>
-/* Header elevation */
+/* Header clair (élévation) */
 const hdr = document.getElementById('hdr');
 const onScroll = () => hdr.classList.toggle('scrolled', window.scrollY>8);
-window.addEventListener('scroll', onScroll, {passive:true});
-onScroll();
+window.addEventListener('scroll', onScroll, {passive:true}); onScroll();
 
-/* Mobile menu */
+/* Menu mobile */
 const toggleBtn = document.querySelector('.nav__toggle');
 const links = document.getElementById('menu');
 const backdrop = document.getElementById('backdrop');
@@ -422,16 +430,16 @@ backdrop.addEventListener('click', ()=>{
   links.classList.remove('open'); toggleBtn.setAttribute('aria-expanded','false'); backdrop.hidden = true;
 });
 
-/* Parallax léger sur les images du hero */
+/* Parallax léger (hero) */
 const frames = document.querySelectorAll('.frame');
 function parallax(){
   const y = window.scrollY || 0;
   const d = Math.min(1, y/700);
-  frames.forEach((el,i)=>{ const dir = i%2?1:-1; el.style.transform = `translateY(${d*24*dir}px)`; });
+  frames.forEach((el,i)=>{ const dir = i%2?1:-1; el.style.transform = `translateY(${d*22*dir}px)`; });
 }
 window.addEventListener('scroll', parallax, {passive:true});
 
-/* Scroll reveal via IntersectionObserver */
+/* Scroll reveal (IntersectionObserver) */
 const io = new IntersectionObserver((entries)=>{
   entries.forEach(e=>{
     if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
@@ -454,14 +462,14 @@ form.addEventListener('submit', (e)=>{
 /* Year */
 document.getElementById('year').textContent = new Date().getFullYear();
 
-/* Smooth scroll (native fallback) */
+/* Smooth scroll (ancre centrée) */
 document.querySelectorAll('a[href^="#"]').forEach(a=>{
   a.addEventListener('click', (e)=>{
     const id = a.getAttribute('href').slice(1);
     const el = document.getElementById(id);
     if(!el) return;
     e.preventDefault();
-    el.scrollIntoView({behavior:'smooth', block:'start'});
+    el.scrollIntoView({behavior:'smooth', block:'center'});
     links.classList.remove('open'); toggleBtn.setAttribute('aria-expanded','false'); backdrop.hidden = true;
   });
 });
