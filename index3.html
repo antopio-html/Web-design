@@ -3,102 +3,306 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Tunnel 3D — Bar à Chat (fix mobile)</title>
+<title>Bar à Chat — Expérience défilante</title>
+<meta name="description" content="Bienvenue au Bar à Chat. Scroll classique, puis expérience 3D avec cartes dynamiques et images.">
 <style>
   :root{
+    /* Palette Bar à Chat (latte/rose/menthe) */
     --bg1:#f8f3ec; --bg2:#f3e7da; --ink:#2b2623; --muted:#6d625b;
     --primary:#c98552; --accent:#79c9bf; --rose:#f0a9b7;
     --panel:#ffffff; --line:#eadccd; --radius:18px; --focus:#e08aa0;
   }
   *{box-sizing:border-box}
-  html,body{height:100%; margin:0; overflow:hidden; overscroll-behavior:none;} /* ← bloque le scroll page iOS/Android */
+  html,body{height:100%; margin:0}
   body{
     color:var(--ink);
-    font: clamp(14px, 1.3vw, 16px)/1.6 Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Arial, sans-serif;
+    font: clamp(14px, 1.2vw, 16px)/1.6 Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Arial, sans-serif;
     -webkit-tap-highlight-color: transparent;
     background:
       radial-gradient(1200px 700px at 80% -10%, rgba(201,133,82,.12), transparent 60%),
       radial-gradient(900px 600px at 10% 30%, rgba(240,169,183,.12), transparent 60%),
       linear-gradient(180deg, var(--bg1), var(--bg2));
   }
-  .paws{position:fixed; inset:-40px; z-index:0; pointer-events:none; opacity:.08; mix-blend-mode:multiply;
-    background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="220" height="220" viewBox="0 0 220 220"><g fill="%23c8b6a6"><circle cx="40" cy="40" r="10"/><circle cx="65" cy="30" r="8"/><circle cx="25" cy="25" r="8"/><circle cx="50" cy="60" r="8"/><path d="M85 85c18-12 34 8 20 20s-38 2-20-20z"/></g></svg>') repeat;
-    background-size:220px 220px; animation:paws 14s linear infinite}
-  @keyframes paws{to{transform:translate(110px,110px)}}
+  body.lock{ overflow:hidden; } /* activé seulement pendant l’expérience 3D */
 
-  .viewport{position:fixed; inset:0; overflow:hidden; perspective: clamp(820px, 85vw, 1100px); perspective-origin:50% 50%; touch-action:none;}
-  .scene{position:absolute; inset:0; transform-style:preserve-3d; will-change:transform}
-  header{position:fixed; inset:0 0 auto 0; z-index:10; display:flex; align-items:center; justify-content:space-between;
+  /* ----------- Zone classique (scroll normal) ----------- */
+  header.site{
+    position:sticky; top:0; z-index:10;
+    background:linear-gradient(to bottom, rgba(255,255,255,.85), rgba(255,255,255,.0));
+    border-bottom:1px solid var(--line); backdrop-filter: blur(8px) saturate(1.05);
+  }
+  .nav{
+    display:flex; justify-content:space-between; align-items:center;
+    max-width:1100px; margin:auto; padding:12px 20px;
+  }
+  .brand{display:flex; gap:10px; align-items:center; font-weight:800; letter-spacing:.4px}
+  .mug{width:18px; height:18px; border-radius:4px 4px 10px 10px; position:relative;
+    background:linear-gradient(180deg, var(--primary), #b77448);
+    box-shadow:0 6px 14px rgba(201,133,82,.35) inset, 0 1px 0 rgba(255,255,255,.6)}
+  .mug:after{content:""; position:absolute; right:-6px; top:4px; width:8px; height:8px; border:3px solid #b77448; border-left-color:transparent; border-bottom-color:transparent; border-radius:50%}
+
+  .hero{
+    max-width:1100px; margin:24px auto 0; padding:28px 20px 10px;
+    display:grid; grid-template-columns:1.2fr .8fr; gap:26px; align-items:center;
+  }
+  @media (max-width:920px){ .hero{ grid-template-columns:1fr; } }
+  .hero h1{ font-size: clamp(28px, 5vw, 48px); margin:.2rem 0 .4rem }
+  .lead{ color:var(--muted); font-size: clamp(15px, 2.2vw, 18px) }
+  .cta{
+    display:inline-block; margin-top:10px; padding:10px 14px; border-radius:999px; font-weight:700;
+    background:#fff; border:1px solid var(--line); box-shadow:0 8px 18px rgba(90,60,30,.12); color:var(--ink);
+  }
+  .welcome{
+    max-width:1100px; margin:18px auto 40px; padding:0 20px; display:grid; gap:18px;
+    grid-template-columns:repeat(3,1fr);
+  }
+  @media (max-width:920px){ .welcome{ grid-template-columns:1fr; } }
+  .tile{
+    border:1px solid var(--line); background:#fff; border-radius:16px; padding:16px;
+    box-shadow:0 8px 20px rgba(90,60,30,.08);
+  }
+  .tile h3{ margin:.2rem 0 .4rem }
+  .paws{
+    position:fixed; inset:-40px; z-index:0; pointer-events:none; opacity:.08; mix-blend-mode:multiply;
+    background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="220" height="220" viewBox="0 0 220 220"><g fill="%23c8b6a6"><circle cx="40" cy="40" r="10"/><circle cx="65" cy="30" r="8"/><circle cx="25" cy="25" r="8"/><circle cx="50" cy="60" r="8"/><path d="M85 85c18-12 34 8 20 20s-38 2-20-20z"/></g></svg>') repeat;
+    background-size:220px 220px; animation:paws 14s linear infinite;
+  }
+  @keyframes paws { to { transform: translate(110px,110px) } }
+
+  /* ----------- Section EXPÉRIENCE (pin + 3D) ----------- */
+  section#experience{
+    position:relative; height:100vh; /* “vitre” d’entrée : quand visible, on pin l’expérience */
+    display:flex; align-items:center; justify-content:center;
+  }
+  .enterHint{
+    position:absolute; bottom:14px; left:50%; transform:translateX(-50%);
+    font-size:12px; color:var(--muted); background:rgba(255,255,255,.75);
+    border:1px solid var(--line); border-radius:999px; padding:6px 10px;
+    backdrop-filter: blur(6px);
+  }
+  .enterBox{
+    text-align:center; border:1px solid var(--line); background:#fff; border-radius:18px; padding:18px 16px;
+    box-shadow:0 10px 26px rgba(90,60,30,.12); max-width:min(640px, 92vw);
+  }
+  .enterBox h2{ margin:.2rem 0 .3rem }
+  .enterBtn{
+    margin-top:10px; padding:10px 14px; border-radius:999px; font-weight:700; border:1px solid var(--line); background:#fff;
+  }
+
+  /* HUD expérience (affiché seulement quand actif) */
+  header.hud3d{
+    position:fixed; inset:0 0 auto 0; z-index:20; display:none; /* -> flex quand actif */
+    align-items:center; justify-content:space-between;
     padding: clamp(8px, 2.5vw, 14px) clamp(12px, 3vw, 22px);
     background:linear-gradient(to bottom, rgba(255,255,255,.75), rgba(255,255,255,0));
-    border-bottom:1px solid var(--line); backdrop-filter: blur(8px) saturate(1.05);}
-  .brand{display:flex; gap:10px; align-items:center; font-weight:800; letter-spacing:.4px; font-size: clamp(14px, 2.8vw, 17px)}
-  .mug{width:18px; height:18px; border-radius:4px 4px 10px 10px; position:relative;
-    background:linear-gradient(180deg, var(--primary), #b77448); box-shadow:0 6px 14px rgba(201,133,82,.35) inset, 0 1px 0 rgba(255,255,255,.6)}
-  .mug:after{content:""; position:absolute; right:-6px; top:4px; width:8px; height:8px; border:3px solid #b77448; border-left-color:transparent; border-bottom-color:transparent; border-radius:50%}
-  .hud{display:flex; align-items:center; gap:10px; color:var(--muted); font-size:12px}
+    border-bottom:1px solid var(--line); backdrop-filter: blur(8px) saturate(1.05);
+  }
+  body.experience header.hud3d{ display:flex; }
   .bar{width: clamp(120px, 30vw, 200px); height:6px; border-radius:999px; background:#e9ded1; overflow:hidden; border:1px solid var(--line)}
   .bar>i{display:block; height:100%; width:0%; background:linear-gradient(90deg,var(--primary),var(--rose))}
   .state{padding:4px 8px; border-radius:999px; border:1px solid var(--line); background:#fff; color:var(--muted)}
+  .ctrls{position:fixed; right:12px; bottom:72px; z-index:22; display:none; flex-direction:column; gap:10px}
+  body.experience .ctrls{ display:flex; }
+  .ctrls button{width:50px; height:50px; border-radius:14px; border:1px solid var(--line); background:#fff; color:var(--ink); box-shadow:0 10px 24px rgba(90,60,30,.12); font-size:18px; touch-action:none}
 
-  .layer{position:absolute; top:50%; left:50%; transform-style:preserve-3d; will-change:transform,opacity,filter; opacity:var(--o,1); filter: blur(var(--blur,0)) saturate(1.02)}
-  .card{min-width:min(560px,92vw); padding: clamp(16px, 3.2vw, 22px); border-radius:var(--radius);
-    background:linear-gradient(180deg, var(--panel), #fffaf6); border:1px solid var(--line);
-    box-shadow: 0 18px 40px rgba(90,60,30,.12), 0 1px 0 rgba(255,255,255,.8) inset; position:relative}
+  /* Viewport 3D (affiché seulement quand actif) */
+  .viewport{position:fixed; inset:0; overflow:hidden; perspective: clamp(820px, 85vw, 1100px); perspective-origin:50% 50%; touch-action:none; display:none;}
+  body.experience .viewport{ display:block; }
+  .scene{position:absolute; inset:0; transform-style:preserve-3d; will-change:transform}
+
+  .hudRow{display:flex; align-items:center; gap:10px; color:var(--muted); font-size:12px}
+  .brandSmall{display:flex; gap:10px; align-items:center; font-weight:800; letter-spacing:.4px}
+
+  /* Layers & cards */
+  .layer{position:absolute; top:50%; left:50%; transform-style:preserve-3d; will-change:transform,opacity,filter; opacity:var(--o,1); filter: blur(var(--blur, 0px)) saturate(1.02)}
+  .card{
+    min-width:min(560px, 92vw);
+    padding: clamp(14px, 3.2vw, 22px);
+    border-radius: var(--radius);
+    background:linear-gradient(180deg, var(--panel), #fffaf6);
+    border:1px solid var(--line);
+    box-shadow: 0 18px 40px rgba(90,60,30,.12), 0 1px 0 rgba(255,255,255,.8) inset;
+    position:relative;
+  }
+  /* oreilles de chat */
   .card:before,.card:after{content:""; position:absolute; top:-12px; width:26px; height:26px; background:var(--panel); border:1px solid var(--line); transform: rotate(45deg)}
   .card:before{left:28px; border-bottom:none; border-right:none}
   .card:after{right:28px; border-bottom:none; border-left:none}
-  .card h2{margin:.2rem 0 .45rem; font-size: clamp(18px, 4.5vw, 24px)}
+
+  .card h2{margin:.2rem 0 .4rem; font-size: clamp(18px, 4.5vw, 24px)}
   .card p{color:var(--muted); margin:.2rem 0; font-size: clamp(13px, 3.7vw, 15px)}
+
+  .media{
+    margin-top:10px; border-radius:14px; overflow:hidden; border:1px solid #efdfd1;
+    background:#fff; box-shadow:0 10px 18px rgba(90,60,30,.08);
+  }
+  .media img{ width:100%; height:auto; display:block; }
+
   .chip{display:inline-block; padding:4px 8px; border-radius:999px; font-size:12px;
         background:linear-gradient(180deg,#fff,#fde9e9); color:#7a3b44; border:1px solid #f1d1d8; margin-right:6px}
-  .chip.mint{background:linear-gradient(180deg,#fff,#e9f7f5); color:#2b605a; border-color:#cfece8}
-  .chip.caramel{background:linear-gradient(180deg,#fff,#f5e6d8); color:#7b4a2c; border-color:#ecd7c3}
+  .chip.mint{ background:linear-gradient(180deg,#fff,#e9f7f5); color:#2b605a; border-color:#cfece8 }
+  .chip.caramel{ background:linear-gradient(180deg,#fff,#f5e6d8); color:#7b4a2c; border-color:#ecd7c3 }
+
   .focused .card{border-color:var(--focus); box-shadow:0 24px 56px rgba(224,138,160,.28), 0 0 0 1px rgba(255,255,255,.6) inset, 0 0 0 2px rgba(224,138,160,.16)}
 
-  .ctrls{position:fixed; right:12px; bottom:72px; z-index:12; display:flex; flex-direction:column; gap:10px}
-  .ctrls button{width:50px; height:50px; border-radius:14px; border:1px solid var(--line); background:#fff; color:var(--ink); box-shadow:0 10px 24px rgba(90,60,30,.12); font-size:18px; touch-action:none}
-  .ctrls button:active{transform:scale(.98)}
-
-  .hint{position:fixed; left:50%; bottom:16px; transform:translateX(-50%); z-index:10; color:var(--muted); font-size:12px; opacity:.95; user-select:none;
-    backdrop-filter: blur(6px); background:rgba(255,255,255,.7); border:1px solid var(--line); padding:8px 10px; border-radius:999px}
+  /* Footer (après l’expérience) */
+  footer{max-width:1100px; margin:40px auto; padding:0 20px 40px; color:var(--muted)}
 </style>
 </head>
 <body>
-<header>
-  <div class="brand"><span class="mug" aria-hidden="true"></span> Bar à Chat — Démo</div>
-  <div class="hud" aria-label="Profondeur">
+
+<!-- Pattes décoratives -->
+<div class="paws" aria-hidden="true"></div>
+
+<!-- ----------- Site : zone bienvenue ----------- -->
+<header class="site">
+  <nav class="nav">
+    <div class="brand"><span class="mug" aria-hidden="true"></span> Bar à Chat</div>
+    <a class="cta" href="#experience">Entrer dans l’expérience ↓</a>
+  </nav>
+</header>
+
+<section class="hero" id="top">
+  <div>
+    <h1>Bienvenue au Bar à Chat</h1>
+    <p class="lead">Un endroit cosy pour savourer un cappuccino, découvrir nos pensionnaires, et soutenir une cause féline douce et engagée.</p>
+    <a class="cta" href="#experience">Découvrir l’expérience 3D</a>
+  </div>
+  <div class="tile" style="align-self:stretch;">
+    <h3>Horaires & Ambiance</h3>
+    <p>Ouvert tous les jours de 10h à 20h. Espace calme, livres, plaid, wifi — et des chats heureux 🐾</p>
+    <p>Défilez vers le bas pour entrer dans l’expérience “tunnel 3D”.</p>
+  </div>
+</section>
+
+<section class="welcome">
+  <div class="tile"><h3>Adoptions</h3><p>Nous travaillons avec des associations locales pour favoriser l’adoption responsable.</p></div>
+  <div class="tile"><h3>Éthique</h3><p>Bien-être félin avant tout : repos, soins, zones calmes, règles respectées.</p></div>
+  <div class="tile"><h3>Évènements</h3><p>Ateliers, lectures, rencontres — suivez nos réseaux pour les dates.</p></div>
+</section>
+
+<!-- ----------- Point d’entrée expérience ----------- -->
+<section id="experience" aria-label="Entrée de l’expérience 3D">
+  <div class="enterBox">
+    <h2>Prêt·e ?</h2>
+    <p>En continuant, vous entrez dans notre expérience défilante : chaque carte arrive du fond, pause, puis sort sur le côté.</p>
+    <button class="enterBtn" id="enterBtn">Entrer</button>
+  </div>
+  <div class="enterHint">Pointe/Swipe/Scroll pour avancer • Appuyez sur “Entrer” pour un démarrage net</div>
+</section>
+
+<!-- ----------- HUD expérience (visible quand actif) ----------- -->
+<header class="hud3d" id="hud">
+  <div class="brandSmall"><span class="mug" aria-hidden="true"></span> Expérience — Bar à Chat</div>
+  <div class="hudRow">
     <div class="bar" title="Progression"><i id="prog"></i></div>
     <span id="depthVal">Z: 0</span>
     <span class="state" id="state">Mode: libre</span>
   </div>
 </header>
 
-<div class="viewport" id="viewport" aria-label="Scène 3D">
-  <div class="scene" id="scene">
-    <!-- data-dir: -1 gauche, 1 droite -->
-    <div class="layer" data-z="-3600" data-dir="-1"><div class="card"><span class="chip caramel">Bienvenue</span><h2>Bienvenue au Bar à Chat</h2><p>Les cartes arrivent au centre et repartent latéralement.</p></div></div>
-    <div class="layer" data-z="-2800" data-dir="1"><div class="card"><span class="chip">Concept</span><h2>Caméra en profondeur</h2><p>Perspective CSS + <code>translateZ</code>. Pause courte au focus.</p></div></div>
-    <div class="layer" data-z="-2000" data-dir="-1"><div class="card"><span class="chip mint">Douceur</span><h2>Netteté & taille</h2><p>Loin = discret, centre = net & lisible.</p></div></div>
-    <div class="layer" data-z="-1200" data-dir="1"><div class="card"><span class="chip caramel">Rythme</span><h2>Pause + stick</h2><p>La carte suit un peu le mouvement puis glisse sur le côté.</p></div></div>
-    <div class="layer" data-z="-400" data-dir="-1"><div class="card"><span class="chip">Focus</span><h2>Plan 0</h2><p>Repère central 🐾</p></div></div>
-    <div class="layer" data-z="400" data-dir="1"><div class="card"><span class="chip mint">Suite</span><h2>Sortie latérale</h2><p>Glisse droite/gauche proprement.</p></div></div>
-    <div class="layer" data-z="1200" data-dir="-1"><div class="card"><span class="chip caramel">Contenus</span><h2>Ajoutez vos cartes</h2><p>Réglez <code>data-z</code> & <code>data-dir</code>.</p></div></div>
-    <div class="layer" data-z="2000" data-dir="1"><div class="card"><span class="chip">Merci</span><h2>À bientôt</h2><p>Cappuccino & ronrons 😺</p></div></div>
-  </div>
-</div>
-
+<!-- Contrôles flottants (affichés quand actif) -->
 <div class="ctrls" aria-label="Contrôles">
   <button id="back" aria-label="Reculer">◄</button>
   <button id="fw" aria-label="Avancer">►</button>
 </div>
 
-<div class="paws" aria-hidden="true"></div>
-<div class="hint">Swipe / Scroll doux • Pause au centre • Sortie latérale</div>
+<!-- Viewport 3D (affichée quand actif) -->
+<div class="viewport" id="viewport" aria-label="Scène 3D">
+  <div class="scene" id="scene">
+    <!-- 5 CARTES AVEC IMAGES (imagesBar/imageBar1.png ... imageBar5.png) -->
+    <!-- data-z espacés (~800). data-dir = direction de sortie: -1 gauche, 1 droite -->
+    <div class="layer" data-z="-3200" data-dir="-1">
+      <div class="card">
+        <span class="chip caramel">Concept</span>
+        <h2>Le concept</h2>
+        <p>Un café chaleureux où l’on partage un moment avec des chats adoptables, soutenu par des associations.</p>
+        <div class="media"><img src="imagesBar/imageBar1.png" alt="Illustration du concept du bar à chat"></div>
+      </div>
+    </div>
+
+    <div class="layer" data-z="-2400" data-dir="1">
+      <div class="card">
+        <span class="chip mint">Chats</span>
+        <h2>Nos chats</h2>
+        <p>Des boules de poils curieuses et câlines. Respect du rythme, zones de repos, interaction douce.</p>
+        <div class="media"><img src="imagesBar/imageBar2.png" alt="Photo de chats du bar à chat"></div>
+      </div>
+    </div>
+
+    <div class="layer" data-z="-1600" data-dir="-1">
+      <div class="card">
+        <span class="chip caramel">Menu</span>
+        <h2>Au menu</h2>
+        <p>Cappuccino, latte, pâtisseries maison, options végétales… et eau fraîche pour nos félins.</p>
+        <div class="media"><img src="imagesBar/imageBar3.png" alt="Image de boissons et pâtisseries du menu"></div>
+      </div>
+    </div>
+
+    <div class="layer" data-z="-800" data-dir="1">
+      <div class="card">
+        <span class="chip">Engagements</span>
+        <h2>Nos engagements</h2>
+        <p>Bien-être animal, hygiène irréprochable, partenariats transparents, sensibilisation et adoptions responsables.</p>
+        <div class="media"><img src="imagesBar/imageBar4.png" alt="Illustration de nos engagements et valeurs"></div>
+      </div>
+    </div>
+
+    <div class="layer" data-z="0" data-dir="-1">
+      <div class="card">
+        <span class="chip mint">Nous trouver</span>
+        <h2>Comment nous trouver</h2>
+        <p>Adresse, transports, stationnement et horaires — tout pour venir sans stress.</p>
+        <div class="media"><img src="imagesBar/imageBar5.png" alt="Carte d’accès ou plan pour nous trouver"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Footer (après l’expérience) -->
+<footer>
+  <p>© Bar à Chat — Merci de votre visite. Revenez quand vous voulez pour un cappuccino… et des ronrons 😺</p>
+</footer>
 
 <script>
-/* Mouvement corrigé & stabilisé mobile */
+/* ==== Activation/Pin de l’expérience + Mouvement 3D (images incluses) ==== */
 (function(){
+  /* ----- Activation par IntersectionObserver ou bouton "Entrer" ----- */
+  const expSection = document.getElementById('experience');
+  const enterBtn = document.getElementById('enterBtn');
+  let active = false; // l’expérience est-elle en cours ?
+  function enterExperience(){
+    if(active) return;
+    active = true;
+    document.body.classList.add('experience','lock'); // lock le scroll de la page pendant l’expérience
+    // place la caméra au début de la 1ère carte
+    targetZ = cfg.zMin; camZ = cfg.zMin; vZ = 0;
+    // petite anima d’entrée
+    targetZ = cfg.zMin + 200;
+  }
+  function exitExperience(){
+    if(!active) return;
+    active = false;
+    document.body.classList.remove('experience','lock');
+  }
+  enterBtn.addEventListener('click', ()=>{ enterExperience(); expSection.scrollIntoView({behavior:'smooth'}); });
+
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting && e.intersectionRatio > 0.6){
+        // on entre automatiquement quand l’utilisateur atteint la section
+        enterExperience();
+      } else {
+        // si l’utilisateur remonte au-dessus de la section, on quitte l’expérience
+        if(window.scrollY + window.innerHeight < expSection.offsetTop + 20){
+          exitExperience();
+        }
+      }
+    });
+  }, {threshold:[0,0.6,1]});
+  io.observe(expSection);
+
+  /* ----- HUD/Scène/Contrôles ----- */
   const scene = document.getElementById('scene');
   const viewport = document.getElementById('viewport');
   const layers = Array.from(document.querySelectorAll('.layer'));
@@ -109,19 +313,18 @@
   const btnBk = document.getElementById('back');
 
   const cfg = {
-    zMin: -3800, zMax: 2300,
-    blurMax: 10, visibilityZ: 2200,
-    tiltMax: 3.5, scaleClampMin: .32, scaleClampMax: 2.0,
+    zMin: -3600, zMax: 800,          // adapté à 5 cartes (de -3200 à 0)
+    blurMax: 10, visibilityZ: 1800,
+    tiltMax: 3.5, scaleClampMin: .34, scaleClampMax: 1.9,
 
-    SPEED: 0.9, TOUCH_SENS: 1.2, /* ↓ un poil */
+    SPEED: 0.9, TOUCH_SENS: 1.2,
     KEY_STEP: 140, BTN_STEP: 200,
 
-    SNAP_WIN: 170, DWELL_MS: 1400, BREAK_FORCE: 520,
-    STICK_MS: 900, STICK_FACTOR: 0.45, FADE_STICK_PX: 320,
+    SNAP_WIN: 160, DWELL_MS: 1300, BREAK_FORCE: 520,
+    STICK_MS: 800, STICK_FACTOR: 0.42, FADE_STICK_PX: 300,
 
-    SIDE_MAX: 380, SIDE_EASE: 0.85,
-
-    VEL_CAP: 900 /* clamp vitesse max */,
+    SIDE_MAX: 340, SIDE_EASE: 0.85,
+    VEL_CAP: 800
   };
 
   let targetZ = cfg.zMin, camZ = cfg.zMin, vZ = 0;
@@ -155,59 +358,64 @@
   }
   const sideOffset = (depth,dir)=>{
     if(depth<=0) return 0;
-    const t = clamp(depth/900, 0, 1);
+    const t = clamp(depth/800, 0, 1);
     const eased = 1 - Math.pow(1 - t, cfg.SIDE_EASE);
     return eased * cfg.SIDE_MAX * dir;
   };
 
-  /* Tilt */
-  addEventListener('pointermove', e=>{
+  /* ----- Events : actifs seulement en mode expérience ----- */
+  function activeGuard(fn){
+    return function(e){ if(!active){ return; } fn(e); };
+  }
+
+  // Tilt
+  addEventListener('pointermove', activeGuard(e=>{
     const cx=innerWidth/2, cy=innerHeight/2;
     tty = ((e.clientX - cx)/cx) * cfg.tiltMax;
     ttx = (-(e.clientY - cy)/cy) * cfg.tiltMax;
-  }, {passive:true});
+  }), {passive:true});
 
-  /* Wheel */
-  addEventListener('wheel', e=>{
+  // Wheel
+  addEventListener('wheel', activeGuard(e=>{
     const impulse = e.deltaY * cfg.SPEED;
     if(mode==='dwell'){
       if(Math.abs(impulse)>=cfg.BREAK_FORCE){ exitDwell(true); vZ += impulse; }
     } else vZ += impulse;
     vZ = clamp(vZ, -cfg.VEL_CAP, cfg.VEL_CAP);
     e.preventDefault();
-  }, {passive:false});
+  }), {passive:false});
 
-  /* Touch (super fiable) */
+  // Touch
   let touching=false, lastY=0, lastT=0;
-  viewport.addEventListener('touchstart', e=>{
+  viewport.addEventListener('touchstart', activeGuard(e=>{
     touching=true; vZ*=0.3; lastY=e.touches[0].clientY; lastT=performance.now();
-  }, {passive:true});
-  viewport.addEventListener('touchmove', e=>{
+  }), {passive:true});
+  viewport.addEventListener('touchmove', activeGuard(e=>{
     if(!touching) return;
     const y=e.touches[0].clientY, dy=(lastY-y)*cfg.TOUCH_SENS;
     const now=performance.now(), dt=Math.max(16, now-lastT);
-    let impulse=(dy*16/dt)*14; /* ↓ un peu */
+    let impulse=(dy*16/dt)*14;
     if(mode==='dwell'){
       if(Math.abs(impulse)>=cfg.BREAK_FORCE){ exitDwell(true); vZ += impulse; }
     } else vZ += impulse;
     vZ = clamp(vZ, -cfg.VEL_CAP, cfg.VEL_CAP);
     lastY=y; lastT=now; e.preventDefault();
-  }, {passive:false});
+  }), {passive:false});
   addEventListener('touchend', ()=>{ touching=false; }, {passive:true});
 
-  /* Boutons (FIX: utiliser btnFw/btnBk, pas fw/back) */
+  // Boutons
   let holdFw=false, holdBk=false;
-  btnFw.addEventListener('pointerdown', ()=>{ if(mode==='dwell') exitDwell(true); holdFw=true; vZ -= cfg.BTN_STEP; vZ=clamp(vZ,-cfg.VEL_CAP,cfg.VEL_CAP); });
-  btnBk.addEventListener('pointerdown', ()=>{ if(mode==='dwell') exitDwell(true); holdBk=true; vZ += cfg.BTN_STEP; vZ=clamp(vZ,-cfg.VEL_CAP,cfg.VEL_CAP); });
+  btnFw.addEventListener('pointerdown', activeGuard(()=>{ if(mode==='dwell') exitDwell(true); holdFw=true; vZ -= cfg.BTN_STEP; vZ=clamp(vZ,-cfg.VEL_CAP,cfg.VEL_CAP); }));
+  btnBk.addEventListener('pointerdown', activeGuard(()=>{ if(mode==='dwell') exitDwell(true); holdBk=true; vZ += cfg.BTN_STEP; vZ=clamp(vZ,-cfg.VEL_CAP,cfg.VEL_CAP); }));
   addEventListener('pointerup', ()=>{ holdFw=false; holdBk=false; });
 
-  /* Clavier */
-  addEventListener('keydown', e=>{
+  // Clavier (utile desktop)
+  addEventListener('keydown', activeGuard(e=>{
     const k=e.key.toLowerCase();
     if(k==='arrowdown'||k==='pagedown'){ if(mode==='dwell') exitDwell(true); vZ -= cfg.KEY_STEP*2; }
     if(k==='arrowup'  ||k==='pageup'  ){ if(mode==='dwell') exitDwell(true); vZ += cfg.KEY_STEP*2; }
     vZ = clamp(vZ, -cfg.VEL_CAP, cfg.VEL_CAP);
-  });
+  }));
 
   function maybeEnterDwell(){
     if(mode==='dwell') return;
@@ -216,65 +424,68 @@
   }
 
   function render(){
-    /* Petit anti-rebond iOS : si le scroll doc bouge, on le ramène à 0 */
-    const doc = document.scrollingElement; if(doc && doc.scrollTop!==0) doc.scrollTop = 0;
+    // Affichage/masquage HUD/viewport via .experience (déjà géré par CSS)
+    // Moteur 3D uniquement si actif
+    if(active){
+      if(mode!=='dwell'){ if(holdFw) vZ -= 10; if(holdBk) vZ += 10; vZ=clamp(vZ,-cfg.VEL_CAP,cfg.VEL_CAP); }
 
-    if(mode!=='dwell'){ if(holdFw) vZ -= 10; if(holdBk) vZ += 10; vZ=clamp(vZ,-cfg.VEL_CAP,cfg.VEL_CAP); }
-
-    if(mode==='dwell'){
-      if(focusedIndex>=0){ const z0=+layers[focusedIndex].dataset.z||0; targetZ=z0; }
-      vZ *= 0.78;
-      if(performance.now() >= dwellTimer) exitDwell(true);
-    } else {
-      targetZ += vZ;
-      vZ *= 0.82; /* damping fort */
-    }
-
-    targetZ = clamp(targetZ, cfg.zMin, cfg.zMax);
-    camZ = lerp(camZ, targetZ, 0.10);
-
-    /* Tilt */
-    tiltX = lerp(tiltX, ttx, 0.10); tiltY = lerp(tiltY, tty, 0.10);
-    scene.style.transform = `rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
-
-    maybeEnterDwell();
-
-    /* Draw layers */
-    const now = performance.now();
-    for(let i=0;i<layers.length;i++){
-      const L = layers[i];
-      const z0 = +L.dataset.z||0;
-      const dir = Math.sign(+L.dataset.dir || (i%2?1:-1)) || 1;
-
-      let depth = z0 - camZ;
-
-      /* stick */
-      if(stick.active && stick.index===i){
-        const t = clamp((now - stick.startTime)/cfg.STICK_MS, 0, 1);
-        const follow = (camZ - stick.startCamZ) * cfg.STICK_FACTOR * (1 - t);
-        depth += follow;
-        if(t>=1) stick.active=false;
+      if(mode==='dwell'){
+        if(focusedIndex>=0){ const z0=+layers[focusedIndex].dataset.z||0; targetZ=z0; }
+        vZ *= 0.78;
+        if(performance.now() >= dwellTimer) exitDwell(true);
+      } else {
+        targetZ += vZ;
+        vZ *= 0.82;
       }
 
-      const xSide = sideOffset(depth, dir);
+      targetZ = clamp(targetZ, cfg.zMin, cfg.zMax);
+      camZ = lerp(camZ, targetZ, 0.10);
 
-      const scale = clamp( 1 / (1 + (depth/1100)), cfg.scaleClampMin, cfg.scaleClampMax );
-      let distFade = Math.abs(depth);
-      if(stick.active && stick.index===i){
-        const t = clamp((now - stick.startTime)/cfg.STICK_MS, 0, 1);
-        distFade = Math.max(0, distFade - (1 - t)*cfg.FADE_STICK_PX);
+      /* tilt */
+      tiltX = lerp(tiltX, ttx, 0.10); tiltY = lerp(tiltY, tty, 0.10);
+      scene.style.transform = `rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
+
+      maybeEnterDwell();
+
+      /* rendu couches */
+      const now = performance.now();
+      for(let i=0;i<layers.length;i++){
+        const L = layers[i];
+        const z0 = +L.dataset.z||0;
+        const dir = Math.sign(+L.dataset.dir || (i%2?1:-1)) || 1;
+
+        let depth = z0 - camZ;
+
+        /* stick */
+        if(stick.active && stick.index===i){
+          const t = clamp((now - stick.startTime)/cfg.STICK_MS, 0, 1);
+          const follow = (camZ - stick.startCamZ) * cfg.STICK_FACTOR * (1 - t);
+          depth += follow;
+          if(t>=1) stick.active=false;
+        }
+
+        const xSide = (depth>0) ? sideOffset(depth, dir) : 0;
+
+        const scale = clamp( 1 / (1 + (depth/1100)), cfg.scaleClampMin, cfg.scaleClampMax );
+        let distFade = Math.abs(depth);
+        if(stick.active && stick.index===i){
+          const t = clamp((now - stick.startTime)/cfg.STICK_MS, 0, 1);
+          distFade = Math.max(0, distFade - (1 - t)*cfg.FADE_STICK_PX);
+        }
+        const o = clamp(1 - (distFade/cfg.visibilityZ), 0, 1);
+        const blur = (1 - Math.max(0, 1 - distFade/900)) * cfg.blurMax;
+        const yOffset = depth/46;
+
+        L.style.transform =
+          `translate(-50%,-50%) translateX(${xSide}px) translateZ(${depth}px) translateY(${yOffset}px) `+
+          `scale(${scale}) rotateX(${tiltX*0.28}deg) rotateY(${tiltY*0.28}deg)`;
+        L.style.setProperty('--o', o.toFixed(3));
+        L.style.setProperty('--blur', blur.toFixed(2)+'px');
+        if(o < 0.05) L.setAttribute('aria-hidden','true'); else L.removeAttribute('aria-hidden');
       }
-      const o = clamp(1 - (distFade/cfg.visibilityZ), 0, 1);
-      const blur = (1 - Math.max(0, 1 - distFade/900)) * cfg.blurMax;
-      const yOffset = depth/46;
 
-      L.style.transform = `translate(-50%,-50%) translateX(${xSide}px) translateZ(${depth}px) translateY(${yOffset}px) scale(${scale}) rotateX(${tiltX*0.28}deg) rotateY(${tiltY*0.28}deg)`;
-      L.style.setProperty('--o', o.toFixed(3));
-      L.style.setProperty('--blur', blur.toFixed(2)+'px');
-      if(o < 0.05) L.setAttribute('aria-hidden','true'); else L.removeAttribute('aria-hidden');
+      updateHUD();
     }
-
-    updateHUD();
     requestAnimationFrame(render);
   }
   render();
