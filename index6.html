@@ -13,41 +13,68 @@
   --shadow1:0 6px 18px rgba(0,0,0,.35); --shadow2:0 16px 32px rgba(0,0,0,.45);
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Arial;
-     background:linear-gradient(180deg,var(--bg1),var(--bg2));color:var(--ink);}
+body{
+  font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Arial;
+  background:linear-gradient(180deg,var(--bg1),var(--bg2));
+  color:var(--ink);
+}
 img{max-width:100%;display:block}
 a{color:var(--accent);text-decoration:none}
-.container{width:min(1200px,92vw);margin:auto}
 
-header{position:sticky;top:0;z-index:50;background:rgba(10,18,39,.85);
-       backdrop-filter:blur(10px) saturate(140%);border-bottom:var(--ring)}
+/* Conteneur centré */
+.container{
+  width:min(1200px,92vw);
+  margin-inline:auto; /* ✅ centre horizontalement */
+}
+
+/* Header */
+header{
+  position:sticky;top:0;z-index:50;
+  background:rgba(10,18,39,.85);
+  backdrop-filter:blur(10px) saturate(140%);
+  border-bottom:var(--ring);
+}
 .bar{display:flex;align-items:center;justify-content:space-between;padding:14px 0}
 h1{font-size:clamp(22px,3.2vw,32px)}
 .btn{padding:8px 14px;border-radius:12px;background:#1e293b;color:#e2e8f0;border:var(--ring)}
 .btn:hover{background:#334155}
 
-/* Grille bento UNIFORME */
-.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px;margin:24px 0}
+/* Grille bento UNIFORME et centrée */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(12,1fr);
+  gap:18px;
+  margin:24px auto;       /* ✅ centrée dans .container */
+  justify-items:stretch;  /* ✅ toutes les cartes s'étirent uniformément */
+}
 @media(max-width:1100px){.grid{grid-template-columns:repeat(6,1fr)}}
 @media(max-width:700px){.grid{grid-template-columns:1fr}}
 
-.card{background:var(--card);border:var(--ring);border-radius:var(--radius);
-      box-shadow:var(--shadow1);overflow:hidden;display:flex;flex-direction:column;
-      animation:rise .7s ease both}
+/* Cartes */
+.card{
+  background:var(--card);border:var(--ring);border-radius:var(--radius);
+  box-shadow:var(--shadow1);overflow:hidden;display:flex;flex-direction:column;
+  animation:rise .7s ease both;
+}
 .card:hover{transform:translateY(-3px);box-shadow:var(--shadow2)}
-.media{aspect-ratio:16/9;overflow:hidden;background:#111;display:grid;place-items:center}
+.media{
+  aspect-ratio:16/9;overflow:hidden;background:#111;
+  display:grid;place-items:center
+}
 .media img,.media iframe{width:100%;height:100%;object-fit:cover}
 .p{padding:16px}
 .card h2{font-size:20px;margin:0 0 .4rem}
 .meta{color:var(--muted);font-size:.9rem;margin-bottom:.4rem}
 .small{font-size:.85rem;color:var(--muted)}
 
+/* Spans (uniformisés) */
 .span12{grid-column:span 12}
 .span6{grid-column:span 6}
 
 /* Animations */
 @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 
+/* Footer */
 footer{border-top:var(--ring);margin-top:30px}
 .foot{display:flex;justify-content:space-between;align-items:center;padding:16px 0;color:var(--muted);font-size:.9rem}
 </style>
@@ -61,39 +88,45 @@ footer{border-top:var(--ring);margin-top:30px}
 </header>
 
 <main class="container grid">
-  <!-- Bandes supérieures : tout en span6 pour cohérence -->
+  <!-- NASA APOD -->
   <article class="card span6" id="apodCard">
     <div class="media" id="apodMedia"><span class="p">Chargement NASA APOD…</span></div>
     <div class="p"><h2>NASA APOD</h2><div class="meta" id="apodMeta"></div><p id="apodDesc"></p></div>
   </article>
 
+  <!-- Wikimedia POTD -->
   <article class="card span6" id="potdCard">
     <div class="media" id="potdMedia"><span class="p">Chargement POTD…</span></div>
     <div class="p"><h2>Wikimedia POTD</h2><div class="meta" id="potdMeta"></div><p id="potdDesc"></p></div>
   </article>
 
+  <!-- ESA -->
   <article class="card span6" id="esaCard">
     <div class="media" id="esaMedia"><span class="p">Chargement ESA…</span></div>
     <div class="p"><h2>ESA — Image of the Week</h2><div class="meta" id="esaMeta"></div></div>
   </article>
 
+  <!-- Met Museum -->
   <article class="card span6" id="metCard">
     <div class="media" id="metMedia"><span class="p">Chargement Met…</span></div>
     <div class="p"><h2>Met Museum</h2><div class="meta" id="metMeta"></div></div>
   </article>
 
+  <!-- USGS Séismes -->
   <article class="card span6" id="eqCard">
     <div class="p"><h2>Séismes récents (USGS)</h2>
       <ul id="eqList" style="list-style:none;display:grid;gap:6px;padding:0;margin:0"></ul>
     </div>
   </article>
 
+  <!-- SpaceX -->
   <article class="card span6" id="spxCard">
     <div class="p"><h2>SpaceX — Dernier lancement</h2>
       <div class="meta" id="spxMeta"></div><div id="spxContent"></div>
     </div>
   </article>
 
+  <!-- Météo extrêmes -->
   <article class="card span6" id="wxCard">
     <div class="p"><h2>Météo extrêmes (aujourd’hui)</h2>
       <ul id="wxList" style="list-style:none;display:grid;gap:6px;padding:0;margin:0"></ul>
@@ -101,7 +134,7 @@ footer{border-top:var(--ring);margin-top:30px}
     </div>
   </article>
 
-  <!-- NOUVELLE CARTE : agrégateur Actus (AFP + BBC) -->
+  <!-- Actus agrégées AFP + BBC -->
   <article class="card span6" id="newsCard">
     <div class="p"><h2>Actus — AFP & BBC</h2>
       <ul id="newsList" style="list-style:none;display:grid;gap:6px;padding:0;margin:0"></ul>
@@ -120,7 +153,7 @@ footer{border-top:var(--ring);margin-top:30px}
 <script>
 const $=s=>document.querySelector(s);
 
-/* NASA APOD (uniforme) */
+/* NASA APOD */
 async function loadAPOD(){
   try{
     const j=await (await fetch("https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY&thumbs=true")).json();
@@ -132,7 +165,7 @@ async function loadAPOD(){
   }catch(e){$('#apodMedia').innerHTML="<div class='p'>Échec NASA APOD</div>";}
 }
 
-/* Wikimedia POTD (fallback si CORS) */
+/* Wikimedia POTD (REST ; fallback si échec) */
 async function loadPOTD(){
   const d=new Date();
   const url=`https://commons.wikimedia.org/api/rest_v1/feed/featured/${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,"0")}/${String(d.getDate()).padStart(2,"0")}`;
@@ -147,16 +180,17 @@ async function loadPOTD(){
   }
 }
 
-/* ESA (RSS) — fallback lien si CORS bloque l'image */
+/* ESA (RSS) — via AllOrigins pour contourner CORS, lien propre */
 async function loadESA(){
   try{
-    const txt=await (await fetch("https://www.esa.int/rssfeed/Our_Activities/Observing_the_Earth")).text();
+    const prox=`https://api.allorigins.win/raw?url=${encodeURIComponent("https://www.esa.int/rssfeed/Our_Activities/Observing_the_Earth")}`;
+    const txt=await (await fetch(prox)).text();
     const doc=new DOMParser().parseFromString(txt,"application/xml");
     const item=doc.querySelector("item");
     const title=item?.querySelector("title")?.textContent||"ESA — Image of the Week";
     const link=item?.querySelector("link")?.textContent||"https://www.esa.int/";
-    // CORS empêche souvent l'image dans <description>. On affiche un lien propre :
-    $('#esaMedia').innerHTML=`<a href="${link}" target="_blank" class="p small">Ouvrir l’image/Article sur le site ESA</a>`;
+    // On affiche un lien fiable vers l'article (plus robuste que l'image inline)
+    $('#esaMedia').innerHTML=`<a href="${link}" target="_blank" class="p small">Ouvrir l’image / Article sur le site de l’ESA</a>`;
     $('#esaMeta').textContent=title;
   }catch(e){
     $('#esaMedia').innerHTML="<div class='p'>Échec ESA</div>";
@@ -195,7 +229,7 @@ async function loadSPX(){
   }catch(e){$('#spxMeta').textContent="Échec SpaceX";}
 }
 
-/* Open-Meteo — extrêmes du jour (échantillon de villes représentatives) */
+/* Open-Meteo — extrêmes du jour (échantillon villes représentatives) */
 const cities=[
   {name:"Riyad, Arabie Saoudite",lat:24.7,lon:46.7},
   {name:"Koweït City, Koweït",lat:29.3,lon:47.5},
@@ -212,7 +246,7 @@ const cities=[
 ];
 async function loadWX(){
   $('#wxList').innerHTML="Chargement météo…";
-  let maxT=-999,minT=999,hot=null,cold=null,errs=0;
+  let maxT=-999,minT=999,hot=null,cold=null;
   for(const c of cities){
     try{
       const url=`https://api.open-meteo.com/v1/forecast?latitude=${c.lat}&longitude=${c.lon}&daily=temperature_2m_max,temperature_2m_min&forecast_days=1&timezone=auto`;
@@ -221,19 +255,19 @@ async function loadWX(){
       const tmin=j.daily.temperature_2m_min[0];
       if(tmax>maxT){maxT=tmax;hot={city:c.name,temp:tmax};}
       if(tmin<minT){minT=tmin;cold={city:c.name,temp:tmin};}
-    }catch(e){errs++}
+    }catch(e){/* on ignore une ville si erreur réseau */}
   }
   if(hot && cold){
     $('#wxList').innerHTML=`
       <li>🌡️ Plus chaud : <strong>${hot.temp}°C</strong> — ${hot.city}</li>
       <li>❄️ Plus froid : <strong>${cold.temp}°C</strong> — ${cold.city}</li>`;
-    $('#wxNote').textContent = "Basé sur un échantillon de grandes villes (couverture rapide, non exhaustive).";
+    $('#wxNote').textContent="Échantillon de grandes villes (rapide, non exhaustif mondial).";
   }else{
     $('#wxList').innerHTML="<li>Échec Open-Meteo</li>";
   }
 }
 
-/* Actus agrégées — AFP + BBC (RSS) */
+/* Actus agrégées — AFP + BBC via AllOrigins (proxy public) */
 const feeds = [
   {name:"AFP", url:"https://www.afp.com/en/news-hub/rss"},
   {name:"BBC World", url:"https://feeds.bbci.co.uk/news/world/rss.xml"}
@@ -242,7 +276,8 @@ async function loadNews(){
   const all=[];
   for(const f of feeds){
     try{
-      const txt=await (await fetch(f.url)).text();
+      const proxyUrl=`https://api.allorigins.win/raw?url=${encodeURIComponent(f.url)}`;
+      const txt=await (await fetch(proxyUrl)).text();
       const doc=new DOMParser().parseFromString(txt,"application/xml");
       const items=[...doc.querySelectorAll("item")].slice(0,6).map(n=>({
         src:f.name,
@@ -251,14 +286,16 @@ async function loadNews(){
         date:new Date(n.querySelector("pubDate")?.textContent||Date.now())
       }));
       all.push(...items);
-    }catch(e){ /* CORS possible, on ignore ce flux */ }
+    }catch(e){
+      console.warn("Flux bloqué:",f.name,e);
+    }
   }
   if(!all.length){
-    $('#newsList').innerHTML="<li>Impossible de charger AFP/BBC (CORS). Essayez via un proxy serveur.</li>";
-    $('#newsNote').textContent="Astuce : certains flux RSS nécessitent un proxy côté serveur pour contourner CORS.";
+    $('#newsList').innerHTML="<li>Impossible de charger AFP/BBC (proxy indisponible)</li>";
+    $('#newsNote').textContent="Astuce : héberge un micro-proxy côté serveur pour une fiabilité maximale.";
     return;
   }
-  // dédup + tri date desc
+  // Dédup + tri récent
   const uniq = Object.values(all.reduce((acc,it)=>{
     const k=it.title.replace(/\s+/g,' ').trim();
     if(!acc[k] || acc[k].date<it.date) acc[k]=it;
@@ -268,7 +305,7 @@ async function loadNews(){
   $('#newsList').innerHTML = uniq.slice(0,8).map(i =>
     `<li><a href="${i.link}" target="_blank" rel="noopener">${i.title}</a> <span class="small">(${i.src})</span></li>`
   ).join("");
-  $('#newsNote').textContent = "Sources : AFP, BBC — derniers titres (déduplication & tri récent).";
+  $('#newsNote').textContent = "Sources : AFP, BBC — via AllOrigins (proxy public).";
 }
 
 /* Refresh all */
