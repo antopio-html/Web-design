@@ -3,335 +3,343 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Bar à Chat — Intro mignonne + Bento</title>
-<meta name="description" content="Bienvenue au Bar à Chat. Intro minimaliste et mignonne, puis section Bento avec cartes adorables et navigation sticky.">
+<title>Bar à Chat — Site mignon & minimal</title>
+<meta name="description" content="Bar à Chat : concept, chats, menu, engagements, nous trouver.">
 <style>
   :root{
-    /* palette latte/menthe/rose, douce et lisible */
-    --bg1:#f8f6f3; --bg2:#f2ece6;
-    --ink:#2b2623; --muted:#7a6f67;
-    --cream:#ffffff; --line:#eadccd;
-    --primary:#c98552; --rose:#f1a7b6; --mint:#79c9bf; --lav:#b7b6f0;
-    --focus:#e08aa0; --radius:18px;
-    --shadow: 0 10px 24px rgba(90,60,30,.08);
-    --shadow-strong: 0 18px 40px rgba(90,60,30,.14);
+    /* Palette douce “latte” */
+    --bg1:#fbf8f4; --bg2:#f3ede6;
+    --ink:#2b2623; --muted:#7b716a;
+    --panel:#ffffff; --line:#eadccd;
+    --primary:#c98552; --rose:#f1a7b6; --mint:#79c9bf;
+    --radius:18px; --shadow:0 10px 24px rgba(90,60,30,.08);
   }
   *{box-sizing:border-box}
   html,body{height:100%; margin:0}
   html{scroll-behavior:smooth}
   body{
     color:var(--ink);
-    font: clamp(14px, 1.1vw, 16px)/1.6 Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Arial, sans-serif;
+    font: clamp(14px, 1.1vw, 16px)/1.6 "Inter", system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Arial, sans-serif;
     background:
-      radial-gradient(1200px 700px at 80% -10%, rgba(201,133,82,.10), transparent 60%),
+      radial-gradient(1200px 700px at 85% -10%, rgba(201,133,82,.10), transparent 60%),
       radial-gradient(900px 600px at 10% 30%, rgba(240,169,183,.10), transparent 60%),
       linear-gradient(180deg, var(--bg1), var(--bg2));
     -webkit-tap-highlight-color: transparent;
   }
 
-  /* ======= HEADER sticky qui apparaît au scroll ======= */
+  /* ====== Barre de navigation (sticky) ====== */
   header.site{
     position:sticky; top:0; z-index:30;
-    padding:10px 0;
-    background:linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0));
-    border-bottom:1px solid transparent;
     backdrop-filter: blur(8px) saturate(1.04);
-    transition: background .25s ease, border-color .25s ease, box-shadow .25s ease, opacity .25s ease;
-    opacity:0; pointer-events:none;
+    background:linear-gradient(to bottom, rgba(255,255,255,.85), rgba(255,255,255,.65));
+    border-bottom:1px solid var(--line);
   }
-  body.scrolled header.site{
-    background:linear-gradient(to bottom, rgba(255,255,255,.86), rgba(255,255,255,.72));
-    border-bottom-color: var(--line);
-    box-shadow: var(--shadow);
-    opacity:1; pointer-events:auto;
+  .nav{
+    max-width:1100px; margin:auto; padding:10px 16px;
+    display:flex; align-items:center; gap:14px; justify-content:space-between;
   }
-  .nav{max-width:1200px; margin:auto; padding:0 18px; display:flex; align-items:center; gap:14px; justify-content:space-between}
   .brand{display:flex; gap:10px; align-items:center; font-weight:800; letter-spacing:.3px}
   .logo{
     width:28px; height:28px; border-radius:8px 8px 14px 14px; position:relative;
-    background:linear-gradient(180deg, var(--primary), #b77448); box-shadow:0 6px 14px rgba(201,133,82,.35) inset, 0 1px 0 rgba(255,255,255,.6);
+    background:linear-gradient(180deg, var(--primary), #b77448);
+    box-shadow:0 6px 14px rgba(201,133,82,.35) inset, 0 1px 0 rgba(255,255,255,.6);
   }
-  .logo:after{content:""; position:absolute; right:-7px; top:6px; width:10px; height:10px; border:3px solid #b77448; border-left-color:transparent; border-bottom-color:transparent; border-radius:50%}
-  .menu{display:flex; gap:8px; flex-wrap:wrap}
-  .menu a{
+  .logo:after{content:""; position:absolute; right:-7px; top:6px; width:10px; height:10px;
+    border:3px solid #b77448; border-left-color:transparent; border-bottom-color:transparent; border-radius:50%}
+  nav ul{display:flex; gap:8px; align-items:center; padding:0; margin:0; list-style:none; overflow:auto}
+  nav a{
     text-decoration:none; color:var(--ink); background:#fff; border:1px solid var(--line);
     padding:8px 10px; border-radius:999px; font-weight:600; font-size:13px; box-shadow:0 4px 10px rgba(90,60,30,.06);
+    white-space:nowrap;
   }
-  .menu a.is-active{ outline:2px solid rgba(224,138,160,.28) }
+  nav a.active{ outline:2px solid rgba(240,167,182,.35) }
 
-  /* ======= INTRO plein écran minimal & cute ======= */
-  #intro{
-    min-height:100svh; display:grid; place-items:center; padding:24px;
+  /* ====== Hero / Bienvenue ====== */
+  .hero{
+    min-height: calc(100svh - 64px);
+    display:grid; place-items:center; padding:28px 16px;
     position:relative; isolation:isolate;
   }
-  .introBox{
-    max-width:min(860px, 92vw); text-align:center;
-    border:1px solid var(--line); border-radius:24px; background:#fff;
-    padding: clamp(22px, 5vw, 42px);
-    box-shadow: var(--shadow-strong);
-    transform: translateY(8px);
+  .welcome{
+    max-width:min(900px, 92vw);
+    background:#fff; border:1px solid var(--line); border-radius:24px;
+    box-shadow:0 18px 40px rgba(90,60,30,.12);
+    text-align:center; padding: clamp(22px, 5vw, 42px);
   }
-  .introLogo{
+  .catlogo{
     width:110px; height:110px; border-radius:26px; margin:0 auto 14px; position:relative;
     background:
       radial-gradient(24px 24px at 65% 35%, #fff8, transparent),
       linear-gradient(180deg, var(--primary), #b77448);
     box-shadow:0 10px 28px rgba(201,133,82,.32);
   }
-  .introLogo:before,.introLogo:after{
+  .catlogo:before,.catlogo:after{
     content:""; position:absolute; top:-12px; width:26px; height:26px; background:#fff; border:2px solid var(--line); transform:rotate(45deg)
   }
-  .introLogo:before{ left:18px; border-bottom:none; border-right:none }
-  .introLogo:after{ right:18px; border-bottom:none; border-left:none }
-  h1.title{ font-size: clamp(30px, 6vw, 56px); margin:.2rem 0 .3rem; letter-spacing:.2px }
-  p.lead{ color:var(--muted); font-size: clamp(15px, 2.2vw, 18px); margin:.4rem auto 1.1rem; max-width:60ch }
-  .ctas{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap }
-  .cta{ display:inline-block; padding:10px 14px; border-radius:999px; font-weight:700; background:#fff; border:1px solid var(--line); box-shadow:0 8px 18px rgba(90,60,30,.10); color:var(--ink); text-decoration:none; }
-  .scrollHint{ position:absolute; bottom:16px; left:50%; transform:translateX(-50%); font-size:12px; color:var(--muted);
-    background:rgba(255,255,255,.8); border:1px solid var(--line); border-radius:999px; padding:6px 10px; backdrop-filter:blur(6px) }
-
-  /* ======= SECTION BENTO ======= */
-  #bento{
-    max-width:1200px; margin:22px auto 80px; padding:0 18px;
+  .catlogo:before{ left:18px; border-bottom:none; border-right:none }
+  .catlogo:after{ right:18px; border-bottom:none; border-left:none }
+  h1{ font-size: clamp(30px, 6vw, 56px); margin:.2rem 0 .35rem; letter-spacing:.2px }
+  .lead{ color:var(--muted); font-size: clamp(15px, 2.2vw, 18px); margin:.4rem auto 1.1rem; max-width:60ch }
+  .ctaRow{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap }
+  .cta{
+    display:inline-block; padding:10px 14px; border-radius:999px; font-weight:700;
+    background:#fff; border:1px solid var(--line); box-shadow:0 8px 18px rgba(90,60,30,.10); color:var(--ink); text-decoration:none;
   }
-  .bentoHead{ display:flex; align-items:center; justify-content:space-between; gap:14px; margin:10px 0 18px}
-  .bentoHead h2{ margin:0; font-size: clamp(22px, 3.8vw, 32px) }
-  .progress{ display:flex; align-items:center; gap:8px; color:var(--muted); font-size:12px }
-  .bar{ width:160px; height:6px; background:#eadfce; border:1px solid var(--line); border-radius:999px; overflow:hidden }
-  .bar i{ display:block; height:100%; width:0%; background:linear-gradient(90deg, var(--primary), var(--rose)) }
 
-  /* Grille bento : responsive + quelques cartes élargies pour le rythme */
+  /* ====== Sections ====== */
+  section{
+    scroll-margin-top: 84px; /* pour ancrage sous le header */
+    padding: 36px 16px;
+  }
+  .container{ max-width:1100px; margin:auto }
+
+  .section-head{
+    display:flex; align-items:end; justify-content:space-between; gap:12px; margin-bottom:14px;
+  }
+  .section-head h2{ margin:0; font-size: clamp(22px, 3.8vw, 32px) }
+  .desc{ color:var(--muted); font-size:14px }
+
+  /* Cartes mignonnes */
   .grid{
-    display:grid;
+    display:grid; gap:14px;
     grid-template-columns: repeat(12, 1fr);
-    gap:14px;
   }
-  /* cols */
   .col-4{ grid-column: span 4 }
   .col-6{ grid-column: span 6 }
-  .col-8{ grid-column: span 8 }
   .col-12{ grid-column: span 12 }
-  @media (max-width:1100px){
-    .col-8{ grid-column: span 12 }
-    .col-6{ grid-column: span 6 }
-  }
-  @media (max-width:800px){
-    .grid{ grid-template-columns: repeat(6, 1fr); }
-    .col-8,.col-12{ grid-column: span 6 }
-    .col-6{ grid-column: span 6 }
-    .col-4{ grid-column: span 6 }
-  }
+  @media (max-width:960px){ .col-4{grid-column: span 6} .col-6{grid-column: span 12} }
+  @media (max-width:640px){ .grid{grid-template-columns: repeat(6, 1fr)} .col-4,.col-6,.col-12{grid-column: span 6} }
 
-  /* Carte mignonne */
   .card{
-    position:relative; border:1px solid var(--line); border-radius:22px; background:var(--cream);
-    padding: clamp(14px, 2.2vw, 18px); box-shadow: var(--shadow);
-    overflow:hidden; transform-origin: 50% 60%;
+    position:relative; background:var(--panel); border:1px solid var(--line); border-radius:22px; padding:16px;
+    box-shadow:var(--shadow);
+    transition: transform .25s ease, box-shadow .25s ease;
   }
-  /* oreilles */
-  .card:before,.card:after{
-    content:""; position:absolute; top:-11px; width:24px; height:24px; background:#fff; border:1px solid var(--line); transform: rotate(45deg); z-index:2
-  }
-  .card:before{ left:22px; border-bottom:none; border-right:none }
-  .card:after{ right:22px; border-bottom:none; border-left:none }
-
+  .card:hover{ transform: translateY(-2px); box-shadow:0 20px 46px rgba(90,60,30,.16) }
   .card h3{ margin:.2rem 0 .35rem; font-size: clamp(18px, 3.2vw, 22px) }
   .card p{ margin:.2rem 0; color:var(--muted); font-size: clamp(13px, 2.8vw, 15px) }
+  .media{ margin-top:10px; border-radius:14px; overflow:hidden; border:1px solid #efdfd1; background:#fff }
+  .media img{ width:100%; display:block; height:auto }
+
   .badge{ display:inline-block; padding:4px 8px; border-radius:999px; font-size:12px; border:1px solid #f1d1d8; background:linear-gradient(180deg,#fff,#fde9e9); color:#7a3b44; margin-right:6px }
   .badge.mint{ border-color:#cfece8; background:linear-gradient(180deg,#fff,#e9f7f5); color:#2b605a }
-  .badge.lav{ border-color:#dcdcf9; background:linear-gradient(180deg,#fff,#eef0ff); color:#494977 }
 
-  .media{ margin-top:10px; border-radius:14px; overflow:hidden; border:1px solid #efdfd1; background:#fff; box-shadow:0 10px 18px rgba(90,60,30,.06) }
-  .media img{ width:100%; height:auto; display:block }
+  /* “Nous trouver” bloc simple */
+  .info{ display:grid; gap:10px; grid-template-columns:1.2fr .8fr; align-items:start }
+  @media (max-width:840px){ .info{ grid-template-columns: 1fr } }
+  .map{ border:1px solid var(--line); border-radius:16px; overflow:hidden; min-height:280px; background:#fff; box-shadow:var(--shadow) }
 
-  /* Hover/tap feedback */
-  .card:focus-within, .card:hover{
-    box-shadow: 0 20px 46px rgba(90,60,30,.16);
-    transform: translateY(-2px);
-  }
-  .card a{ color:inherit; text-decoration:none }
+  /* Révélations douces */
+  .reveal{ opacity:0; transform:translateY(18px) scale(.98); filter:blur(8px) }
+  .reveal.in{ opacity:1; transform:none; filter:none; transition: all .6s cubic-bezier(.2,.8,.2,1) }
 
-  /* Animations d’apparition */
-  .reveal{
-    opacity:0; filter: blur(10px);
-    transform: translateY(22px) scale(.98);
-  }
-  .reveal.is-in{
-    opacity:1; filter: blur(0px);
-    transform: translateY(0) scale(1);
-    transition: transform .6s cubic-bezier(.2,.8,.2,1), opacity .6s ease, filter .6s ease, box-shadow .3s ease;
-  }
-
-  /* petites pastilles décoratives */
-  .sprinkles{
-    position:absolute; inset:-20px; pointer-events:none; opacity:.06; mix-blend-mode:multiply;
-    background:
-      radial-gradient(16px 16px at 20% 30%, var(--mint), transparent 60%),
-      radial-gradient(18px 18px at 80% 60%, var(--rose), transparent 60%),
-      radial-gradient(14px 14px at 50% 80%, var(--lav), transparent 60%);
-  }
-
-  /* pied de page */
-  footer{ max-width:1200px; margin:40px auto 60px; padding:0 18px; color:var(--muted) }
+  /* Scrollspy highlight léger (nav a.active) géré en JS */
 </style>
 </head>
 <body>
 
-<!-- HEADER (apparaît quand on scrolle) -->
-<header class="site" id="siteHeader">
-  <nav class="nav">
+<header class="site" aria-label="Navigation principale">
+  <div class="nav">
     <div class="brand"><span class="logo" aria-hidden="true"></span> Bar à Chat</div>
-    <div class="menu">
-      <a href="#intro" data-target="intro" class="is-active">Intro</a>
-      <a href="#concept" data-target="concept">Concept</a>
-      <a href="#chats" data-target="chats">Chats</a>
-      <a href="#menu" data-target="menu">Menu</a>
-      <a href="#engagements" data-target="engagements">Engagements</a>
-      <a href="#noustrouver" data-target="noustrouver">Nous trouver</a>
-    </div>
-  </nav>
+    <nav aria-label="Sections">
+      <ul>
+        <li><a href="#concept" id="lnk-concept">Concept</a></li>
+        <li><a href="#chats" id="lnk-chats">Les chats</a></li>
+        <li><a href="#menu" id="lnk-menu">Le menu</a></li>
+        <li><a href="#engagements" id="lnk-engagements">Nos engagements</a></li>
+        <li><a href="#nous-trouver" id="lnk-nous">Nous trouver</a></li>
+      </ul>
+    </nav>
+  </div>
 </header>
 
-<!-- INTRO MIGNONNE -->
-<section id="intro" aria-label="Introduction">
-  <div class="introBox">
-    <div class="introLogo" aria-hidden="true"></div>
-    <h1 class="title">Bienvenue au Bar à Chat</h1>
-    <p class="lead">Un lieu cosy pour savourer un cappuccino, rencontrer nos pensionnaires et soutenir l’adoption responsable.  
-      Douceur, respect du rythme félin, et petits instants qui ronronnent.</p>
-    <div class="ctas">
-      <a class="cta" href="#bento">Découvrir</a>
-      <a class="cta" href="#noustrouver">Nous trouver</a>
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="welcome reveal">
+    <div class="catlogo" aria-hidden="true"></div>
+    <h1>Bienvenue au Bar à Chat</h1>
+    <p class="lead">Un lieu cosy pour un cappuccino, des ronrons et l’adoption responsable.  
+      On prend soin des humains et des félins, tout en douceur 🐾</p>
+    <div class="ctaRow">
+      <a class="cta" href="#concept">Découvrir le concept</a>
+      <a class="cta" href="#nous-trouver">Nous trouver</a>
     </div>
-    <div class="scrollHint">Faites défiler pour voir la grille</div>
   </div>
 </section>
 
-<!-- BENTO -->
-<section id="bento" aria-label="Grille bento des infos">
-  <div class="bentoHead">
-    <h2>Tout savoir en un coup d’œil</h2>
-    <div class="progress"><span>Parcours</span><div class="bar"><i id="prog"></i></div></div>
-  </div>
+<!-- CONCEPT -->
+<section id="concept" aria-labelledby="h2-concept">
+  <div class="container">
+    <div class="section-head">
+      <h2 id="h2-concept">Concept</h2>
+      <p class="desc">Un café paisible où l’on rencontre des chats adoptables, avec nos associations partenaires.</p>
+    </div>
 
-  <div class="grid" id="grid">
-    <!-- Concept -->
-    <article id="concept" class="card col-8 reveal">
-      <span class="sprinkles" aria-hidden="true"></span>
-      <span class="badge">Concept</span>
-      <h3>Un café où l’on rencontre des chats adoptables</h3>
-      <p>Partenariats associatifs, cadre apaisant, interactions douces et respectueuses.</p>
-      <div class="media"><img src="imagesBar/imageBar1.png" alt="Illustration du concept du bar à chat"></div>
-    </article>
+    <div class="grid">
+      <article class="card col-8 reveal">
+        <span class="badge">Le lieu</span>
+        <h3>Une parenthèse douce</h3>
+        <p>Espace calme, lectures, plaid & wifi — les chats circulent librement, avec des zones de repos dédiées.</p>
+        <div class="media"><img src="https://picsum.photos/900/520?random=11" alt="Ambiance cosy du café"></div>
+      </article>
 
-    <!-- Chats -->
-    <article id="chats" class="card col-4 reveal">
-      <span class="badge mint">Chats</span>
-      <h3>Nos pensionnaires</h3>
-      <p>Curieux, câlins, parfois timides — chaque chat a son caractère. Zones de repos garanties 🐾</p>
-      <div class="media"><img src="imagesBar/imageBar2.png" alt="Photo de chats du bar à chat"></div>
-    </article>
-
-    <!-- Menu -->
-    <article id="menu" class="card col-6 reveal">
-      <span class="badge">Menu</span>
-      <h3>Douceurs & boissons</h3>
-      <p>Cappuccino, latte, pâtisseries maison, options végétales. Hygiène irréprochable.</p>
-      <div class="media"><img src="imagesBar/imageBar3.png" alt="Image de boissons et pâtisseries du menu"></div>
-    </article>
-
-    <!-- Engagements -->
-    <article id="engagements" class="card col-6 reveal">
-      <span class="badge lav">Engagements</span>
-      <h3>Notre éthique</h3>
-      <p>Bien-être animal, accompagnement à l’adoption, transparence et sensibilisation.</p>
-      <div class="media"><img src="imagesBar/imageBar4.png" alt="Illustration de nos engagements et valeurs"></div>
-    </article>
-
-    <!-- Nous trouver -->
-    <article id="noustrouver" class="card col-12 reveal">
-      <span class="sprinkles" aria-hidden="true"></span>
-      <span class="badge mint">Nous trouver</span>
-      <h3>Venez nous voir</h3>
-      <p>Adresse, transports, stationnement et horaires — tout pour venir sereinement.</p>
-      <div class="media"><img src="imagesBar/imageBar5.png" alt="Carte d’accès ou plan pour nous trouver"></div>
-    </article>
+      <article class="card col-4 reveal">
+        <span class="badge mint">Adoption</span>
+        <h3>Rencontres responsables</h3>
+        <p>Accompagnement par nos bénévoles, dossiers suivis et conseils personnalisés.</p>
+        <div class="media"><img src="https://picsum.photos/600/520?random=12" alt="Adoption responsable"></div>
+      </article>
+    </div>
   </div>
 </section>
 
-<footer>
-  © Bar à Chat — Merci de votre visite. Revenez pour un cappuccino… et des ronrons 😺
+<!-- LES CHATS -->
+<section id="chats" aria-labelledby="h2-chats">
+  <div class="container">
+    <div class="section-head">
+      <h2 id="h2-chats">Les chats</h2>
+      <p class="desc">Curieux, câlins, parfois timides — chaque chat a son caractère (et son canapé préféré).</p>
+    </div>
+
+    <div class="grid">
+      <article class="card col-4 reveal">
+        <span class="badge mint">Luna</span>
+        <h3>Reine des siestes</h3>
+        <p>Adore les rayons de soleil et les grattouilles derrière les oreilles.</p>
+        <div class="media"><img src="https://picsum.photos/600/420?random=21" alt="Chat Luna"></div>
+      </article>
+      <article class="card col-4 reveal">
+        <span class="badge">Mochi</span>
+        <h3>Grand joueur</h3>
+        <p>Un laser ? Il accourt. Une plume ? Il bondit.</p>
+        <div class="media"><img src="https://picsum.photos/600/420?random=22" alt="Chat Mochi"></div>
+      </article>
+      <article class="card col-4 reveal">
+        <span class="badge mint">Tigrou</span>
+        <h3>Explorateur</h3>
+        <p>Curieux et sociable, mais sait se réserver des moments zen.</p>
+        <div class="media"><img src="https://picsum.photos/600/420?random=23" alt="Chat Tigrou"></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- LE MENU -->
+<section id="menu" aria-labelledby="h2-menu">
+  <div class="container">
+    <div class="section-head">
+      <h2 id="h2-menu">Le menu</h2>
+      <p class="desc">Boissons chaudes, pâtisseries maison, options végétales — et eau fraîche pour nos félins.</p>
+    </div>
+
+    <div class="grid">
+      <article class="card col-6 reveal">
+        <span class="badge">Boissons</span>
+        <h3>Cappuccino, latte & thés</h3>
+        <p>Grains locaux, laits végétaux, sirops maison. Demandez le “latte patte” 🐾</p>
+        <div class="media"><img src="https://picsum.photos/800/480?random=31" alt="Boissons du bar"></div>
+      </article>
+      <article class="card col-6 reveal">
+        <span class="badge mint">Douceurs</span>
+        <h3>Pâtisseries maison</h3>
+        <p>Cookies, carrot cake, brownie — options sans gluten selon arrivage.</p>
+        <div class="media"><img src="https://picsum.photos/800/480?random=32" alt="Pâtisseries maison"></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ENGAGEMENTS -->
+<section id="engagements" aria-labelledby="h2-engagements">
+  <div class="container">
+    <div class="section-head">
+      <h2 id="h2-engagements">Nos engagements</h2>
+      <p class="desc">Bien-être animal & hygiène irréprochable. Transparence avec nos partenaires.</p>
+    </div>
+
+    <div class="grid">
+      <article class="card col-4 reveal">
+        <span class="badge mint">Bien-être</span>
+        <h3>Rythme félin</h3>
+        <p>Temps de repos garantis, zones calmes, interactions respectueuses.</p>
+      </article>
+      <article class="card col-4 reveal">
+        <span class="badge">Hygiène</span>
+        <h3>Normes strictes</h3>
+        <p>Espaces séparés, nettoyage quotidien, traçabilité des produits.</p>
+      </article>
+      <article class="card col-4 reveal">
+        <span class="badge mint">Solidarité</span>
+        <h3>Associations locales</h3>
+        <p>Dons, parrainages, journées d’adoption responsables.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- NOUS TROUVER -->
+<section id="nous-trouver" aria-labelledby="h2-nous">
+  <div class="container">
+    <div class="section-head">
+      <h2 id="h2-nous">Nous trouver</h2>
+      <p class="desc">Adresse, accès & horaires — venez sereinement.</p>
+    </div>
+
+    <div class="info">
+      <div class="card reveal">
+        <h3>Coordonnées</h3>
+        <p><strong>Bar à Chat</strong><br>12 Rue des Ronrons, 00000 Ta Ville</p>
+        <p><strong>Horaires</strong><br>Tous les jours 10:00–20:00</p>
+        <p><strong>Contact</strong><br><a href="mailto:bonjour@barachat.example">bonjour@barachat.example</a></p>
+      </div>
+      <div class="map reveal" aria-label="Carte d'accès">
+        <!-- Remplace par une vraie carte (embed) si tu veux -->
+        <img src="https://picsum.photos/1000/600?random=41" alt="Plan d'accès" style="width:100%; height:auto; display:block;">
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer style="text-align:center; padding:32px 16px; color:var(--muted)">
+  © Bar à Chat — Cappuccinos & ronrons.
 </footer>
 
 <script>
-/* ===== Apparition du header au scroll + progress + reveal des cartes + scrollspy ===== */
+/* Révélations douces + Scrollspy du menu */
 (function(){
-  const prog = document.getElementById('prog');
-  const grid = document.getElementById('grid');
-  const cards = Array.from(document.querySelectorAll('.reveal'));
-  const menuLinks = Array.from(document.querySelectorAll('.menu a'));
-
-  // Header visible après 24px
-  const onScrollGlobal = ()=>{
-    if(window.scrollY > 24) document.body.classList.add('scrolled');
-    else document.body.classList.remove('scrolled');
-  };
-  addEventListener('scroll', onScrollGlobal, {passive:true});
-  onScrollGlobal();
-
-  // Reveal des cartes (IntersectionObserver)
+  // Reveal
+  const els = document.querySelectorAll('.reveal');
   const io = new IntersectionObserver((entries)=>{
-    entries.forEach(ent=>{
-      if(ent.isIntersecting){
-        ent.target.classList.add('is-in');
-        io.unobserve(ent.target);
-      }
+    entries.forEach(e=>{
+      if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
     });
   }, {threshold:.18});
-  cards.forEach(c=>io.observe(c));
+  els.forEach(el=>io.observe(el));
 
-  // Progress bar (par rapport au bento)
-  function updateProgress(){
-    const box = grid.getBoundingClientRect();
-    const win = window.innerHeight;
-    const total = Math.max(box.height - win, 1);
-    const seen = Math.min(Math.max(0, win - Math.max(0, box.top)), box.height);
-    const p = Math.min(1, Math.max(0, (window.scrollY + win - (grid.offsetTop)) / (grid.scrollHeight || (grid.offsetHeight+1))));
-    // fallback simple si calcul ci-dessus complique : utiliser ratio du scroll dans la page
-    prog.style.width = (p*100).toFixed(1)+'%';
-  }
-  addEventListener('scroll', updateProgress, {passive:true});
-  addEventListener('resize', updateProgress);
-  updateProgress();
-
-  // Scrollspy : surligne le lien du menu correspondant à la carte la plus centrale
-  const sections = ['intro','concept','chats','menu','engagements','noustrouver'].map(id=>document.getElementById(id));
-  const spy = ()=>{
-    let best = 'intro', dmin = 1e9, mid = window.innerHeight/2;
-    for(const s of sections){
-      if(!s) continue;
-      const r = s.getBoundingClientRect();
+  // Scrollspy
+  const ids = ['concept','chats','menu','engagements','nous-trouver'];
+  const links = {
+    'concept': document.getElementById('lnk-concept'),
+    'chats': document.getElementById('lnk-chats'),
+    'menu': document.getElementById('lnk-menu'),
+    'engagements': document.getElementById('lnk-engagements'),
+    'nous-trouver': document.getElementById('lnk-nous'),
+  };
+  function spy(){
+    let best = null, dmin = 1e9, mid = window.innerHeight/2;
+    for(const id of ids){
+      const el = document.getElementById(id);
+      if(!el) continue;
+      const r = el.getBoundingClientRect();
       const c = r.top + r.height/2;
       const d = Math.abs(c - mid);
-      if(d < dmin){ dmin = d; best = s.id; }
+      if(d < dmin){ dmin = d; best = id; }
     }
-    menuLinks.forEach(a=>a.classList.toggle('is-active', a.dataset.target===best));
-  };
+    for(const id of ids){ links[id]?.classList.toggle('active', id===best); }
+  }
   addEventListener('scroll', spy, {passive:true});
   addEventListener('resize', spy);
-  spy();
-
-  // Navigation douce : si on clique “Concept/…” depuis le haut, on descend vers la section
-  menuLinks.forEach(a=>{
-    a.addEventListener('click', (e)=>{
-      const id = a.getAttribute('href')?.slice(1);
-      if(!id) return;
-      const el = document.getElementById(id);
-      if(!el) return;
-      // comportement natif (smooth via CSS), mais on peut recentrer légèrement :
-      setTimeout(()=>el.scrollIntoView({behavior:'smooth', block:'start'}), 0);
-    });
-  });
+  setTimeout(spy, 50);
 })();
 </script>
 </body>
