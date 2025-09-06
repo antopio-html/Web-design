@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Paw & Fin — Animalerie moderne, bien-être animal</title>
+  <meta name="description" content="Paw & Fin : animalerie moderne et chaleureuse, spécialisée chats & aquatiques. Bien-être animal, conseils, produits sélectionnés."/>
+  <style>
+    :root{
+      --ivory:#F6F5F0;
+      --teal:#2BA6A1;         /* turquoise moderne */
+      --emerald:#1B7D73;      /* vert émeraude */
+      --gold:#D4A65A;         /* or doux */
+      --ink:#1C1C1C;          /* texte principal */
+      --cloud:#ffffff;
+      --muted:#E9E6DD;
+      --shadow: 0 12px 30px rgba(0,0,0,.10);
+      --radius:16px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--ivory);color:var(--ink);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,sans-serif}
+    a{color:var(--emerald);text-decoration:none}
+    img{max-width:100%;display:block}
+    .container{width:min(1100px,92vw);margin:auto}
+    /* Header */
+    header{position:sticky;top:0;background:rgb(246 245 240 /.85);backdrop-filter:saturate(120%) blur(6px);border-bottom:1px solid #e5dfd1;z-index:20}
+    .bar{display:flex;align-items:center;justify-content:space-between;padding:14px 0;gap:16px}
+    nav a{margin:0 10px;font-weight:600}
+    .btn{display:inline-flex;align-items:center;gap:.5rem;background:var(--emerald);color:var(--cloud);padding:10px 16px;border-radius:12px;box-shadow:var(--shadow)}
+    .btn:hover{background:var(--teal)}
+    /* Logo (SVG inline stylisé patte + vague) */
+    .logo{display:flex;align-items:center;gap:.8rem}
+    .logo-badge{width:40px;height:40px;border-radius:12px;background:conic-gradient(from 180deg,var(--teal),var(--emerald));display:grid;place-items:center;box-shadow:var(--shadow)}
+    .logo svg{width:26px;height:26px}
+    .brand{font-weight:800;letter-spacing:.5px}
+    /* Hero */
+    .hero{position:relative;isolation:isolate}
+    .hero::before{
+      content:"";position:absolute;inset:0;
+      background:
+        radial-gradient(1200px 400px at 50% 110%,rgba(212,166,90,.25),transparent 60%),
+        linear-gradient(180deg,rgba(255,255,255,.0),rgba(255,255,255,.25) 65%,rgba(255,255,255,.8));
+      z-index:0
+    }
+    .hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:28px;align-items:center;padding:44px 0}
+    .hero .card{background:var(--cloud);padding:26px;border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid #eee}
+    .kicker{color:var(--emerald);font-weight:700;text-transform:uppercase;letter-spacing:.12em;font-size:.78rem}
+    h1{font-size:clamp(28px,4vw,40px);margin:.3rem 0 1rem}
+    .badges{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}
+    .badge{background:var(--muted);padding:8px 12px;border-radius:999px;font-weight:600;font-size:.9rem;border:1px solid #e6e1d6}
+    .hero-media{border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);border:1px solid #eee}
+    /* Section title */
+    .t{display:flex;align-items:center;gap:10px;margin:36px 0 16px}
+    .t .rule{height:1px;background:linear-gradient(90deg,var(--gold),transparent);flex:1}
+    .t h2{margin:0;font-size:clamp(22px,3.2vw,28px)}
+    /* Produits */
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .card{background:var(--cloud);border:1px solid #eee;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+    .card .p{padding:16px}
+    .price{font-weight:800;color:var(--emerald)}
+    .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(27,125,115,.09);color:var(--emerald);font-weight:700;font-size:.8rem}
+    /* Bandeau valeurs (Art Déco) */
+    .deco{position:relative;margin:46px 0;border-radius:var(--radius);padding:24px;background:
+      linear-gradient(135deg,rgba(212,166,90,.22),rgba(27,125,115,.10));
+      border:1px dashed rgba(212,166,90,.55)}
+    .values{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .values .v{background:rgba(255,255,255,.6);border:1px solid #e6e1d6;border-radius:12px;padding:16px}
+    .values .v h4{margin:.2rem 0}
+    /* Galerie */
+    .gallery{display:grid;grid-template-columns:2fr 1fr 1fr;gap:14px}
+    .gallery img{border-radius:14px;border:1px solid #eee;box-shadow:var(--shadow);height:100%;object-fit:cover}
+    /* Footer */
+    footer{margin-top:48px;background:var(--muted);border-top:1px solid #e5dfd1}
+    .foot{display:grid;grid-template-columns:1.2fr .8fr;gap:20px;align-items:center;padding:22px 0}
+    .mini{font-size:.92rem;color:#4b4b4b}
+    .social a{margin-right:12px}
+    /* Responsive */
+    @media (max-width:920px){
+      .hero-grid{grid-template-columns:1fr;gap:16px}
+      .grid{grid-template-columns:1fr 1fr}
+      .values{grid-template-columns:1fr}
+      .gallery{grid-template-columns:1fr 1fr}
+      .foot{grid-template-columns:1fr}
+      nav{display:none}
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="container bar">
+    <div class="logo">
+      <div class="logo-badge" aria-hidden="true">
+        <!-- Icône patte + vague -->
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+          <path d="M36 36c8 0 11 8 6 13-6 6-20 5-23-5-3-9 5-15 17-8z" fill="var(--teal)"/>
+          <circle cx="18" cy="15" r="5" fill="var(--gold)"/>
+          <circle cx="30" cy="12" r="5" fill="var(--gold)"/>
+          <circle cx="42" cy="15" r="5" fill="var(--gold)"/>
+          <circle cx="24" cy="23" r="5" fill="var(--gold)"/>
+        </svg>
+      </div>
+      <div class="brand">PAW &amp; FIN</div>
+    </div>
+    <nav>
+      <a href="#maison">La Maison</a>
+      <a href="#produits">Produits</a>
+      <a href="#valeurs">Valeurs</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <a class="btn" href="#contact" aria-label="Contacter Paw & Fin">Contact</a>
+  </div>
+</header>
+
+<main>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container hero-grid">
+      <div class="card">
+        <div class="kicker">Animalerie moderne & bien-être</div>
+        <h1>Chats & Aquatiques au cœur, <span style="color:var(--emerald)">bien-être</span> avant tout</h1>
+        <p>Chez <strong>Paw & Fin</strong>, nous sélectionnons des produits beaux, sûrs et utiles pour vos compagnons. Une boutique chaleureuse, des conseils clairs, et une attention particulière à l’univers <em>félin</em> et <em>aquatique</em>.</p>
+        <div class="badges">
+          <span class="badge">Conseil expert</span>
+          <span class="badge">Matériel & alimentation</span>
+          <span class="badge">Plantes aquatiques</span>
+          <span class="badge">Bien-être animal</span>
+        </div>
+        <a class="btn" href="#produits">Voir les produits</a>
+      </div>
+      <div class="hero-media">
+        <img src="assets/hero1.png" alt="Ambiance claire avec bouteille d’huile d’olive — style Art Déco naturel"/>
+      </div>
+    </div>
+  </section>
+
+  <!-- LA MAISON -->
+  <section id="maison" class="container">
+    <div class="t"><h2>La Maison Paw & Fin</h2><div class="rule"></div></div>
+    <div class="card" style="display:grid;grid-template-columns:1.1fr .9fr;gap:18px;align-items:center">
+      <div class="p">
+        <p><strong>Moderne, familiale et proche de la nature</strong> : notre boutique met en avant un design lumineux, des matériaux chaleureux et une pédagogie simple. Nous défendons une approche <u>positive</u> du lien humain-animal.</p>
+        <ul>
+          <li>Chat : nutrition, jeux, aménagements doux & anti-stress.</li>
+          <li>Aquatique : aquariums, filtres, plantes, sélection bettas/guppys.</li>
+          <li>Conseils honnêtes, protocoles d’entretien minimalistes.</li>
+        </ul>
+        <a class="btn" href="#contact">Prendre conseil</a>
+      </div>
+      <img src="assets/maison.png" alt="Atelier sobre avec produits sur table en bois"/>
+    </div>
+  </section>
+
+  <!-- PRODUITS -->
+  <section id="produits" class="container">
+    <div class="t"><h2>Nos Produits</h2><div class="rule"></div></div>
+    <div class="grid">
+      <article class="card">
+        <img src="assets/hero2.png" alt="Pot de miel clair sur fond lumineux (décor vitrine)"/>
+        <div class="p">
+          <div class="pill">Chat</div>
+          <h3>Litières & Bien-être</h3>
+          <p>Litières minérales & végétales, aires de repos, diffuseurs apaisants.</p>
+          <div class="price">à partir de 49 Dh</div>
+        </div>
+      </article>
+      <article class="card">
+        <img src="assets/cultures.png" alt="Grappe d’olives / feuilles en gros plan"/>
+        <div class="p">
+          <div class="pill">Aquatique</div>
+          <h3>Kits Aquarium</h3>
+          <p>Bacs 20–60L, filtrations silencieuses, éclairages sobres, plantes faciles.</p>
+          <div class="price">à partir de 799 Dh</div>
+        </div>
+      </article>
+      <article class="card">
+        <img src="assets/abeille_olivier.png" alt="Abeille sur fleur d’olivier — nature & harmonie"/>
+        <div class="p">
+          <div class="pill">Alimentation</div>
+          <h3>Recettes simples</h3>
+          <p>Aliments complets pour chats, flocons/granulés pour poissons, friandises.</p>
+          <div class="price">à partir de 19 Dh</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- VALEURS (bandeau Art Déco) -->
+  <section id="valeurs" class="container deco">
+    <div class="t" style="margin:0 0 12px"><h2>Nos Valeurs</h2><div class="rule"></div></div>
+    <div class="values">
+      <div class="v">
+        <h4>Bien-être d’abord</h4>
+        <p>Choix produits guidés par la santé, le confort et l’éthologie.</p>
+      </div>
+      <div class="v">
+        <h4>Design responsable</h4>
+        <p>Matériaux durables, mise en scène claire, conseils pédagogiques.</p>
+      </div>
+      <div class="v">
+        <h4>Transparence</h4>
+        <p>Prix lisibles, entretien simplifié, alternatives selon budget & niveau.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- GALERIE -->
+  <section class="container">
+    <div class="t"><h2>Ambiances</h2><div class="rule"></div></div>
+    <div class="gallery">
+      <img src="assets/paysage_oliviers.png" alt="Collines et champs d’oliviers en lumière dorée"/>
+      <img src="assets/footer.png" alt="Motif ivoire feuille d’olivier — texture douce"/>
+      <img src="assets/contact.png" alt="Petite illustration feuille dorée — contact"/>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="container" style="margin-top:36px">
+    <div class="card">
+      <div class="p" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center">
+        <div>
+          <div class="kicker">Contact</div>
+          <h2>Parlons de votre compagnon</h2>
+          <p class="mini">Écrivez-nous pour un conseil personnalisé (choix d’aquarium, plantes, nutrition féline, etc.).</p>
+          <form onsubmit="event.preventDefault(); alert('Merci ! Nous vous répondrons rapidement.');">
+            <label class="mini">Nom<br><input required style="width:100%;padding:10px;border-radius:10px;border:1px solid #d9d4c9"/></label><br><br>
+            <label class="mini">Email<br><input type="email" required style="width:100%;padding:10px;border-radius:10px;border:1px solid #d9d4c9"/></label><br><br>
+            <label class="mini">Message<br><textarea rows="4" required style="width:100%;padding:10px;border-radius:10px;border:1px solid #d9d4c9"></textarea></label><br><br>
+            <button class="btn" type="submit">Envoyer</button>
+          </form>
+        </div>
+        <img src="assets/maison.png" alt="Atelier chaleureux Paw & Fin"/>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container foot">
+    <div class="logo">
+      <div class="logo-badge">
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+          <path d="M36 36c8 0 11 8 6 13-6 6-20 5-23-5-3-9 5-15 17-8z" fill="var(--emerald)"/>
+          <circle cx="18" cy="15" r="5" fill="var(--gold)"/>
+          <circle cx="30" cy="12" r="5" fill="var(--gold)"/>
+          <circle cx="42" cy="15" r="5" fill="var(--gold)"/>
+          <circle cx="24" cy="23" r="5" fill="var(--gold)"/>
+        </svg>
+      </div>
+      <div class="brand">PAW &amp; FIN</div>
+    </div>
+    <div class="mini">
+      © Paw & Fin — Bien-être animal • Casablanca.  
+      <span class="social">
+        <a href="#" aria-label="Instagram">Instagram</a>
+        <a href="#" aria-label="Facebook">Facebook</a>
+        <a href="#" aria-label="WhatsApp">WhatsApp</a>
+      </span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
