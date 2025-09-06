@@ -3,12 +3,11 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Tunnel 3D — Pause sur carte</title>
-<meta name="description" content="Viewport fixe. Scroll/Swipe = avance caméra en Z. Pause automatique sur chaque carte pour lecture.">
+<title>Tunnel 3D — Pause + Stick (soft)</title>
+<meta name="description" content="Viewport fixe, scroll/Swipe = avance caméra. Pause lisible au focus, puis carte qui suit légèrement avant de disparaître.">
 <style>
   :root{
-    --bg:#080a0f; --ink:#ececf1; --muted:#a7a7b5; --primary:#ff1f43; --panel:#0f1118; --radius:14px;
-    --focus: #ff7185;
+    --bg:#080a0f; --ink:#ececf1; --muted:#a7a7b5; --primary:#ff1f43; --panel:#0f1118; --radius:14px; --focus:#ff7185;
   }
   *{box-sizing:border-box} html,body{height:100%; margin:0}
   body{
@@ -22,10 +21,10 @@
   }
   a{color:inherit; text-decoration:none}
 
-  /* Viewport fixé */
+  /* Viewport fixe */
   .viewport{
     position:fixed; inset:0; overflow:hidden;
-    perspective: clamp(700px, 85vw, 1200px);
+    perspective: clamp(760px, 85vw, 1100px); /* moins “zoomé” pour du confort */
     perspective-origin: 50% 50%;
     touch-action:none;
   }
@@ -34,19 +33,20 @@
   header{
     position:fixed; inset:0 0 auto 0; z-index:10; display:flex; align-items:center; justify-content:space-between;
     padding: clamp(8px, 2.5vw, 14px) clamp(10px, 3vw, 18px);
-    background:linear-gradient(to bottom, rgba(8,10,15,.65), rgba(8,10,15,0));
-    border-bottom:1px solid rgba(255,255,255,.06); backdrop-filter: blur(10px) saturate(1.15);
+    background:linear-gradient(to bottom, rgba(8,10,15,.6), rgba(8,10,15,0));
+    border-bottom:1px solid rgba(255,255,255,.06); backdrop-filter: blur(10px) saturate(1.1);
   }
   .brand{display:flex; gap:10px; align-items:center; font-weight:800; letter-spacing:.5px; font-size: clamp(14px, 2.8vw, 16px)}
   .dot{width:12px; height:12px; border-radius:50%;
     background:radial-gradient(circle at 30% 30%, #fff, #fff0 30%), linear-gradient(180deg, var(--primary), #b3122b);
-    box-shadow:0 0 14px rgba(255,31,67,.55);
+    box-shadow:0 0 14px rgba(255,31,67,.5);
   }
   .hud{display:flex; align-items:center; gap:10px; color:#d4d4de; font-size:12px}
   .bar{width: clamp(120px, 30vw, 200px); height:6px; border-radius:999px; background:#1a1b24; overflow:hidden; border:1px solid #23232f}
   .bar>i{display:block; height:100%; width:0%; background:linear-gradient(90deg,var(--primary),#ff94a7)}
   .state{padding:4px 8px; border-radius:999px; border:1px solid #2b2d3d; background:#131520; color:#dcdce6}
 
+  /* Couches */
   .layer{
     position:absolute; top:50%; left:50%;
     transform-style:preserve-3d; will-change: transform, opacity, filter;
@@ -58,20 +58,21 @@
     border-radius: clamp(12px, 2.8vw, 16px);
     background:linear-gradient(180deg, #161823, var(--panel));
     border:1px solid #222436;
-    box-shadow: 0 24px 60px rgba(0,0,0,.55), inset 0 0 40px rgba(255,255,255,.04);
+    box-shadow: 0 22px 56px rgba(0,0,0,.5), inset 0 0 36px rgba(255,255,255,.04);
     transition: box-shadow .25s, border-color .25s, transform .25s;
   }
   .card h2{margin:.2rem 0 .45rem; font-size: clamp(18px, 4.5vw, 24px)}
   .card p{color:var(--muted); margin:.2rem 0; font-size: clamp(13px, 3.7vw, 15px)}
   .chip{display:inline-block; padding:4px 8px; border-radius:999px; font-size:12px;
         background:#1a0d11; color:#ffb2bf; border:1px solid #2a1419; margin-right:6px}
-  /* Surlignage quand la carte est “au focus” */
+
+  /* Focus visuel */
   .focused .card{
     border-color: var(--focus);
     box-shadow:
-      0 26px 64px rgba(255,31,67,.45),
+      0 26px 64px rgba(255,31,67,.42),
       0 0 0 1px rgba(255,255,255,.06) inset,
-      0 0 0 2px rgba(255,113,133,.18);
+      0 0 0 2px rgba(255,113,133,.16);
   }
 
   .hint{
@@ -81,22 +82,17 @@
     padding:8px 10px; border-radius:999px;
   }
 
+  /* Contrôles */
   .ctrls{
     position:fixed; right:12px; bottom:72px; z-index:12; display:flex; flex-direction:column; gap:10px;
   }
   .ctrls button{
     width:48px; height:48px; border-radius:12px; border:1px solid #26293a; background:#13151f; color:#fff;
-    box-shadow:0 10px 24px rgba(0,0,0,.45); font-size:18px; touch-action:none;
+    box-shadow:0 10px 24px rgba(0,0,0,.4); font-size:18px; touch-action:none;
   }
   .ctrls button:active{transform:scale(.98)}
 
-  .scrollspace{ height: 2000px }
-  .grain{
-    position:fixed; inset:-40px; z-index:0; opacity:.06; pointer-events:none; mix-blend-mode:soft-light;
-    background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="140" height="140"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2"/></filter><rect width="100%" height="100%" filter="url(%23n)"/></svg>');
-    animation:grain 6s steps(2) infinite;
-  }
-  @keyframes grain{to{transform:translate(50px,0)}}
+  .scrollspace{ height: 1600px } /* compat desktop */
 </style>
 </head>
 <body>
@@ -112,14 +108,14 @@
 <div class="viewport" id="viewport" aria-label="Scène 3D">
   <div class="scene" id="scene">
     <!-- Répartis par ~800 en Z -->
-    <div class="layer" data-z="-3600"><div class="card"><span class="chip">Intro</span><h2>Bienvenue</h2><p>Swipe / Scroll = avance dans le tunnel 3D.</p></div></div>
-    <div class="layer" data-z="-2800"><div class="card"><span class="chip">Concept</span><h2>Caméra en Z</h2><p>Perspective CSS + translateZ. Les objets viennent du fond, passent net, repartent.</p></div></div>
-    <div class="layer" data-z="-2000"><div class="card"><span class="chip">FX</span><h2>Netteté / Opacité</h2><p>Distance → taille, blur, opacity. Focus au plan Z=0.</p></div></div>
-    <div class="layer" data-z="-1200"><div class="card"><span class="chip">Rythme</span><h2>Entrées cadencées</h2><p>Pause automatique sur chaque carte pour la lecture.</p></div></div>
-    <div class="layer" data-z="-400"><div class="card"><span class="chip">Focus</span><h2>Plan 0</h2><p>Ici, la carte est nette, grande, lisible.</p></div></div>
-    <div class="layer" data-z="400"><div class="card"><span class="chip">Suite</span><h2>Devant & loin</h2><p>En avançant, elle vous dépasse puis s’éloigne.</p></div></div>
+    <div class="layer" data-z="-3600"><div class="card"><span class="chip">Intro</span><h2>Bienvenue</h2><p>Swipe / Scroll = avance douce dans le tunnel 3D.</p></div></div>
+    <div class="layer" data-z="-2800"><div class="card"><span class="chip">Concept</span><h2>Caméra en Z</h2><p>Perspective CSS + translateZ. Les objets viennent du fond, deviennent nets, repartent.</p></div></div>
+    <div class="layer" data-z="-2000"><div class="card"><span class="chip">FX</span><h2>Netteté & Opacité</h2><p>Distance → taille, blur, opacity. Focus au plan Z=0.</p></div></div>
+    <div class="layer" data-z="-1200"><div class="card"><span class="chip">Rythme</span><h2>Pause lisible</h2><p>Petite pause au focus, puis la carte suit un peu le mouvement.</p></div></div>
+    <div class="layer" data-z="-400"><div class="card"><span class="chip">Focus</span><h2>Plan 0</h2><p>Lisibilité maximale avant la sortie du cadre.</p></div></div>
+    <div class="layer" data-z="400"><div class="card"><span class="chip">Suite</span><h2>Suivi fluide</h2><p>Elle s’accroche légèrement à la caméra puis s’éloigne.</p></div></div>
     <div class="layer" data-z="1200"><div class="card"><span class="chip">Custom</span><h2>Vos contenus</h2><p>Dupliquez une <code>.layer</code> et réglez <code>data-z</code>.</p></div></div>
-    <div class="layer" data-z="2000"><div class="card"><span class="chip">Fin</span><h2>Atterrissage</h2><p>► / ◄ ou ↑/↓ pour piloter. Appui fort = casse la pause.</p></div></div>
+    <div class="layer" data-z="2000"><div class="card"><span class="chip">Fin</span><h2>Atterrissage</h2><p>► / ◄ ou ↑/↓ pour piloter tranquillement.</p></div></div>
   </div>
 </div>
 
@@ -129,15 +125,15 @@
 </div>
 
 <div class="scrollspace" aria-hidden="true"></div>
-<div class="grain" aria-hidden="true"></div>
-<div class="hint">Swipe / Scroll • Press & Hold sur ► / ◄ • Pause auto sur chaque carte</div>
+<div class="hint">Swipe / Scroll doux • Pause au focus • La carte “colle” un peu avant de partir</div>
 
 <script>
 /*
-  Nouveautés :
-  - Etat “dwell” (pause) quand une carte atteint le focus (proche Z=0).
-  - Pendant la pause, la caméra se verrouille sur la carte un temps donné (DWELL_MS).
-  - L’utilisateur peut “casser” la pause avec un geste fort (BREAK_FORCE), ou attendre l’auto-avance si activée.
+  Mode “soft” :
+  - Moins dynamique (sensibilité réduite + damping).
+  - Pause (DWELL_MS) quand proche du plan 0.
+  - “Stick” : après la pause, la carte suit partiellement le mouvement pendant STICK_MS,
+    via un offset de profondeur proportionnel au déplacement caméra, qui décroît progressivement.
 */
 (function(){
   const scene = document.getElementById('scene');
@@ -154,43 +150,51 @@
     zMax:  2300,
     blurMax: 12,
     visibilityZ: 2400,
-    tiltMax: 5,
-    scaleClampMin: .28,
-    scaleClampMax: 2.4,
-    SPEED: 2.0,          // réactivité wheel
-    TOUCH_SENS: 2.6,     // réactivité swipe
-    KEY_STEP: 260,
-    BTN_STEP: 380,
-    SNAP_WIN: 140,       // fenêtre autour d’une carte qui déclenche le lock
-    DWELL_MS: 1600,      // durée de pause lisible (ms)
-    AUTO_ADVANCE: false, // si true, avance à la carte suivante après la pause
-    BREAK_FORCE: 380     // vitesse/impulsion minimale pour casser la pause
+    tiltMax: 4,
+    scaleClampMin: .30,
+    scaleClampMax: 2.2,
+
+    /* >>> moins dynamique */
+    SPEED: 0.9,          // wheel réactivité (↓)
+    TOUCH_SENS: 1.4,     // swipe réactivité (↓)
+    KEY_STEP: 160,       // pas clavier (↓)
+    BTN_STEP: 220,       // pas boutons (↓)
+
+    /* pause & snap */
+    SNAP_WIN: 170,       // fenêtre de lock autour du plan
+    DWELL_MS: 1500,      // durée de pause lisible (ms)
+    BREAK_FORCE: 520,    // geste minimal pour casser la pause (↑ = plus dur à casser)
+
+    /* stick (suivi après la pause) */
+    STICK_MS: 900,       // durée du suivi
+    STICK_FACTOR: 0.5,   // proportion de déplacement caméra suivie par la carte (0..1)
+    FADE_STICK_PX: 380   // “crédit” de distance retiré du calcul d’opacité au début du stick
   };
 
-  // Etat
+  /* état */
   let targetZ = cfg.zMin;
   let camZ = cfg.zMin;
   let vZ = 0;
+
   let tiltX=0, tiltY=0, ttx=0, tty=0;
 
-  let mode = 'free';         // 'free' | 'dwell'
-  let dwellTimer = 0;        // timestamp fin de pause
-  let focusedIndex = -1;     // index de la carte en pause
-  let holdFw=false, holdBk=false;
+  let mode = 'free';          // 'free' | 'dwell'
+  let dwellTimer = 0;
+  let focusedIndex = -1;
+
+  // état stick
+  let stick = { active:false, index:-1, startCamZ:0, startTime:0 };
 
   function setMode(m){
     mode = m;
     stateText.textContent = 'Mode: ' + (m==='dwell' ? 'pause' : 'libre');
   }
-
   function clamp(v,min,max){ return Math.max(min, Math.min(max,v)); }
   function updateHUD(){
     const p = (camZ - cfg.zMin) / (cfg.zMax - cfg.zMin);
     prog.style.width = (Math.max(0,Math.min(1,p))*100).toFixed(1)+'%';
     depthText.textContent = `Z: ${Math.round(camZ)}`;
   }
-
-  // Trouver la carte la plus proche du plan (Z caméra)
   function nearestLayerIndex(z){
     let best=-1, dmin=1e9;
     for(let i=0;i<layers.length;i++){
@@ -204,22 +208,28 @@
   function enterDwell(i){
     focusedIndex = i;
     const z0 = +layers[i].dataset.z || 0;
-    targetZ = z0; camZ = camZ; vZ = 0;
-    dwellTimer = performance.now() + cfg.DWELL_MS;
+    targetZ = z0; vZ = 0; dwellTimer = performance.now() + cfg.DWELL_MS;
     setMode('dwell');
-    // style focus
     layers.forEach(L=>L.classList.remove('focused'));
     layers[i].classList.add('focused');
+    // fin du stick précédent si existant
+    stick.active = false;
   }
-
-  function exitDwell(){
+  function beginStick(i){
+    stick.active = true;
+    stick.index = i;
+    stick.startCamZ = camZ;
+    stick.startTime = performance.now();
+  }
+  function exitDwell(startStick=true){
+    const i = focusedIndex;
     setMode('free');
     layers.forEach(L=>L.classList.remove('focused'));
-    dwellTimer = 0;
-    focusedIndex = -1;
+    dwellTimer = 0; focusedIndex = -1;
+    if(startStick && i>=0) beginStick(i);
   }
 
-  // Pointer pour tilt
+  /* tilt pointeur */
   addEventListener('pointermove', e=>{
     const cx = innerWidth/2, cy = innerHeight/2;
     const nx = (e.clientX - cx)/cx;
@@ -228,38 +238,33 @@
     ttx = -ny * cfg.tiltMax;
   }, {passive:true});
 
-  // Wheel
+  /* wheel (moins sensible) */
   addEventListener('wheel', e=>{
     const dy = e.deltaY;
-    // Si en dwell, on n’ajoute la vitesse que si l’impulsion est forte
+    const impulse = dy * cfg.SPEED;
     if(mode==='dwell'){
-      if(Math.abs(dy*cfg.SPEED) >= cfg.BREAK_FORCE){
-        exitDwell();
-        vZ += dy * cfg.SPEED;
-      }
-    }else{
-      vZ += dy * cfg.SPEED;
+      if(Math.abs(impulse) >= cfg.BREAK_FORCE){ exitDwell(true); vZ += impulse; }
+    } else {
+      vZ += impulse;
     }
     e.preventDefault();
   }, {passive:false});
 
-  // Touch super sensible
+  /* touch (moins réactif) */
   let touching=false, lastY=0, lastT=0;
   viewport.addEventListener('touchstart', e=>{
-    touching=true; vZ*=0.35;
+    touching=true; vZ*=0.3;
     lastY = e.touches[0].clientY; lastT = performance.now();
   }, {passive:true});
-
   viewport.addEventListener('touchmove', e=>{
     if(!touching) return;
     const y = e.touches[0].clientY;
     const dy = (lastY - y) * cfg.TOUCH_SENS;
     const now = performance.now();
     const dt = Math.max(16, now - lastT);
-    const impulse = (dy * 16 / dt) * 24; // normalisé temps
+    const impulse = (dy * 16 / dt) * 16; // un peu moins punchy
     if(mode==='dwell'){
-      if(Math.abs(impulse) >= cfg.BREAK_FORCE){ exitDwell(); vZ += impulse; }
-      // sinon on ignore pour garder la lisibilité
+      if(Math.abs(impulse) >= cfg.BREAK_FORCE){ exitDwell(true); vZ += impulse; }
     } else {
       vZ += impulse;
     }
@@ -268,100 +273,90 @@
   }, {passive:false});
   addEventListener('touchend', ()=>{ touching=false; }, {passive:true});
 
-  // Boutons ► / ◄ (press & hold)
-  btnFw.addEventListener('pointerdown', ()=>{
-    if(mode==='dwell'){ exitDwell(); }
-    holdFw=true; vZ -= cfg.BTN_STEP;
-  });
-  btnBk.addEventListener('pointerdown', ()=>{
-    if(mode==='dwell'){ exitDwell(); }
-    holdBk=true; vZ += cfg.BTN_STEP;
-  });
+  /* boutons */
+  let holdFw=false, holdBk=false;
+  btnFw.addEventListener('pointerdown', ()=>{ if(mode==='dwell'){ exitDwell(true); } holdFw=true; vZ -= cfg.BTN_STEP; });
+  btnBk.addEventListener('pointerdown', ()=>{ if(mode==='dwell'){ exitDwell(true); } holdBk=true; vZ += cfg.BTN_STEP; });
   addEventListener('pointerup', ()=>{ holdFw=false; holdBk=false; });
 
-  // Clavier
+  /* clavier */
   addEventListener('keydown', e=>{
     const k = e.key.toLowerCase();
-    if(k==='arrowdown' || k==='pagedown'){ if(mode==='dwell'){ exitDwell(); } vZ -= cfg.KEY_STEP*2; }
-    if(k==='arrowup'   || k==='pageup'  ){ if(mode==='dwell'){ exitDwell(); } vZ += cfg.KEY_STEP*2; }
+    if(k==='arrowdown' || k==='pagedown'){ if(mode==='dwell'){ exitDwell(true); } vZ -= cfg.KEY_STEP*2; }
+    if(k==='arrowup'   || k==='pageup'  ){ if(mode==='dwell'){ exitDwell(true); } vZ += cfg.KEY_STEP*2; }
   });
 
-  function maybeEnterOrStayDwell(now){
-    // si déjà en pause
-    if(mode==='dwell'){
-      // auto-avance ?
-      if(cfg.AUTO_ADVANCE && now >= dwellTimer){
-        // cible = prochaine carte
-        const next = Math.min(layers.length-1, focusedIndex+1);
-        if(next!==focusedIndex){
-          exitDwell();
-          const zNext = +layers[next].dataset.z || 0;
-          targetZ = zNext; // petit départ
-          vZ -= 300;       // amorce d’avance
-        }
-      }
-      return;
-    }
-    // pas en pause : check si on rentre dans la fenêtre
+  function maybeEnterDwell(){
+    if(mode==='dwell') return;
     const i = nearestLayerIndex(camZ);
     const z0 = +layers[i].dataset.z || 0;
     const d = Math.abs(z0 - camZ);
-    // vitesse basse + proche du plan -> lock
-    if(d <= cfg.SNAP_WIN && Math.abs(vZ) < 80){
-      enterDwell(i);
-      // recentre précisément
-      targetZ = z0;
-    }
+    if(d <= cfg.SNAP_WIN && Math.abs(vZ) < 60){ enterDwell(i); targetZ = z0; }
   }
 
   function render(){
     const now = performance.now();
 
-    // Press & hold
+    /* press & hold doux */
     if(mode!=='dwell'){
-      if(holdFw) vZ -= 14;
-      if(holdBk) vZ += 14;
+      if(holdFw) vZ -= 10;
+      if(holdBk) vZ += 10;
     }
 
-    // Moteur mouvement
+    /* dynamique adoucie */
     if(mode==='dwell'){
-      // verrouille la cible sur la carte courante
+      // verrouillage sur la carte + amortissement
       if(focusedIndex>=0){
         const z0 = +layers[focusedIndex].dataset.z || 0;
         targetZ = z0;
       }
-      vZ *= 0.8; // amortit quasi à zéro
+      vZ *= 0.78; // se calme vite pendant la pause
+      if(now >= dwellTimer){ exitDwell(true); }
     } else {
       targetZ += vZ;
-      vZ *= 0.86;
+      vZ *= 0.82; // damping plus fort (moins “nerveux”)
     }
 
     targetZ = clamp(targetZ, cfg.zMin, cfg.zMax);
-    camZ += (targetZ - camZ)*0.12;
+    camZ += (targetZ - camZ)*0.1;
 
-    // Tilt easing
-    const ex=0.12; tiltX += (ttx - tiltX)*ex; tiltY += (tty - tiltY)*ex;
-
-    // Entrer / rester en dwell si conditions ok
-    maybeEnterOrStayDwell(now);
-
-    // Applique tilt scène
+    /* tilt easing */
+    const ex=0.1; tiltX += (ttx - tiltX)*ex; tiltY += (tty - tiltY)*ex;
     scene.style.transform = `rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
 
-    // MAJ couches
-    for(const L of layers){
-      const z0 = +L.dataset.z||0;
-      const depth = z0 - camZ;
-      const scale = clamp( 1 / (1 + (depth/1100)), cfg.scaleClampMin, cfg.scaleClampMax );
-      const ad = Math.abs(depth);
-      const o = clamp(1 - (ad/cfg.visibilityZ), 0, 1);
-      const blur = (1 - Math.max(0, 1 - ad/850)) * cfg.blurMax;
-      const yOffset = (depth/42);
+    /* entrée en pause si conditions OK */
+    maybeEnterDwell();
 
-      L.style.transform = `translate(-50%,-50%) translateZ(${depth}px) translateY(${yOffset}px) scale(${scale}) rotateX(${tiltX*0.35}deg) rotateY(${tiltY*0.35}deg)`;
+    /* rendu couches */
+    for(let i=0;i<layers.length;i++){
+      const L = layers[i];
+      const z0 = +L.dataset.z||0;
+
+      // STICK: si actif pour cette couche, ajoute un offset en Z qui suit la caméra
+      let depthBase = z0 - camZ;
+      if(stick.active && stick.index===i){
+        const t = clamp((now - stick.startTime)/cfg.STICK_MS, 0, 1);
+        const follow = (camZ - stick.startCamZ) * cfg.STICK_FACTOR * (1 - t); // décroît vers 0
+        depthBase += follow;
+        if(t>=1) stick.active=false; // fin du stick
+      }
+
+      const scale = clamp( 1 / (1 + (depthBase/1100)), cfg.scaleClampMin, cfg.scaleClampMax );
+
+      // Opacité & blur — si stick, on “retarde” un peu la disparition (crédit px)
+      let distanceForFade = Math.abs(depthBase);
+      if(stick.active && stick.index===i){
+        const t = clamp((now - stick.startTime)/cfg.STICK_MS, 0, 1);
+        distanceForFade = Math.max(0, distanceForFade - (1 - t)*cfg.FADE_STICK_PX);
+      }
+      const o = clamp(1 - (distanceForFade/cfg.visibilityZ), 0, 1);
+      const blur = (1 - Math.max(0, 1 - distanceForFade/900)) * cfg.blurMax;
+
+      const yOffset = (depthBase/44);
+
+      L.style.transform = `translate(-50%,-50%) translateZ(${depthBase}px) translateY(${yOffset}px) scale(${scale}) rotateX(${tiltX*0.35}deg) rotateY(${tiltY*0.35}deg)`;
       L.style.setProperty('--o', o.toFixed(3));
       L.style.setProperty('--blur', blur.toFixed(2)+'px');
-
       if(o < 0.05) L.setAttribute('aria-hidden','true'); else L.removeAttribute('aria-hidden');
     }
 
@@ -370,6 +365,7 @@
   }
   render();
 
+  /* utils */
   addEventListener('resize', ()=>{}, {passive:true});
 })();
 </script>
