@@ -3,11 +3,12 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Tunnel 3D — Mobile Boost</title>
-<meta name="description" content="Viewport fixe. Scroll/Swipe = avance caméra en Z. Version mobile réactive avec inertie.">
+<title>Tunnel 3D — Pause sur carte</title>
+<meta name="description" content="Viewport fixe. Scroll/Swipe = avance caméra en Z. Pause automatique sur chaque carte pour lecture.">
 <style>
   :root{
     --bg:#080a0f; --ink:#ececf1; --muted:#a7a7b5; --primary:#ff1f43; --panel:#0f1118; --radius:14px;
+    --focus: #ff7185;
   }
   *{box-sizing:border-box} html,body{height:100%; margin:0}
   body{
@@ -24,9 +25,9 @@
   /* Viewport fixé */
   .viewport{
     position:fixed; inset:0; overflow:hidden;
-    perspective: clamp(700px, 85vw, 1200px); /* plus petit = plus de “zoom” */
+    perspective: clamp(700px, 85vw, 1200px);
     perspective-origin: 50% 50%;
-    touch-action:none; /* on gère le swipe nous-même pour plus de dynamisme */
+    touch-action:none;
   }
   .scene{ position:absolute; inset:0; transform-style:preserve-3d; will-change: transform }
 
@@ -44,6 +45,7 @@
   .hud{display:flex; align-items:center; gap:10px; color:#d4d4de; font-size:12px}
   .bar{width: clamp(120px, 30vw, 200px); height:6px; border-radius:999px; background:#1a1b24; overflow:hidden; border:1px solid #23232f}
   .bar>i{display:block; height:100%; width:0%; background:linear-gradient(90deg,var(--primary),#ff94a7)}
+  .state{padding:4px 8px; border-radius:999px; border:1px solid #2b2d3d; background:#131520; color:#dcdce6}
 
   .layer{
     position:absolute; top:50%; left:50%;
@@ -57,11 +59,20 @@
     background:linear-gradient(180deg, #161823, var(--panel));
     border:1px solid #222436;
     box-shadow: 0 24px 60px rgba(0,0,0,.55), inset 0 0 40px rgba(255,255,255,.04);
+    transition: box-shadow .25s, border-color .25s, transform .25s;
   }
   .card h2{margin:.2rem 0 .45rem; font-size: clamp(18px, 4.5vw, 24px)}
   .card p{color:var(--muted); margin:.2rem 0; font-size: clamp(13px, 3.7vw, 15px)}
   .chip{display:inline-block; padding:4px 8px; border-radius:999px; font-size:12px;
         background:#1a0d11; color:#ffb2bf; border:1px solid #2a1419; margin-right:6px}
+  /* Surlignage quand la carte est “au focus” */
+  .focused .card{
+    border-color: var(--focus);
+    box-shadow:
+      0 26px 64px rgba(255,31,67,.45),
+      0 0 0 1px rgba(255,255,255,.06) inset,
+      0 0 0 2px rgba(255,113,133,.18);
+  }
 
   .hint{
     position:fixed; left:50%; bottom:16px; transform:translateX(-50%); z-index:10;
@@ -70,7 +81,6 @@
     padding:8px 10px; border-radius:999px;
   }
 
-  /* Boutons flottants (mobile friendly) */
   .ctrls{
     position:fixed; right:12px; bottom:72px; z-index:12; display:flex; flex-direction:column; gap:10px;
   }
@@ -80,9 +90,7 @@
   }
   .ctrls button:active{transform:scale(.98)}
 
-  /* Espace de scroll “virtuel” (on garde pour compat desktop, mais on n’en dépend plus) */
   .scrollspace{ height: 2000px }
-
   .grain{
     position:fixed; inset:-40px; z-index:0; opacity:.06; pointer-events:none; mix-blend-mode:soft-light;
     background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="140" height="140"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2"/></filter><rect width="100%" height="100%" filter="url(%23n)"/></svg>');
@@ -95,27 +103,26 @@
 <header>
   <div class="brand"><span class="dot" aria-hidden="true"></span> Tunnel 3D — Démo</div>
   <div class="hud" aria-label="Profondeur">
-    <span style="display:none" aria-hidden="true">Profondeur</span>
-    <div class="bar"><i id="prog"></i></div>
+    <div class="bar" title="Progression"><i id="prog"></i></div>
     <span id="depthVal">Z: 0</span>
+    <span class="state" id="state">Mode: libre</span>
   </div>
 </header>
 
 <div class="viewport" id="viewport" aria-label="Scène 3D">
   <div class="scene" id="scene">
-    <!-- Répartis par ~750 à 900 en Z -->
-    <div class="layer" data-z="-3600"><div class="card"><span class="chip">Intro</span><h2>Bienvenue</h2><p>Swipe / Scroll = avance rapide dans le tunnel 3D.</p></div></div>
+    <!-- Répartis par ~800 en Z -->
+    <div class="layer" data-z="-3600"><div class="card"><span class="chip">Intro</span><h2>Bienvenue</h2><p>Swipe / Scroll = avance dans le tunnel 3D.</p></div></div>
     <div class="layer" data-z="-2800"><div class="card"><span class="chip">Concept</span><h2>Caméra en Z</h2><p>Perspective CSS + translateZ. Les objets viennent du fond, passent net, repartent.</p></div></div>
     <div class="layer" data-z="-2000"><div class="card"><span class="chip">FX</span><h2>Netteté / Opacité</h2><p>Distance → taille, blur, opacity. Focus au plan Z=0.</p></div></div>
-    <div class="layer" data-z="-1200"><div class="card"><span class="chip">Rythme</span><h2>Entrées cadencées</h2><p>Ajoute des scènes par pas réguliers pour un flow maîtrisé.</p></div></div>
+    <div class="layer" data-z="-1200"><div class="card"><span class="chip">Rythme</span><h2>Entrées cadencées</h2><p>Pause automatique sur chaque carte pour la lecture.</p></div></div>
     <div class="layer" data-z="-400"><div class="card"><span class="chip">Focus</span><h2>Plan 0</h2><p>Ici, la carte est nette, grande, lisible.</p></div></div>
-    <div class="layer" data-z="400"><div class="card"><span class="chip">Suite</span><h2>Devant puis loin</h2><p>En avançant, elle vous dépasse et s’éloigne.</p></div></div>
+    <div class="layer" data-z="400"><div class="card"><span class="chip">Suite</span><h2>Devant & loin</h2><p>En avançant, elle vous dépasse puis s’éloigne.</p></div></div>
     <div class="layer" data-z="1200"><div class="card"><span class="chip">Custom</span><h2>Vos contenus</h2><p>Dupliquez une <code>.layer</code> et réglez <code>data-z</code>.</p></div></div>
-    <div class="layer" data-z="2000"><div class="card"><span class="chip">Fin</span><h2>Atterrissage</h2><p>Boutons ► / ◄, PgUp/PgDn, ↑/↓ pour piloter.</p></div></div>
+    <div class="layer" data-z="2000"><div class="card"><span class="chip">Fin</span><h2>Atterrissage</h2><p>► / ◄ ou ↑/↓ pour piloter. Appui fort = casse la pause.</p></div></div>
   </div>
 </div>
 
-<!-- Contrôles mobiles -->
 <div class="ctrls" aria-label="Contrôles">
   <button id="back" aria-label="Reculer">◄</button>
   <button id="fw" aria-label="Avancer">►</button>
@@ -123,15 +130,14 @@
 
 <div class="scrollspace" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
-<div class="hint">Swipe / Scroll • Press & Hold sur ► / ◄</div>
+<div class="hint">Swipe / Scroll • Press & Hold sur ► / ◄ • Pause auto sur chaque carte</div>
 
 <script>
 /*
-  Version mobile boostée :
-  - Contrôle direct de la profondeur (targetCamZ) via wheel/touch/btns.
-  - Sensibilité amplifiée (SPEED, TOUCH_SENS).
-  - Inertie (velocity) et friction.
-  - On ne dépend plus du scroll natif : la barre de progression est mappée sur notre range Z.
+  Nouveautés :
+  - Etat “dwell” (pause) quand une carte atteint le focus (proche Z=0).
+  - Pendant la pause, la caméra se verrouille sur la carte un temps donné (DWELL_MS).
+  - L’utilisateur peut “casser” la pause avec un geste fort (BREAK_FORCE), ou attendre l’auto-avance si activée.
 */
 (function(){
   const scene = document.getElementById('scene');
@@ -139,6 +145,7 @@
   const layers = Array.from(document.querySelectorAll('.layer'));
   const prog = document.getElementById('prog');
   const depthText = document.getElementById('depthVal');
+  const stateText = document.getElementById('state');
   const btnFw = document.getElementById('fw');
   const btnBk = document.getElementById('back');
 
@@ -150,22 +157,69 @@
     tiltMax: 5,
     scaleClampMin: .28,
     scaleClampMax: 2.4,
-    SPEED: 2.0,         // >> plus grand = plus réactif au wheel
-    TOUCH_SENS: 2.6,    // >> plus grand = petit swipe = gros déplacement
-    KEY_STEP: 260,      // ↑/↓
-    BTN_STEP: 380,      // ► / ◄ (press)
-    SNAP_NEAR: 140      // option de snap léger quand proche d’une layer
+    SPEED: 2.0,          // réactivité wheel
+    TOUCH_SENS: 2.6,     // réactivité swipe
+    KEY_STEP: 260,
+    BTN_STEP: 380,
+    SNAP_WIN: 140,       // fenêtre autour d’une carte qui déclenche le lock
+    DWELL_MS: 1600,      // durée de pause lisible (ms)
+    AUTO_ADVANCE: false, // si true, avance à la carte suivante après la pause
+    BREAK_FORCE: 380     // vitesse/impulsion minimale pour casser la pause
   };
 
-  let targetZ = 0; // on set juste après
-  let camZ = 0;
-  let vZ = 0; // velocity
-  let ttx=0, tty=0, tiltX=0, tiltY=0;
+  // Etat
+  let targetZ = cfg.zMin;
+  let camZ = cfg.zMin;
+  let vZ = 0;
+  let tiltX=0, tiltY=0, ttx=0, tty=0;
 
-  // place la caméra au début
-  targetZ = cfg.zMin; camZ = cfg.zMin;
+  let mode = 'free';         // 'free' | 'dwell'
+  let dwellTimer = 0;        // timestamp fin de pause
+  let focusedIndex = -1;     // index de la carte en pause
+  let holdFw=false, holdBk=false;
 
-  // track pointer pour tilt subtil
+  function setMode(m){
+    mode = m;
+    stateText.textContent = 'Mode: ' + (m==='dwell' ? 'pause' : 'libre');
+  }
+
+  function clamp(v,min,max){ return Math.max(min, Math.min(max,v)); }
+  function updateHUD(){
+    const p = (camZ - cfg.zMin) / (cfg.zMax - cfg.zMin);
+    prog.style.width = (Math.max(0,Math.min(1,p))*100).toFixed(1)+'%';
+    depthText.textContent = `Z: ${Math.round(camZ)}`;
+  }
+
+  // Trouver la carte la plus proche du plan (Z caméra)
+  function nearestLayerIndex(z){
+    let best=-1, dmin=1e9;
+    for(let i=0;i<layers.length;i++){
+      const z0 = +layers[i].dataset.z || 0;
+      const d = Math.abs(z0 - z);
+      if(d<dmin){ dmin=d; best=i; }
+    }
+    return best;
+  }
+
+  function enterDwell(i){
+    focusedIndex = i;
+    const z0 = +layers[i].dataset.z || 0;
+    targetZ = z0; camZ = camZ; vZ = 0;
+    dwellTimer = performance.now() + cfg.DWELL_MS;
+    setMode('dwell');
+    // style focus
+    layers.forEach(L=>L.classList.remove('focused'));
+    layers[i].classList.add('focused');
+  }
+
+  function exitDwell(){
+    setMode('free');
+    layers.forEach(L=>L.classList.remove('focused'));
+    dwellTimer = 0;
+    focusedIndex = -1;
+  }
+
+  // Pointer pour tilt
   addEventListener('pointermove', e=>{
     const cx = innerWidth/2, cy = innerHeight/2;
     const nx = (e.clientX - cx)/cx;
@@ -174,95 +228,127 @@
     ttx = -ny * cfg.tiltMax;
   }, {passive:true});
 
-  // Wheel (desktop & mobiles avec souris)
+  // Wheel
   addEventListener('wheel', e=>{
     const dy = e.deltaY;
-    vZ += dy * cfg.SPEED; // positif -> avance vers zMax
+    // Si en dwell, on n’ajoute la vitesse que si l’impulsion est forte
+    if(mode==='dwell'){
+      if(Math.abs(dy*cfg.SPEED) >= cfg.BREAK_FORCE){
+        exitDwell();
+        vZ += dy * cfg.SPEED;
+      }
+    }else{
+      vZ += dy * cfg.SPEED;
+    }
     e.preventDefault();
   }, {passive:false});
 
-  // Touch swipe sur toute la viewport (super sensible)
+  // Touch super sensible
   let touching=false, lastY=0, lastT=0;
   viewport.addEventListener('touchstart', e=>{
-    touching=true; vZ*=0.35; // réduit l’inertie existante
-    lastY = e.touches[0].clientY;
-    lastT = performance.now();
+    touching=true; vZ*=0.35;
+    lastY = e.touches[0].clientY; lastT = performance.now();
   }, {passive:true});
 
   viewport.addEventListener('touchmove', e=>{
     if(!touching) return;
     const y = e.touches[0].clientY;
-    const dy = (lastY - y) * cfg.TOUCH_SENS; // inversé = glisse vers le haut = avance
+    const dy = (lastY - y) * cfg.TOUCH_SENS;
     const now = performance.now();
     const dt = Math.max(16, now - lastT);
-    vZ += (dy * 16 / dt) * 24; // normalise la vitesse par le temps pour plus de peps
+    const impulse = (dy * 16 / dt) * 24; // normalisé temps
+    if(mode==='dwell'){
+      if(Math.abs(impulse) >= cfg.BREAK_FORCE){ exitDwell(); vZ += impulse; }
+      // sinon on ignore pour garder la lisibilité
+    } else {
+      vZ += impulse;
+    }
     lastY = y; lastT = now;
     e.preventDefault();
   }, {passive:false});
-
   addEventListener('touchend', ()=>{ touching=false; }, {passive:true});
 
-  // Boutons ►/◄ press & hold
-  let holdFw=false, holdBk=false;
-  btnFw.addEventListener('pointerdown', ()=>{ holdFw=true; vZ -= cfg.BTN_STEP; });
-  btnBk.addEventListener('pointerdown', ()=>{ holdBk=true; vZ += cfg.BTN_STEP; });
+  // Boutons ► / ◄ (press & hold)
+  btnFw.addEventListener('pointerdown', ()=>{
+    if(mode==='dwell'){ exitDwell(); }
+    holdFw=true; vZ -= cfg.BTN_STEP;
+  });
+  btnBk.addEventListener('pointerdown', ()=>{
+    if(mode==='dwell'){ exitDwell(); }
+    holdBk=true; vZ += cfg.BTN_STEP;
+  });
   addEventListener('pointerup', ()=>{ holdFw=false; holdBk=false; });
 
   // Clavier
   addEventListener('keydown', e=>{
     const k = e.key.toLowerCase();
-    if(k==='arrowdown' || k==='pageDown'.toLowerCase()){ vZ -= cfg.KEY_STEP*2; }
-    if(k==='arrowup'   || k==='pageUp'.toLowerCase()){   vZ += cfg.KEY_STEP*2; }
+    if(k==='arrowdown' || k==='pagedown'){ if(mode==='dwell'){ exitDwell(); } vZ -= cfg.KEY_STEP*2; }
+    if(k==='arrowup'   || k==='pageup'  ){ if(mode==='dwell'){ exitDwell(); } vZ += cfg.KEY_STEP*2; }
   });
 
-  // Mise à jour UI (progress, texte)
-  function updateHUD(){
-    const p = (camZ - cfg.zMin) / (cfg.zMax - cfg.zMin);
-    prog.style.width = (Math.max(0,Math.min(1,p))*100).toFixed(1)+'%';
-    depthText.textContent = `Z: ${Math.round(camZ)}`;
-  }
-
-  function clamp(v,min,max){ return Math.max(min, Math.min(max,v)); }
-
-  function maybeSnap(){
-    // Snap léger si on est très proche d'une layer
-    let nearest = null, dmin = 1e9;
-    for(const L of layers){
-      const z0 = +L.dataset.z||0;
-      const d = Math.abs(z0 - camZ);
-      if(d<dmin){ dmin=d; nearest=z0; }
+  function maybeEnterOrStayDwell(now){
+    // si déjà en pause
+    if(mode==='dwell'){
+      // auto-avance ?
+      if(cfg.AUTO_ADVANCE && now >= dwellTimer){
+        // cible = prochaine carte
+        const next = Math.min(layers.length-1, focusedIndex+1);
+        if(next!==focusedIndex){
+          exitDwell();
+          const zNext = +layers[next].dataset.z || 0;
+          targetZ = zNext; // petit départ
+          vZ -= 300;       // amorce d’avance
+        }
+      }
+      return;
     }
-    if(dmin < cfg.SNAP_NEAR && Math.abs(vZ) < 40){
-      // attire doucement
-      targetZ += (nearest - camZ) * 0.12;
+    // pas en pause : check si on rentre dans la fenêtre
+    const i = nearestLayerIndex(camZ);
+    const z0 = +layers[i].dataset.z || 0;
+    const d = Math.abs(z0 - camZ);
+    // vitesse basse + proche du plan -> lock
+    if(d <= cfg.SNAP_WIN && Math.abs(vZ) < 80){
+      enterDwell(i);
+      // recentre précisément
+      targetZ = z0;
     }
   }
 
   function render(){
+    const now = performance.now();
+
     // Press & hold
-    if(holdFw) vZ -= 14;
-    if(holdBk) vZ += 14;
+    if(mode!=='dwell'){
+      if(holdFw) vZ -= 14;
+      if(holdBk) vZ += 14;
+    }
 
-    // Intégration vitesse → target
-    targetZ += vZ;
+    // Moteur mouvement
+    if(mode==='dwell'){
+      // verrouille la cible sur la carte courante
+      if(focusedIndex>=0){
+        const z0 = +layers[focusedIndex].dataset.z || 0;
+        targetZ = z0;
+      }
+      vZ *= 0.8; // amortit quasi à zéro
+    } else {
+      targetZ += vZ;
+      vZ *= 0.86;
+    }
 
-    // Frictions & limites
-    vZ *= 0.86;
     targetZ = clamp(targetZ, cfg.zMin, cfg.zMax);
-
-    // Easing vers target
     camZ += (targetZ - camZ)*0.12;
 
     // Tilt easing
     const ex=0.12; tiltX += (ttx - tiltX)*ex; tiltY += (tty - tiltY)*ex;
 
-    // Snap si on est quasi arrêté
-    if(Math.abs(vZ) < 12) maybeSnap();
+    // Entrer / rester en dwell si conditions ok
+    maybeEnterOrStayDwell(now);
 
-    // Applique tilt à la scène
+    // Applique tilt scène
     scene.style.transform = `rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
 
-    // Met à jour chaque couche
+    // MAJ couches
     for(const L of layers){
       const z0 = +L.dataset.z||0;
       const depth = z0 - camZ;
@@ -284,8 +370,7 @@
   }
   render();
 
-  // Resize safe guard (aucun layout cassé)
-  addEventListener('resize', ()=>{ /* rien de spécial : tout est relatif */ }, {passive:true});
+  addEventListener('resize', ()=>{}, {passive:true});
 })();
 </script>
 </body>
