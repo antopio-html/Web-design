@@ -3,16 +3,19 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Bar à Chat — Expérience défilante (contrôle doux + retour intro)</title>
-<meta name="description" content="Bienvenue au Bar à Chat. Scroll classique, grand espace, puis expérience 3D avec cartes dynamiques et images.">
+<title>Bar à Chat — Cartes défilantes (sans 3D)</title>
+<meta name="description" content="Zone d’accueil puis cartes plein écran avec défilement vertical, scroll-snap et animations fluides.">
 <style>
   :root{
+    /* Charte “bar à chat” latte/rose/menthe */
     --bg1:#f8f3ec; --bg2:#f3e7da; --ink:#2b2623; --muted:#6d625b;
     --primary:#c98552; --accent:#79c9bf; --rose:#f0a9b7;
-    --panel:#ffffff; --line:#eadccd; --radius:18px; --focus:#e08aa0;
+    --panel:#ffffff; --line:#eadccd; --focus:#e08aa0;
+    --radius:18px;
   }
   *{box-sizing:border-box}
   html,body{height:100%; margin:0}
+  html{scroll-behavior:smooth}
   body{
     color:var(--ink);
     font: clamp(14px, 1.2vw, 16px)/1.6 Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Arial, sans-serif;
@@ -22,12 +25,11 @@
       radial-gradient(900px 600px at 10% 30%, rgba(240,169,183,.12), transparent 60%),
       linear-gradient(180deg, var(--bg1), var(--bg2));
   }
-  body.lock{ overflow:hidden; } /* seulement pendant l’expérience 3D */
 
-  /* ----------- Zone classique ----------- */
+  /* --- HEADER / INTRO classique --- */
   header.site{
     position:sticky; top:0; z-index:10;
-    background:linear-gradient(to bottom, rgba(255,255,255,.85), rgba(255,255,255,.0));
+    background:linear-gradient(to bottom, rgba(255,255,255,.85), rgba(255,255,255,0));
     border-bottom:1px solid var(--line); backdrop-filter: blur(8px) saturate(1.05);
   }
   .nav{display:flex; justify-content:space-between; align-items:center; max-width:1100px; margin:auto; padding:12px 20px;}
@@ -36,111 +38,116 @@
     background:linear-gradient(180deg, var(--primary), #b77448);
     box-shadow:0 6px 14px rgba(201,133,82,.35) inset, 0 1px 0 rgba(255,255,255,.6)}
   .mug:after{content:""; position:absolute; right:-6px; top:4px; width:8px; height:8px; border:3px solid #b77448; border-left-color:transparent; border-bottom-color:transparent; border-radius:50%}
+  .cta{ display:inline-block; padding:10px 14px; border-radius:999px; font-weight:700; background:#fff; border:1px solid var(--line); box-shadow:0 8px 18px rgba(90,60,30,.12); color:var(--ink); }
 
-  .hero{max-width:1100px; margin:24px auto 0; padding:28px 20px 10px; display:grid; grid-template-columns:1.2fr .8fr; gap:26px; align-items:center;}
+  .hero{
+    max-width:1100px; margin:24px auto 0; padding:28px 20px 10px;
+    display:grid; grid-template-columns:1.2fr .8fr; gap:26px; align-items:center;
+  }
   @media (max-width:920px){ .hero{ grid-template-columns:1fr; } }
   .hero h1{ font-size: clamp(28px, 5vw, 48px); margin:.2rem 0 .4rem }
   .lead{ color:var(--muted); font-size: clamp(15px, 2.2vw, 18px) }
-  .cta{ display:inline-block; margin-top:10px; padding:10px 14px; border-radius:999px; font-weight:700;
-        background:#fff; border:1px solid var(--line); box-shadow:0 8px 18px rgba(90,60,30,.12); color:var(--ink); }
+  .tile{ border:1px solid var(--line); background:#fff; border-radius:16px; padding:16px; box-shadow:0 8px 20px rgba(90,60,30,.08); }
   .welcome{ max-width:1100px; margin:18px auto 0; padding:0 20px; display:grid; gap:18px; grid-template-columns:repeat(3,1fr); }
   @media (max-width:920px){ .welcome{ grid-template-columns:1fr; } }
-  .tile{ border:1px solid var(--line); background:#fff; border-radius:16px; padding:16px; box-shadow:0 8px 20px rgba(90,60,30,.08); }
-  .tile h3{ margin:.2rem 0 .4rem }
+  .welcome .tile h3{ margin:.2rem 0 .4rem }
 
-  /* Gros espace avant l’expérience */
+  /* Grand espace avant les cartes (demande client) */
   .spacer{
-    height: 160vh; /* ← plus d’espace visible pour respirer avant les cartes */
-    display:flex; align-items:center; justify-content:center;
-    color:var(--muted);
+    height: 160vh; display:flex; align-items:center; justify-content:center; color:var(--muted);
   }
 
-  /* pattes décoratives */
-  .paws{
-    position:fixed; inset:-40px; z-index:0; pointer-events:none; opacity:.08; mix-blend-mode:multiply;
-    background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="220" height="220" viewBox="0 0 220 220"><g fill="%23c8b6a6"><circle cx="40" cy="40" r="10"/><circle cx="65" cy="30" r="8"/><circle cx="25" cy="25" r="8"/><circle cx="50" cy="60" r="8"/><path d="M85 85c18-12 34 8 20 20s-38 2-20-20z"/></g></svg>') repeat;
-    background-size:220px 220px; animation:paws 14s linear infinite;
+  /* --- Section CARTES défilantes (sans 3D) --- */
+  section#cartes{
+    height: 100vh;
+    scroll-snap-type: y mandatory; /* le container snap */
+    overflow-y: auto;
+    overscroll-behavior: contain;   /* pas d’élastique */
+    position: relative;
+    border-top:1px solid var(--line);
+    box-shadow: 0 -10px 30px rgba(90,60,30,.06) inset;
+    -webkit-overflow-scrolling: touch;
   }
-  @keyframes paws { to { transform: translate(110px,110px) } }
 
-  /* ----------- Section EXPÉRIENCE ----------- */
-  section#experience{
-    position:relative; height:100vh; display:flex; align-items:center; justify-content:center;
+  /* Progress (colonne droite) */
+  .progress{
+    position:sticky; top:12px; right:12px; float:right; margin:12px;
+    width:6px; height: calc(100vh - 24px); border-radius:999px; background:#eadfce; overflow:hidden; border:1px solid var(--line);
   }
-  .enterBox{ text-align:center; border:1px solid var(--line); background:#fff; border-radius:18px; padding:18px 16px; box-shadow:0 10px 26px rgba(90,60,30,.12); max-width:min(640px, 92vw); }
-  .enterBox h2{ margin:.2rem 0 .3rem }
-  .enterBtn{ margin-top:10px; padding:10px 14px; border-radius:999px; font-weight:700; border:1px solid var(--line); background:#fff; }
-  .enterHint{ position:absolute; bottom:14px; left:50%; transform:translateX(-50%); font-size:12px; color:var(--muted); background:rgba(255,255,255,.75); border:1px solid var(--line); border-radius:999px; padding:6px 10px; backdrop-filter: blur(6px); }
+  .progress i{display:block; width:100%; height:0%; background:linear-gradient(180deg,var(--primary),var(--rose));}
 
-  /* HUD expérience (visible quand actif) */
-  header.hud3d{
-    position:fixed; inset:0 0 auto 0; z-index:20; display:none;
-    align-items:center; justify-content:space-between;
-    padding: clamp(8px, 2.5vw, 14px) clamp(12px, 3vw, 22px);
-    background:linear-gradient(to bottom, rgba(255,255,255,.85), rgba(255,255,255,0));
-    border-bottom:1px solid var(--line); backdrop-filter: blur(8px) saturate(1.05);
+  /* Une “slide” = 1 écran */
+  .slide{
+    min-height: 100vh;
+    scroll-snap-align: start;
+    display:grid; place-items:center;
+    padding: 18px;
+    position: relative;
   }
-  body.experience header.hud3d{ display:flex; }
-  .hudRow{display:flex; align-items:center; gap:10px; color:var(--muted); font-size:12px}
-  .bar{width: clamp(120px, 30vw, 200px); height:6px; border-radius:999px; background:#e9ded1; overflow:hidden; border:1px solid var(--line)}
-  .bar>i{display:block; height:100%; width:0%; background:linear-gradient(90deg,var(--primary),var(--rose))}
-  .state{padding:4px 8px; border-radius:999px; border:1px solid var(--line); background:#fff; color:var(--muted)}
-  .brandSmall{display:flex; gap:10px; align-items:center; font-weight:800; letter-spacing:.4px}
 
-  /* Boutons flottants */
-  .ctrls{position:fixed; right:12px; bottom:72px; z-index:22; display:none; flex-direction:column; gap:10px}
-  body.experience .ctrls{ display:flex; }
-  .ctrls button{width:50px; height:50px; border-radius:14px; border:1px solid var(--line); background:#fff; color:var(--ink); box-shadow:0 10px 24px rgba(90,60,30,.12); font-size:18px; touch-action:none}
-  .exitIntro{ position:fixed; left:12px; bottom:72px; z-index:22; display:none; }
-  body.experience .exitIntro{ display:block; }
-  .exitIntro button{ width:50px; height:50px; border-radius:14px; border:1px solid var(--line); background:#fff; color:var(--ink); box-shadow:0 10px 24px rgba(90,60,30,.12); font-size:18px; }
-
-  /* Viewport 3D */
-  .viewport{position:fixed; inset:0; overflow:hidden; perspective: clamp(820px, 85vw, 1100px); perspective-origin:50% 50%; touch-action:none; display:none;}
-  body.experience .viewport{ display:block; }
-  .scene{position:absolute; inset:0; transform-style:preserve-3d; will-change:transform}
-
-  /* Layers & cards */
-  .layer{position:absolute; top:50%; left:50%; transform-style:preserve-3d; will-change:transform,opacity,filter; opacity:var(--o,1); filter: blur(var(--blur, 0px)) saturate(1.02)}
+  /* Carte (style bar à chat), aucune 3D */
   .card{
-    min-width:min(560px, 92vw);
-    padding: clamp(14px, 3.2vw, 22px);
+    width:min(680px, 92vw);
     border-radius: var(--radius);
     background:linear-gradient(180deg, var(--panel), #fffaf6);
     border:1px solid var(--line);
     box-shadow: 0 18px 40px rgba(90,60,30,.12), 0 1px 0 rgba(255,255,255,.8) inset;
+    padding: clamp(16px, 3.2vw, 24px);
     position:relative;
+    transform-origin: 50% 60%;
+    /* état “au repos” (pour WAAPI fallback) */
   }
-  .card:before,.card:after{content:""; position:absolute; top:-12px; width:26px; height:26px; background:var(--panel); border:1px solid var(--line); transform: rotate(45deg)}
+  /* oreilles de chat */
+  .card:before,.card:after{
+    content:""; position:absolute; top:-12px; width:26px; height:26px; background:var(--panel);
+    border:1px solid var(--line); transform: rotate(45deg)
+  }
   .card:before{left:28px; border-bottom:none; border-right:none}
   .card:after{right:28px; border-bottom:none; border-left:none}
-
-  .card h2{margin:.2rem 0 .4rem; font-size: clamp(18px, 4.5vw, 24px)}
-  .card p{color:var(--muted); margin:.2rem 0; font-size: clamp(13px, 3.7vw, 15px)}
-
-  .media{ margin-top:10px; border-radius:14px; overflow:hidden; border:1px solid #efdfd1; background:#fff; box-shadow:0 10px 18px rgba(90,60,30,.08); }
-  .media img{ width:100%; height:auto; display:block; }
 
   .chip{display:inline-block; padding:4px 8px; border-radius:999px; font-size:12px;
         background:linear-gradient(180deg,#fff,#fde9e9); color:#7a3b44; border:1px solid #f1d1d8; margin-right:6px}
   .chip.mint{ background:linear-gradient(180deg,#fff,#e9f7f5); color:#2b605a; border-color:#cfece8 }
   .chip.caramel{ background:linear-gradient(180deg,#fff,#f5e6d8); color:#7b4a2c; border-color:#ecd7c3 }
 
-  .focused .card{border-color:var(--focus); box-shadow:0 24px 56px rgba(224,138,160,.28), 0 0 0 1px rgba(255,255,255,.6) inset, 0 0 0 2px rgba(224,138,160,.16)}
+  .card h2{margin:.2rem 0 .4rem; font-size: clamp(20px, 4.8vw, 28px)}
+  .card p{color:var(--muted); margin:.2rem 0; font-size: clamp(14px, 3.8vw, 16px)}
 
-  /* Footer */
-  footer{max-width:1100px; margin:40px auto; padding:0 20px 40px; color:var(--muted)}
+  .media{ margin-top:10px; border-radius:14px; overflow:hidden; border:1px solid #efdfd1; background:#fff;
+          box-shadow:0 10px 18px rgba(90,60,30,.08); }
+  .media img{ width:100%; height:auto; display:block; }
+
+  /* État visuel “active” (au centre) */
+  .slide.is-active .card{
+    outline: 2px solid rgba(224,138,160,.22);
+    box-shadow: 0 28px 64px rgba(90,60,30,.14), 0 0 0 1px rgba(255,255,255,.6) inset;
+  }
+
+  /* Pattes discrètes sur toute la page */
+  .paws{
+    position:fixed; inset:-40px; z-index:-1; pointer-events:none; opacity:.07; mix-blend-mode:multiply;
+    background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="220" height="220" viewBox="0 0 220 220"><g fill="%23c8b6a6"><circle cx="40" cy="40" r="10"/><circle cx="65" cy="30" r="8"/><circle cx="25" cy="25" r="8"/><circle cx="50" cy="60" r="8"/><path d="M85 85c18-12 34 8 20 20s-38 2-20-20z"/></g></svg>') repeat;
+    background-size:220px 220px; animation:paws 14s linear infinite;
+  }
+  @keyframes paws { to { transform: translate(110px,110px) } }
+
+  /* Bouton retour haut (facile sur mobile) */
+  .backTop{
+    position:fixed; right:12px; bottom:16px; z-index:30;
+    width:48px; height:48px; border-radius:14px; border:1px solid var(--line); background:#fff; color:var(--ink);
+    box-shadow:0 10px 24px rgba(90,60,30,.12); font-size:18px; display:grid; place-items:center;
+  }
 </style>
 </head>
 <body>
 
 <div class="paws" aria-hidden="true"></div>
 
-<!-- Intro -->
+<!-- INTRO -->
 <header class="site">
   <nav class="nav">
     <div class="brand"><span class="mug" aria-hidden="true"></span> Bar à Chat</div>
-    <a class="cta" href="#experience">Entrer dans l’expérience ↓</a>
+    <a class="cta" href="#cartes">Aller aux cartes ↓</a>
   </nav>
 </header>
 
@@ -148,12 +155,11 @@
   <div>
     <h1>Bienvenue au Bar à Chat</h1>
     <p class="lead">Un endroit cosy pour savourer un cappuccino, rencontrer nos pensionnaires et soutenir l’adoption responsable.</p>
-    <a class="cta" href="#experience">Découvrir l’expérience 3D</a>
+    <a class="cta" href="#cartes">Découvrir les cartes</a>
   </div>
   <div class="tile" style="align-self:stretch;">
     <h3>Horaires & Ambiance</h3>
     <p>Ouvert tous les jours de 10h à 20h. Espace calme, livres, plaid, wifi — et des chats heureux 🐾</p>
-    <p>Faites défiler vers le bas pour entrer dans l’expérience “tunnel 3D”.</p>
   </div>
 </section>
 
@@ -163,336 +169,161 @@
   <div class="tile"><h3>Évènements</h3><p>Ateliers, lectures, rencontres — suivez nos réseaux pour les dates.</p></div>
 </section>
 
-<!-- GRAND ESPACE -->
 <section class="spacer" aria-hidden="true">
-  <div>On se prépare… bientôt l’expérience ✨</div>
+  <div>↓ Faites défiler pour découvrir nos cartes plein écran ↓</div>
 </section>
 
-<!-- Entrée expérience -->
-<section id="experience" aria-label="Entrée expérience 3D">
-  <div class="enterBox">
-    <h2>Prêt·e ?</h2>
-    <p>En continuant, découvrez nos cartes avec images : Concept, Chats, Menu, Engagements, Nous trouver.</p>
-    <button class="enterBtn" id="enterBtn">Entrer</button>
+<!-- CARTES défilantes, sans 3D -->
+<section id="cartes" aria-label="Cartes défilantes">
+  <div class="progress" aria-hidden="true"><i id="progBar"></i></div>
+
+  <div class="slide" data-i="1">
+    <article class="card">
+      <span class="chip caramel">Concept</span>
+      <h2>Le concept</h2>
+      <p>Un café chaleureux où l’on partage un moment avec des chats adoptables, soutenu par des associations locales.</p>
+      <div class="media"><img src="imagesBar/imageBar1.png" alt="Illustration du concept du bar à chat"></div>
+    </article>
   </div>
-  <div class="enterHint">Swipe/Scroll doux • “Entrer” pour démarrer</div>
+
+  <div class="slide" data-i="2">
+    <article class="card">
+      <span class="chip mint">Chats</span>
+      <h2>Nos chats</h2>
+      <p>Des boules de poils curieuses et câlines. Respect du rythme, zones de repos, interaction douce.</p>
+      <div class="media"><img src="imagesBar/imageBar2.png" alt="Photo de chats du bar à chat"></div>
+    </article>
+  </div>
+
+  <div class="slide" data-i="3">
+    <article class="card">
+      <span class="chip caramel">Menu</span>
+      <h2>Au menu</h2>
+      <p>Cappuccino, latte, pâtisseries maison, options végétales… et eau fraîche pour nos félins.</p>
+      <div class="media"><img src="imagesBar/imageBar3.png" alt="Image de boissons et pâtisseries du menu"></div>
+    </article>
+  </div>
+
+  <div class="slide" data-i="4">
+    <article class="card">
+      <span class="chip">Engagements</span>
+      <h2>Nos engagements</h2>
+      <p>Bien-être animal, hygiène irréprochable, partenariats transparents, sensibilisation & adoptions responsables.</p>
+      <div class="media"><img src="imagesBar/imageBar4.png" alt="Illustration de nos engagements et valeurs"></div>
+    </article>
+  </div>
+
+  <div class="slide" data-i="5">
+    <article class="card">
+      <span class="chip mint">Nous trouver</span>
+      <h2>Comment nous trouver</h2>
+      <p>Adresse, transports, stationnement et horaires — tout pour venir sans stress.</p>
+      <div class="media"><img src="imagesBar/imageBar5.png" alt="Carte d’accès ou plan pour nous trouver"></div>
+    </article>
+  </div>
 </section>
 
-<!-- HUD expérience -->
-<header class="hud3d" id="hud">
-  <div class="brandSmall"><span class="mug" aria-hidden="true"></span> Expérience — Bar à Chat</div>
-  <div class="hudRow">
-    <div class="bar" title="Progression"><i id="prog"></i></div>
-    <span id="depthVal">Z: 0</span>
-    <span class="state" id="state">Mode: libre</span>
-  </div>
-</header>
-
-<!-- Boutons flottants -->
-<div class="ctrls" aria-label="Contrôles">
-  <button id="back" aria-label="Reculer">◄</button>
-  <button id="fw" aria-label="Avancer">►</button>
-</div>
-<!-- Retour à l’intro -->
-<div class="exitIntro"><button id="exitBtn" title="Retour à l’intro">↑</button></div>
-
-<!-- Viewport 3D -->
-<div class="viewport" id="viewport" aria-label="Scène 3D">
-  <div class="scene" id="scene">
-    <!-- 5 cartes avec images (imagesBar/imageBar1.png … imageBar5.png) -->
-    <div class="layer" data-z="-3200" data-dir="-1">
-      <div class="card">
-        <span class="chip caramel">Concept</span>
-        <h2>Le concept</h2>
-        <p>Un café chaleureux où l’on partage un moment avec des chats adoptables, soutenu par des associations.</p>
-        <div class="media"><img src="imagesBar/imageBar1.png" alt="Illustration du concept du bar à chat"></div>
-      </div>
-    </div>
-    <div class="layer" data-z="-2400" data-dir="1">
-      <div class="card">
-        <span class="chip mint">Chats</span>
-        <h2>Nos chats</h2>
-        <p>Des boules de poils curieuses et câlines. Respect du rythme, zones de repos, interaction douce.</p>
-        <div class="media"><img src="imagesBar/imageBar2.png" alt="Photo de chats du bar à chat"></div>
-      </div>
-    </div>
-    <div class="layer" data-z="-1600" data-dir="-1">
-      <div class="card">
-        <span class="chip caramel">Menu</span>
-        <h2>Au menu</h2>
-        <p>Cappuccino, latte, pâtisseries maison, options végétales… et eau fraîche pour nos félins.</p>
-        <div class="media"><img src="imagesBar/imageBar3.png" alt="Image de boissons et pâtisseries du menu"></div>
-      </div>
-    </div>
-    <div class="layer" data-z="-800" data-dir="1">
-      <div class="card">
-        <span class="chip">Engagements</span>
-        <h2>Nos engagements</h2>
-        <p>Bien-être animal, hygiène irréprochable, partenariats transparents, sensibilisation et adoptions responsables.</p>
-        <div class="media"><img src="imagesBar/imageBar4.png" alt="Illustration de nos engagements et valeurs"></div>
-      </div>
-    </div>
-    <div class="layer" data-z="0" data-dir="-1">
-      <div class="card">
-        <span class="chip mint">Nous trouver</span>
-        <h2>Comment nous trouver</h2>
-        <p>Adresse, transports, stationnement et horaires — tout pour venir sans stress.</p>
-        <div class="media"><img src="imagesBar/imageBar5.png" alt="Carte d’accès ou plan pour nous trouver"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<footer>
-  <p>© Bar à Chat — Merci de votre visite. Revenez pour un cappuccino… et des ronrons 😺</p>
-</footer>
+<a class="backTop" href="#top" title="Retour à l’intro">↑</a>
 
 <script>
-/* ==== Expérience contrôlée : retour intro facile + scroll très doux ==== */
+/* =========================
+   Défilement vertical “fort” sans 3D
+   - Scroll-snap : chaque slide s’aligne plein écran.
+   - IntersectionObserver + Web Animations API pour des entrées/sorties fluides (scale/translate/blur/opacity).
+   - Barre de progression sur la droite.
+   ========================= */
 (function(){
-  const expSection = document.getElementById('experience');
-  const enterBtn = document.getElementById('enterBtn');
-  const exitBtn  = document.getElementById('exitBtn');
+  const container = document.getElementById('cartes');
+  const slides = Array.from(container.querySelectorAll('.slide'));
+  const progBar = document.getElementById('progBar');
 
-  const scene = document.getElementById('scene');
-  const viewport = document.getElementById('viewport');
-  const layers = Array.from(document.querySelectorAll('.layer'));
-  const prog = document.getElementById('prog');
-  const depthText = document.getElementById('depthVal');
-  const stateText = document.getElementById('state');
-  const btnFw = document.getElementById('fw');
-  const btnBk = document.getElementById('back');
+  // Easing cubic-bezier “énergique mais propre”
+  const E_IN  = 'cubic-bezier(.2,.8,.2,1)';
+  const E_OUT = 'cubic-bezier(.2,.8,.2,1)';
 
-  let active = false; // expérience en cours ?
-
-  /* Paramètres assouplis (plus lents, plus stables) */
-  const cfg = {
-    zMin: -3600, zMax: 800,
-    blurMax: 10, visibilityZ: 1700,
-    tiltMax: 3.2, scaleClampMin: .35, scaleClampMax: 1.85,
-
-    /* >>> défilement lent et précis */
-    SPEED: 0.45,          // wheel
-    TOUCH_SENS: 0.85,     // touch
-    KEY_STEP: 90,         // clavier
-    BTN_STEP: 120,        // boutons
-
-    SNAP_WIN: 150, DWELL_MS: 1200, BREAK_FORCE: 620,
-    STICK_MS: 700, STICK_FACTOR: 0.38, FADE_STICK_PX: 260,
-
-    SIDE_MAX: 320, SIDE_EASE: 0.85,
-    VEL_CAP: 500          // vitesse max très limitée
-  };
-
-  let targetZ = cfg.zMin, camZ = cfg.zMin, vZ = 0;
-  let tiltX=0, tiltY=0, ttx=0, tty=0;
-  let mode = 'free', dwellTimer = 0, focusedIndex = -1;
-  let stick = { active:false, index:-1, startCamZ:0, startTime:0 };
-
-  const clamp = (v,min,max)=>Math.max(min,Math.min(max,v));
-  const lerp = (a,b,t)=>a+(b-a)*t;
-
-  function setMode(m){ mode=m; stateText.textContent='Mode: '+(m==='dwell'?'pause':'libre'); }
-  function updateHUD(){
-    const p = (camZ - cfg.zMin) / (cfg.zMax - cfg.zMin);
-    prog.style.width = (clamp(p,0,1)*100).toFixed(1)+'%';
-    depthText.textContent = `Z: ${Math.round(camZ)}`;
+  // Animation builders
+  function enterAnim(card){
+    // de bas + léger zoom + blur -> net
+    card.animate([
+      { transform:'translateY(60px) scale(.94)', filter:'blur(8px)', opacity:0 },
+      { transform:'translateY(0) scale(1)',      filter:'blur(0px)', opacity:1 }
+    ], { duration:520, easing:E_OUT, fill:'both' });
   }
-  function nearestLayerIndex(z){
-    let best=-1,dmin=1e9;
-    for(let i=0;i<layers.length;i++){ const z0=+layers[i].dataset.z||0, d=Math.abs(z0-z); if(d<dmin){dmin=d; best=i;} }
-    return best;
+  function exitUpAnim(card){
+    // remonte et s’atténue (si on scrolle vers le bas, la slide précédente sort par le haut)
+    card.animate([
+      { transform:'translateY(0) scale(1)', filter:'blur(0px)', opacity:1 },
+      { transform:'translateY(-60px) scale(.98)', filter:'blur(6px)', opacity:0.25 }
+    ], { duration:420, easing:E_IN, fill:'both' });
+  }
+  function exitDownAnim(card){
+    // redescend et s’atténue (si on remonte)
+    card.animate([
+      { transform:'translateY(0) scale(1)', filter:'blur(0px)', opacity:1 },
+      { transform:'translateY(60px) scale(.98)', filter:'blur(6px)', opacity:0.25 }
+    ], { duration:420, easing:E_IN, fill:'both' });
   }
 
-  function enterDwell(i){
-    focusedIndex=i; const z0=+layers[i].dataset.z||0;
-    targetZ=z0; vZ=0; dwellTimer=performance.now()+cfg.DWELL_MS; setMode('dwell');
-    layers.forEach(L=>L.classList.remove('focused')); layers[i].classList.add('focused'); stick.active=false;
-  }
-  function beginStick(i){ stick={active:true,index:i,startCamZ:camZ,startTime:performance.now()}; }
-  function exitDwell(startStick=true){
-    const i=focusedIndex; setMode('free'); layers.forEach(L=>L.classList.remove('focused'));
-    dwellTimer=0; focusedIndex=-1; if(startStick && i>=0) beginStick(i);
-  }
-
-  function sideOffset(depth, dir){
-    if(depth<=0) return 0;
-    const t = clamp(depth/800, 0, 1);
-    const eased = 1 - Math.pow(1 - t, cfg.SIDE_EASE);
-    return eased * cfg.SIDE_MAX * dir;
-  }
-
-  /* Activation / sortie de l’expérience */
-  function enterExperience(){
-    if(active) return;
-    active = true;
-    document.body.classList.add('experience','lock');
-    targetZ = cfg.zMin; camZ = cfg.zMin; vZ = 0;
-    window.scrollTo({top: expSection.offsetTop, behavior:'instant'});
-  }
-  function exitExperience(){
-    if(!active) return;
-    active = false;
-    document.body.classList.remove('experience','lock');
-  }
-
-  enterBtn.addEventListener('click', ()=>{ enterExperience(); });
-  exitBtn.addEventListener('click', ()=>{
-    exitExperience();
-    document.getElementById('top').scrollIntoView({behavior:'smooth', block:'start'});
-  });
-  // ESC pour quitter
-  addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ exitBtn.click(); } });
-
-  /* Quitter si l’utilisateur remonte au-dessus de la section */
-  addEventListener('scroll', ()=>{
-    if(active){
-      const top = expSection.getBoundingClientRect().top;
-      if(top > 40){ // la section a quitté l’écran vers le bas => on quitte
-        exitExperience();
-      }
-    }
-  }, {passive:true});
-
-  /* Guard: n’écouter les gestes que pendant l’expérience */
-  function activeGuard(fn){ return function(e){ if(!active) return; fn(e); }; }
-
-  /* Tilt */
-  addEventListener('pointermove', activeGuard(e=>{
-    const cx=innerWidth/2, cy=innerHeight/2;
-    tty = ((e.clientX - cx)/cx) * cfg.tiltMax;
-    ttx = (-(e.clientY - cy)/cy) * cfg.tiltMax;
-  }), {passive:true});
-
-  /* Wheel — lent */
-  addEventListener('wheel', activeGuard(e=>{
-    const impulse = e.deltaY * cfg.SPEED;
-    if(mode==='dwell'){
-      if(Math.abs(impulse)>=cfg.BREAK_FORCE){ exitDwell(true); vZ += impulse; }
-    } else vZ += impulse;
-    vZ = clamp(vZ, -cfg.VEL_CAP, cfg.VEL_CAP);
-    e.preventDefault();
-  }), {passive:false});
-
-  /* Touch — lent */
-  let touching=false, lastY=0, lastT=0;
-  viewport.addEventListener('touchstart', activeGuard(e=>{
-    touching=true; vZ*=0.3; lastY=e.touches[0].clientY; lastT=performance.now();
-  }), {passive:true});
-  viewport.addEventListener('touchmove', activeGuard(e=>{
-    if(!touching) return;
-    const y=e.touches[0].clientY, dy=(lastY-y)*cfg.TOUCH_SENS;
-    const now=performance.now(), dt=Math.max(16, now-lastT);
-    let impulse=(dy*16/dt)*10; // ↓ encore plus doux
-    if(mode==='dwell'){
-      if(Math.abs(impulse)>=cfg.BREAK_FORCE){ exitDwell(true); vZ += impulse; }
-    } else vZ += impulse;
-    vZ = clamp(vZ, -cfg.VEL_CAP, cfg.VEL_CAP);
-    lastY=y; lastT=now; e.preventDefault();
-  }), {passive:false});
-  addEventListener('touchend', ()=>{ touching=false; }, {passive:true});
-
-  /* Boutons (petits pas) */
-  let holdFw=false, holdBk=false;
-  btnFw.addEventListener('pointerdown', activeGuard(()=>{ if(mode==='dwell') exitDwell(true); holdFw=true; vZ -= cfg.BTN_STEP; vZ=clamp(vZ,-cfg.VEL_CAP,cfg.VEL_CAP); }));
-  btnBk.addEventListener('pointerdown', activeGuard(()=>{ if(mode==='dwell') exitDwell(true); holdBk=true; vZ += cfg.BTN_STEP; vZ=clamp(vZ,-cfg.VEL_CAP,cfg.VEL_CAP); }));
-  addEventListener('pointerup', ()=>{ holdFw=false; holdBk=false; });
-
-  /* Clavier */
-  addEventListener('keydown', activeGuard(e=>{
-    const k=e.key.toLowerCase();
-    if(k==='arrowdown'||k==='pagedown'){ if(mode==='dwell') exitDwell(true); vZ -= cfg.KEY_STEP*2; }
-    if(k==='arrowup'  ||k==='pageup'  ){ if(mode==='dwell') exitDwell(true); vZ += cfg.KEY_STEP*2; }
-    vZ = clamp(vZ, -cfg.VEL_CAP, cfg.VEL_CAP);
-  }));
-
-  function maybeEnterDwell(){
-    if(mode==='dwell') return;
-    const i = nearestLayerIndex(camZ), z0=+layers[i].dataset.z||0, d=Math.abs(z0-camZ);
-    if(d <= cfg.SNAP_WIN && Math.abs(vZ) < 50){ enterDwell(i); targetZ=z0; }
-  }
-
-  function render(){
-    if(active){
-      if(mode!=='dwell'){
-        if(holdFw) vZ -= 8;
-        if(holdBk) vZ += 8;
-        vZ = clamp(vZ, -cfg.VEL_CAP, cfg.VEL_CAP);
-      }
-
-      if(mode==='dwell'){
-        if(focusedIndex>=0){ const z0=+layers[focusedIndex].dataset.z||0; targetZ=z0; }
-        vZ *= 0.78;
-        if(performance.now() >= dwellTimer) exitDwell(true);
-      } else {
-        targetZ += vZ;
-        vZ *= 0.88; // ← damping plus fort = moins “fou”
-      }
-
-      targetZ = clamp(targetZ, cfg.zMin, cfg.zMax);
-      camZ = lerp(camZ, targetZ, 0.10);
-
-      /* tilt */
-      tiltX = lerp(tiltX, ttx, 0.10); tiltY = lerp(tiltY, tty, 0.10);
-      scene.style.transform = `rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
-
-      maybeEnterDwell();
-
-      const now = performance.now();
-      for(let i=0;i<layers.length;i++){
-        const L = layers[i];
-        const z0 = +L.dataset.z||0;
-        const dir = Math.sign(+L.dataset.dir || (i%2?1:-1)) || 1;
-
-        let depth = z0 - camZ;
-
-        if(stick.active && stick.index===i){
-          const t = clamp((now - stick.startTime)/cfg.STICK_MS, 0, 1);
-          const follow = (camZ - stick.startCamZ) * cfg.STICK_FACTOR * (1 - t);
-          depth += follow;
-          if(t>=1) stick.active=false;
-        }
-
-        const xSide = (depth>0) ? sideOffset(depth, dir) : 0;
-
-        const scale = clamp( 1 / (1 + (depth/1100)), cfg.scaleClampMin, cfg.scaleClampMax );
-        let distFade = Math.abs(depth);
-        if(stick.active && stick.index===i){
-          const t = clamp((now - stick.startTime)/cfg.STICK_MS, 0, 1);
-          distFade = Math.max(0, distFade - (1 - t)*cfg.FADE_STICK_PX);
-        }
-        const o = clamp(1 - (distFade/cfg.visibilityZ), 0, 1);
-        const blur = (1 - Math.max(0, 1 - distFade/900)) * cfg.blurMax;
-        const yOffset = depth/46;
-
-        L.style.transform =
-          `translate(-50%,-50%) translateX(${xSide}px) translateZ(${depth}px) translateY(${yOffset}px) `+
-          `scale(${scale}) rotateX(${tiltX*0.28}deg) rotateY(${tiltY*0.28}deg)`;
-        L.style.setProperty('--o', o.toFixed(3));
-        L.style.setProperty('--blur', blur.toFixed(2)+'px');
-        if(o < 0.05) L.setAttribute('aria-hidden','true'); else L.removeAttribute('aria-hidden');
-      }
-
-      updateHUD();
-    }
-    requestAnimationFrame(render);
-  }
-  render();
-
-  /* Active l’expérience quand la section est vraiment à l’écran */
+  // IO : active la slide au centre de l’écran
   const io = new IntersectionObserver((entries)=>{
-    entries.forEach(e=>{
-      if(e.isIntersecting && e.intersectionRatio > 0.75){
-        // n’active pas automatiquement : on laisse le bouton “Entrer” décider
+    entries.forEach(ent=>{
+      const slide = ent.target;
+      const card = slide.querySelector('.card');
+      if(ent.isIntersecting && ent.intersectionRatio > 0.6){
+        slide.classList.add('is-active');
+        enterAnim(card);
+      }else{
+        // choisir sens : si la slide est au-dessus, on sort vers le haut
+        const rect = slide.getBoundingClientRect();
+        slide.classList.remove('is-active');
+        if(rect.top < 0) exitUpAnim(card); else exitDownAnim(card);
       }
     });
-  }, {threshold:[0,0.75,1]});
-  io.observe(expSection);
+    updateProgress();
+  }, {threshold:[0, .6, 1]});
+  slides.forEach(s=>io.observe(s));
 
-  /* Quand on active manuellement */
-  document.querySelectorAll('a[href="#experience"]').forEach(a=>{
-    a.addEventListener('click', (ev)=>{ ev.preventDefault(); document.getElementById('experience').scrollIntoView({behavior:'smooth'}); setTimeout(enterExperience, 450); });
+  function updateProgress(){
+    // ratio = index moyen visible / total
+    const h = container.scrollHeight - container.clientHeight;
+    const y = container.scrollTop;
+    const p = h>0 ? y/h : 0;
+    progBar.style.height = (p*100).toFixed(1)+'%';
+  }
+
+  // Scroll handling : doux & précis sur mobile
+  container.addEventListener('scroll', ()=>{ updateProgress(); }, {passive:true});
+
+  // Pour un “snap” plus franc sur iOS (optionnel) : si arrêt proche, on force au centre
+  let snapTO=null;
+  container.addEventListener('scroll', ()=>{
+    clearTimeout(snapTO);
+    snapTO = setTimeout(()=>{
+      // slide la plus proche du centre
+      const mid = window.innerHeight/2;
+      let best=null, dmin=1e9;
+      for(const s of slides){
+        const r = s.getBoundingClientRect();
+        const c = r.top + r.height/2;
+        const d = Math.abs(c - mid);
+        if(d<dmin){ dmin=d; best=s; }
+      }
+      if(best){
+        best.scrollIntoView({behavior:'smooth', block:'start'});
+      }
+    }, 120); // petit délai après l’arrêt du scroll
+  }, {passive:true});
+
+  // Tap sur progress (facultatif) → sauter à la slide
+  // (simple: click au-dessus = remonter, en-dessous = descendre)
+  document.querySelector('.progress')?.addEventListener('click', (e)=>{
+    const y = e.clientY;
+    const mid = window.innerHeight/2;
+    const idx = slides.findIndex(s=>s.classList.contains('is-active'));
+    if(y < mid && idx > 0) slides[idx-1].scrollIntoView({behavior:'smooth'});
+    if(y >= mid && idx < slides.length-1) slides[idx+1].scrollIntoView({behavior:'smooth'});
   });
+
 })();
 </script>
 </body>
