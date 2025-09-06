@@ -3,432 +3,267 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Vitrine Futuriste — Neon Vertical Flow</title>
+<title>Fond animé — Cyberpunk Stable & Hyper-animé</title>
 <style>
   :root{
-    /* Cyberpunk palette (conservée) */
     --bg:#0a0b10;
     --neon-pink:#ff3cac;
     --neon-cyan:#2bd9ff;
     --neon-violet:#8f00ff;
     --grid:#161a25;
     --ink:#e8ecff;
-    --muted:#99a3c7;
-
-    /* Surface claire pour contenu “verre dépoli” */
-    --card: rgba(18,22,32,.42);
-    --ring: rgba(255,255,255,.08);
-    --shadow: 0 18px 70px rgba(0,0,0,.45);
-
-    /* Typo & rythme */
-    --maxw: 880px;          /* largeur max de la colonne */
-    --pad: clamp(18px, 4vw, 28px);
-    --vh: 1vh;
-
-    /* Speeds */
-    --t1: 360ms;
-    --t2: 560ms;
-    --bezier: cubic-bezier(.2,.8,.2,1);
   }
+  html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);overflow:hidden;
+    font:16px/1 Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
 
-  html, body { height:100%; margin:0; background:var(--bg); color:var(--ink); }
-  body {
-    font: 16px/1.6 Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
-    overflow-x: hidden;
-  }
+  .stage{position:fixed; inset:0; isolation:isolate}
 
-  /* ====== FOND CYBERPUNK (conservé & encapsulé) ====== */
-  .stage{ position:fixed; inset:0; z-index:-1; isolation:isolate }
-  .vignette{position:absolute; inset:-10%; pointer-events:none;
-    background: radial-gradient(120vmax 70vmax at 50% 50%, transparent 60%, rgba(0,0,0,.35) 100%); z-index:10;}
+  /* 1) AURORA — blobs néon (sans radar) */
   .aurora{
-    position:absolute; inset:-20% -20% -20% -20%; filter: blur(42px) saturate(130%);
+    position:absolute; inset:-20% -20% -20% -20%; filter: blur(44px) saturate(130%);
     background:
-      radial-gradient(40vmax 28vmax at 20% 20%, color-mix(in oklab, var(--neon-pink) 55%, transparent), transparent 60%),
-      radial-gradient(45vmax 30vmax at 80% 25%, color-mix(in oklab, var(--neon-cyan) 55%, transparent), transparent 62%),
-      radial-gradient(36vmax 24vmax at 70% 78%, color-mix(in oklab, var(--neon-violet) 45%, transparent), transparent 65%);
-    mix-blend-mode: screen; animation: auroraFloat 28s ease-in-out infinite alternate;
+      radial-gradient(42vmax 30vmax at 18% 22%, color-mix(in oklab, var(--neon-pink) 55%, transparent), transparent 60%),
+      radial-gradient(46vmax 30vmax at 78% 28%, color-mix(in oklab, var(--neon-cyan) 55%, transparent), transparent 62%),
+      radial-gradient(36vmax 26vmax at 72% 78%, color-mix(in oklab, var(--neon-violet) 45%, transparent), transparent 65%);
+    mix-blend-mode: screen;
+    animation: auroraFloat 26s ease-in-out infinite alternate;
   }
-  @keyframes auroraFloat{ 0%{transform:translate3d(0,0,0) scale(1)} 100%{transform:translate3d(0,-1.5%,0) scale(1.02)}}
-  .sun{
-    position:absolute; left:50%; top:28%;
-    width:min(52vmin, 56vw); aspect-ratio:1/1; transform:translate(-50%,-50%); border-radius:50%;
+  @keyframes auroraFloat{
+    0%{ transform: translate3d(0,0,0) scale(1)}
+    100%{ transform: translate3d(0,-1.6%,0) scale(1.02)}
+  }
+
+  /* 2) BEAMS — faisceaux néon obliques qui balayent l’écran */
+  .beams{
+    position:absolute; inset:-10% -20% -10% -20%; pointer-events:none; mix-blend-mode:screen; opacity:.75;
+  }
+  .beams::before,
+  .beams::after{
+    content:""; position:absolute; inset:-20%;
     background:
-      radial-gradient(circle at 50% 60%, color-mix(in oklab, var(--neon-pink) 25%, transparent) 0 30%, transparent 60%),
-      conic-gradient(from 0deg, color-mix(in oklab, var(--neon-cyan) 35%, transparent), transparent 40%, color-mix(in oklab, var(--neon-violet) 35%, transparent), transparent 80%, color-mix(in oklab, var(--neon-pink) 35%, transparent));
-    box-shadow: 0 0 80px color-mix(in oklab, var(--neon-pink) 40%, transparent),
-                0 0 120px color-mix(in oklab, var(--neon-cyan) 30%, transparent);
-    opacity:.85; overflow:hidden;
+      linear-gradient( 60deg, transparent 0 40%, color-mix(in oklab, var(--neon-cyan) 55%, transparent) 48%, transparent 58%),
+      linear-gradient(120deg, transparent 0 42%, color-mix(in oklab, var(--neon-pink) 55%, transparent) 50%, transparent 60%),
+      linear-gradient( 75deg, transparent 0 55%, color-mix(in oklab, var(--neon-violet) 45%, transparent) 60%, transparent 70%);
+    filter: blur(10px);
   }
-  .sun::after{
-    content:""; position:absolute; inset:0;
-    background: repeating-linear-gradient(to bottom, rgba(255,255,255,.12) 0 3px, transparent 3px 8px);
-    mix-blend-mode: overlay; opacity:.35; animation: sunScan 6s linear infinite;
-  }
-  @keyframes sunScan{ from{transform:translateY(-8%)} to{transform:translateY(8%)} }
+  .beams::before{ animation: sweepA 12s cubic-bezier(.2,.8,.2,1) infinite }
+  .beams::after { animation: sweepB 18s cubic-bezier(.2,.8,.2,1) infinite reverse }
+  @keyframes sweepA{ from{transform:translateX(-8%) rotate(-2deg)} to{transform:translateX(8%) rotate(2deg)} }
+  @keyframes sweepB{ from{transform:translateX(6%) rotate(3deg)} to{transform:translateX(-6%) rotate(-3deg)} }
+
+  /* 3) GRID — sol en perspective discret (lent) */
   .grid{
     position:absolute; inset:0; pointer-events:none; transform-origin:50% 100%;
-    transform: perspective(800px) rotateX(68deg) translateY(28%);
+    transform: perspective(900px) rotateX(69deg) translateY(28%);
     background:
       linear-gradient(var(--grid), var(--grid)) 0 0/100% 1px,
       linear-gradient(90deg, var(--grid), var(--grid)) 0 0/1px 100%;
-    mask-image: linear-gradient(to top, rgba(0,0,0,.8), rgba(0,0,0,.3), transparent 70%);
+    mask-image: linear-gradient(to top, rgba(0,0,0,.85), rgba(0,0,0,.4), transparent 70%);
   }
   .grid::before{
     content:""; position:absolute; inset:-200% -200% 0 -200%;
     background:
       repeating-linear-gradient(0deg, transparent 0 56px, var(--grid) 56px 57px),
       repeating-linear-gradient(90deg, transparent 0 56px, var(--grid) 56px 57px);
-    animation: gridDrift 18s linear infinite;
+    animation: gridDrift 22s linear infinite;
   }
   @keyframes gridDrift{ from{transform:translate3d(0,0,0)} to{transform:translate3d(-56px,-56px,0)} }
-  .scanlines{position:absolute; inset:0; pointer-events:none; opacity:.22; mix-blend-mode:soft-light;
+
+  /* 4) SCANLINES + GLITCH BARS */
+  .scanlines{
+    position:absolute; inset:0; pointer-events:none; opacity:.22; mix-blend-mode:soft-light;
     background: repeating-linear-gradient(to bottom, rgba(255,255,255,.06) 0 1px, transparent 1px 3px);
-    animation: scanPulse 3.2s ease-in-out infinite alternate;}
-  @keyframes scanPulse{0%{opacity:.14}100%{opacity:.28}}
-  canvas#fx{ position:absolute; inset:0; width:100%; height:100%; filter:drop-shadow(0 0 6px #00ffff) drop-shadow(0 0 10px #ff33cc); opacity:.85 }
+    animation: scanPulse 3s ease-in-out infinite alternate;
+  }
+  @keyframes scanPulse{0%{opacity:.16}100%{opacity:.28}}
 
-  /* ====== CONTENU VERTICAL LONGILIGNE ====== */
-  .wrap{
-    position:relative; margin:0 auto; width: min(var(--maxw), 92vw);
-    padding-inline: var(--pad);
+  .glitch{
+    position:absolute; inset:0; pointer-events:none; mix-blend-mode:screen; opacity:.65;
+    background:
+      linear-gradient( to right, transparent, color-mix(in oklab, var(--neon-cyan) 22%, transparent), transparent ) 0 10%/100% 2px no-repeat,
+      linear-gradient( to right, transparent, color-mix(in oklab, var(--neon-pink) 22%, transparent), transparent ) 0 60%/100% 2px no-repeat;
+    animation: glitchBars 4s steps(2,end) infinite;
   }
-  /* rail vertical lumineux (longiligne) */
-  .rail{
-    position:fixed; left: max(16px, 3vw); top:0; bottom:0; width:2px; z-index:2;
-    background: linear-gradient(180deg, transparent, color-mix(in oklab, var(--neon-cyan) 60%, transparent) 40%, color-mix(in oklab, var(--neon-pink) 60%, transparent) 60%, transparent);
-    opacity:.7; box-shadow: 0 0 14px color-mix(in oklab, var(--neon-cyan) 35%, transparent);
-  }
-  .rail .dot{
-    position:absolute; left:50%; transform:translateX(-50%);
-    width:10px; height:10px; border-radius:50%;
-    background: var(--neon-cyan);
-    box-shadow:0 0 12px var(--neon-cyan), 0 0 22px color-mix(in oklab, var(--neon-pink) 40%, transparent);
-    transition: transform var(--t1) var(--bezier), background var(--t1) var(--bezier);
+  @keyframes glitchBars{
+    0%,100%{ transform:translateY(0) }
+    20%{ transform:translateY(-2px) }
+    40%{ transform:translateY(1px) }
+    60%{ transform:translateY(-1px) }
+    80%{ transform:translateY(2px) }
   }
 
-  /* sections très aérées */
-  section{
-    min-height: calc(100 * var(--vh));
-    display:grid; align-content:center; gap: 28px;
-    padding-block: clamp(60px, 16vh, 140px);
+  /* 5) CANVAS particules & étincelles (streaks) */
+  canvas#fx{ position:absolute; inset:0; width:100%; height:100%; opacity:.9;
+    filter: drop-shadow(0 0 6px #00ffff) drop-shadow(0 0 10px #ff33cc);
   }
 
-  /* cartes verre dépoli longilignes */
-  .card{
-    background: var(--card); backdrop-filter: blur(14px) saturate(140%);
-    border:1px solid var(--ring); border-radius: 18px; box-shadow: var(--shadow);
-    padding: clamp(18px, 3.6vw, 30px);
-    transform: translateY(12px) scale(.985); opacity:0;
-    transition: transform var(--t2) var(--bezier), opacity var(--t2) var(--bezier), box-shadow var(--t1) var(--bezier);
-  }
-  .card.reveal{ transform: translateY(0) scale(1); opacity:1; }
-  .card h1{ margin:0 0 10px; font-size: clamp(28px, 5vw, 54px); letter-spacing:.02em }
-  .card p{ margin:0; color: var(--muted); font-size: clamp(14px, 2.4vw, 18px) }
+  /* 6) Vignette douce */
+  .vignette{position:absolute; inset:-10%; pointer-events:none;
+    background: radial-gradient(120vmax 70vmax at 50% 50%, transparent 60%, rgba(0,0,0,.35) 100%); z-index:10;}
 
-  /* lignes néon sous les titres */
-  .neon-underline{
-    position:relative; display:inline-block;
-  }
-  .neon-underline::after{
-    content:""; position:absolute; left:0; right:0; bottom:-6px; height:2px;
-    background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink));
-    box-shadow: 0 0 16px color-mix(in oklab, var(--neon-cyan) 40%, transparent);
-    transform-origin:left; transform: scaleX(0);
-    transition: transform 700ms var(--bezier);
-  }
-  .card.reveal .neon-underline::after{ transform: scaleX(1) }
+  /* Slot optionnel (masqué) */
+  .slot{position:absolute; inset:0; display:grid; place-items:center; opacity:0}
 
-  /* grille de tuiles longilignes (1 colonne mobile → 2 colonnes desktop) */
-  .grid{ display:grid; gap:14px; grid-template-columns: 1fr }
-  @media (min-width: 900px){ .grid{ grid-template-columns: 1fr 1fr } }
-
-  .tile{
-    background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
-    border:1px solid var(--ring); border-radius:14px; padding:16px; min-height:120px;
-    transform: translateY(8px); opacity:0;
-    transition: transform 500ms var(--bezier), opacity 500ms var(--bezier);
-  }
-  .tile.reveal{ transform: translateY(0); opacity:1 }
-  .tile h3{ margin:6px 0 6px; font-size: clamp(16px, 2.2vw, 22px) }
-  .tile p{ margin:0; color: var(--muted) }
-
-  /* CTA néon magnétiques */
-  .actions{ display:flex; flex-wrap:wrap; gap:10px; margin-top:6px }
-  .btn{
-    appearance:none; cursor:pointer;
-    padding:10px 16px; border-radius:12px; border:1px solid var(--ring);
-    background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
-    color:var(--ink); transition: transform 120ms ease, box-shadow 220ms var(--bezier), background 240ms var(--bezier);
-    box-shadow: 0 0 0 0 rgba(0,0,0,0);
-    position:relative; overflow:hidden;
-  }
-  .btn::before{
-    content:""; position:absolute; inset:-2px;
-    background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--neon-cyan) 30%, transparent), transparent);
-    transform: translateX(-100%); opacity:.7;
-  }
-  .btn:hover::before{ animation: sweep 1.2s var(--bezier) forwards }
-  @keyframes sweep{ to{ transform: translateX(100%) } }
-  .btn.primary{
-    border-color: color-mix(in oklab, var(--neon-cyan) 50%, transparent);
-    box-shadow: 0 10px 36px color-mix(in oklab, var(--neon-cyan) 26%, transparent);
-  }
-  .btn:active{ transform: translateY(1px) }
-
-  /* effet tilt 3D doux sur les cartes showcase (desktop only) */
-  @media (pointer: fine){
-    .tilt{ transform-style: preserve-3d; will-change: transform; }
-    .tilt:hover{ transition: transform 240ms var(--bezier) }
-  }
-
-  /* progress de scroll (barre en haut) */
-  .progress{
-    position: fixed; left:0; top:0; right:0; height:3px; z-index:5;
-    background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink));
-    transform-origin: 0 50%; transform: scaleX(0);
-    box-shadow: 0 0 16px color-mix(in oklab, var(--neon-cyan) 35%, transparent);
-  }
-
-  /* Footer clair et aérien */
-  footer{ padding: 60px 0 80px; text-align:center; color:var(--muted) }
-
-  /* Accessibilité : réduire animations si demandé */
+  /* Réduction d’animations */
   @media (prefers-reduced-motion: reduce){
-    .aurora, .sun::after, .grid::before, .scanlines { animation: none !important }
-    .card, .tile, .neon-underline::after { transition: none !important }
+    .aurora, .beams::before, .beams::after, .grid::before, .scanlines, .glitch{ animation:none !important }
+    canvas#fx{ display:none }
   }
 </style>
 </head>
 <body>
-<!-- ===== FOND CYBERPUNK ===== -->
 <div class="stage" aria-hidden="true">
   <div class="aurora"></div>
-  <div class="sun"></div>
+  <div class="beams"></div>
   <div class="grid"></div>
   <canvas id="fx"></canvas>
   <div class="scanlines"></div>
+  <div class="glitch"></div>
   <div class="vignette"></div>
+  <div class="slot"><!-- logo/texte si besoin --></div>
 </div>
-
-<!-- Rail vertical lumineux -->
-<div class="rail" aria-hidden="true">
-  <div class="dot" id="d1" style="top:16%"></div>
-  <div class="dot" id="d2" style="top:40%"></div>
-  <div class="dot" id="d3" style="top:64%"></div>
-  <div class="dot" id="d4" style="top:88%"></div>
-</div>
-
-<!-- Progress de scroll -->
-<div class="progress" id="progress"></div>
-
-<!-- ===== CONTENU ===== -->
-<main class="wrap">
-
-  <!-- HERO -->
-  <section id="hero">
-    <article class="card reveal tilt">
-      <h1><span class="neon-underline">Futur Web Design</span> — vertical, aérien, cyberpunk</h1>
-      <p>Un style <em>disruptif</em> et d’une grande douceur : fond animé néon, cartes en verre dépoli, révélations au scroll, parallax subtil, et micro-interactions magnétiques.</p>
-      <div class="actions">
-        <button class="btn primary">Démarrer</button>
-        <button class="btn">Découvrir</button>
-      </div>
-    </article>
-  </section>
-
-  <!-- SHOWCASE -->
-  <section id="showcase">
-    <article class="card reveal">
-      <h1 class="neon-underline">Showcase — Animations soyeuses</h1>
-      <div class="grid">
-        <div class="tile reveal tilt">
-          <h3>Révélations</h3>
-          <p>Chaque élément entre en douceur, avec un freinage en fin de mouvement (easeOut cubic).</p>
-        </div>
-        <div class="tile reveal tilt">
-          <h3>Parallax léger</h3>
-          <p>Le décor réagit au défilement : halos, particules et grille donnent une profondeur subtile.</p>
-        </div>
-        <div class="tile reveal tilt">
-          <h3>Glass Morphism</h3>
-          <p>Cartes verre dépoli, bords néon discrets, lisibilité parfaite sur fond dynamique.</p>
-        </div>
-        <div class="tile reveal tilt">
-          <h3>Motion frugal</h3>
-          <p>Vanilla JS, GPU 2D, respect de <code>prefers-reduced-motion</code>. Perfs mobiles soignées.</p>
-        </div>
-      </div>
-    </article>
-  </section>
-
-  <!-- MOTION LAB -->
-  <section id="lab">
-    <article class="card reveal">
-      <h1 class="neon-underline">Motion Lab — Interactions</h1>
-      <div class="grid">
-        <div class="tile reveal tilt">
-          <h3>Boutons magnétiques</h3>
-          <p>Le balayage lumineux suit le curseur, sans agressivité, “wow” mais ciselé.</p>
-        </div>
-        <div class="tile reveal tilt">
-          <h3>Tilt 3D doux</h3>
-          <p>Les cartes se penchent légèrement au survol ; sur mobile, l’effet est désactivé pour la stabilité.</p>
-        </div>
-        <div class="tile reveal tilt">
-          <h3>Progress de scroll</h3>
-          <p>Une barre néon en haut indique votre avancement dans la page.</p>
-        </div>
-        <div class="tile reveal tilt">
-          <h3>Rail lumineux</h3>
-          <p>La colonne verticale vit au rythme de votre position ; les pastilles s’illuminent.</p>
-        </div>
-      </div>
-      <div class="actions">
-        <button class="btn primary">Essayer</button>
-        <button class="btn">Plus d’exemples</button>
-      </div>
-    </article>
-  </section>
-
-  <!-- CONTACT / CTA -->
-  <section id="cta">
-    <article class="card reveal tilt">
-      <h1 class="neon-underline">Prêt·e pour l’effet “wawou” ?</h1>
-      <p>On transforme votre vitrine en une expérience futuriste, lisible et performante. Intégration marque, contenus, assets et design tokens.</p>
-      <div class="actions">
-        <button class="btn primary">Parler projet</button>
-        <button class="btn">Voir un prototype</button>
-      </div>
-    </article>
-  </section>
-
-  <footer>© 2025 — Neon Vertical Flow. Design & code vanilla.</footer>
-</main>
 
 <script>
-/* ==== Particules néon (comme la version fond), optimisées ==== */
+/* ===========================
+   Canvas Néon — STABLE & RICHE
+   - Sans O(n²) lourd par défaut
+   - Traînées (streaks) via fade
+   - Étincelles aléatoires
+   - DPR limité, pause tab caché
+=========================== */
 (function(){
   const cnv = document.getElementById('fx');
-  const ctx = cnv.getContext('2d', { alpha: true });
-  let dpr = Math.min(window.devicePixelRatio || 1, 2);
-  let W=0, H=0, pts=[];
-  const CFG = { COUNT_BASE: 90, SIZE_MIN:.9, SIZE_MAX:2.4, SPEED_MAX:.22, LINK_DIST:120, LINK_ALPHA:.13 };
-  const rnd=(a,b)=> a + Math.random()*(b-a);
+  const ctx = cnv.getContext('2d', { alpha:true });
+  let dpr = Math.min(window.devicePixelRatio || 1, 1.75); // cap DPR pour stabilité
+  let W=0, H=0, running=true;
 
+  // Pool d’objets pour éviter allocations
+  const MAX_PART = 140;   // densité maîtrisée
+  const MAX_SPARK= 22;    // étincelles temporaires
+  const parts = new Array(MAX_PART);
+  const sparks= new Array(MAX_SPARK);
+
+  function rand(a,b){ return a + Math.random()*(b-a) }
   function resize(){
-    const rect = cnv.getBoundingClientRect();
-    W = Math.floor(rect.width * dpr); H = Math.floor(rect.height * dpr);
-    cnv.width=W; cnv.height=H; ctx.setTransform(dpr,0,0,dpr,0,0);
-    const area = rect.width*rect.height; const n = Math.round(CFG.COUNT_BASE*(area/(1280*720)));
-    pts.length=0;
-    for(let i=0;i<n;i++){
-      pts.push({ x:Math.random()*W/dpr, y:Math.random()*H/dpr,
-        vx:rnd(-CFG.SPEED_MAX, CFG.SPEED_MAX), vy:rnd(-CFG.SPEED_MAX, CFG.SPEED_MAX),
-        r:rnd(.9,2.4), hue: (Math.random()<.5?305:190) });
+    const r = cnv.getBoundingClientRect();
+    W = (r.width|0) * dpr;
+    H = (r.height|0) * dpr;
+    cnv.width = W; cnv.height = H;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+
+  function init(){
+    for(let i=0;i<MAX_PART;i++){
+      parts[i] = {
+        x: Math.random()*W/dpr, y: Math.random()*H/dpr,
+        vx: rand(-0.35,0.35), vy: rand(-0.22,0.22),
+        r: rand(0.8, 2.1),
+        hue: Math.random()<0.5 ? 305 : 190, // magenta / cyan
+      };
+    }
+    for(let i=0;i<MAX_SPARK;i++){
+      sparks[i] = { x:0,y:0,vx:0,vy:0,r:0,life:0,hue:305 };
     }
   }
 
-  function step(){
-    ctx.clearRect(0,0,cnv.width/dpr,cnv.height/dpr);
-    for(const p of pts){
-      p.x+=p.vx; p.y+=p.vy; p.vx*=.998; p.vy*=.998;
-      if(p.x<0||p.x>cnv.width/dpr){ p.vx*=-1; p.x=Math.max(0,Math.min(cnv.width/dpr,p.x)) }
-      if(p.y<0||p.y>cnv.height/dpr){ p.vy*=-1; p.y=Math.max(0,Math.min(cnv.height/dpr,p.y)) }
-      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-      ctx.fillStyle=`hsla(${p.hue},100%,60%,.9)`; ctx.fill();
-      ctx.beginPath(); ctx.arc(p.x,p.y,p.r*2.1,0,Math.PI*2);
-      ctx.fillStyle=`hsla(${p.hue},100%,60%,.10)`; ctx.fill();
-    }
-    for(let i=0;i<pts.length;i++){
-      for(let j=i+1;j<pts.length;j++){
-        const a=pts[i], b=pts[j]; const dx=a.x-b.x, dy=a.y-b.y; const dist=Math.hypot(dx,dy);
-        if(dist<CFG.LINK_DIST){
-          const alpha=(1-dist/CFG.LINK_DIST)*CFG.LINK_ALPHA;
-          ctx.strokeStyle = (a.hue===305||b.hue===305)?`rgba(255,60,172,${alpha})`:`rgba(43,217,255,${alpha})`;
-          ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
-        }
+  // Étincelle (réutilise objets)
+  function spawnSpark(x,y){
+    for(let i=0;i<MAX_SPARK;i++){
+      const s = sparks[i];
+      if(s.life<=0){
+        s.x=x; s.y=y; s.vx=rand(-1.5,1.5); s.vy=rand(-1.5,1.5);
+        s.r=rand(0.8,1.8); s.life=rand(18,34); s.hue=Math.random()<.5?305:190;
+        break;
       }
     }
-    requestAnimationFrame(step);
   }
 
-  window.addEventListener('resize', resize); resize(); requestAnimationFrame(step);
+  // Animation
+  let last=0;
+  function frame(ts){
+    if(!running){ last=ts; requestAnimationFrame(frame); return; }
+    const dt = Math.min(32, ts-last || 16); last=ts;
+
+    // Fade douce pour conserver des traînées
+    ctx.globalCompositeOperation='source-over';
+    ctx.fillStyle='rgba(10,11,16,0.12)'; // petit voile au lieu d'un clear total
+    ctx.fillRect(0,0,cnv.width/dpr,cnv.height/dpr);
+
+    // Particules
+    ctx.globalCompositeOperation='lighter';
+    for(let i=0;i<MAX_PART;i++){
+      const p=parts[i];
+      p.x+=p.vx; p.y+=p.vy;
+      // friction
+      p.vx*=0.998; p.vy*=0.998;
+      // wrap plutôt que rebond (plus soft, moins collisions)
+      if(p.x< -10) p.x=cnv.width/dpr+10; else if(p.x>cnv.width/dpr+10) p.x=-10;
+      if(p.y< -10) p.y=cnv.height/dpr+10; else if(p.y>cnv.height/dpr+10) p.y=-10;
+
+      // point
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`hsla(${p.hue}, 100%, 60%, .9)`; ctx.fill();
+
+      // halo
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r*2.2,0,Math.PI*2);
+      ctx.fillStyle=`hsla(${p.hue}, 100%, 60%, .06)`; ctx.fill();
+
+      // chance de spawn étincelle
+      if(Math.random()<0.003) spawnSpark(p.x,p.y);
+    }
+
+    // Étincelles (brèves, sans liens)
+    for(let i=0;i<MAX_SPARK;i++){
+      const s=sparks[i]; if(s.life<=0) continue;
+      s.life-=1;
+      s.x+=s.vx; s.y+=s.vy;
+      s.vx*=0.99; s.vy*=0.99;
+      ctx.beginPath();
+      ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle=`hsla(${s.hue},100%,70%,${Math.max(0,s.life/34)})`;
+      ctx.fill();
+    }
+
+    requestAnimationFrame(frame);
+  }
+
+  // Interactions légères : drift molette + étincelles clic/touch
+  let drift=0;
+  window.addEventListener('wheel', e=>{
+    const s=Math.sign(e.deltaY);
+    drift += s*0.02;
+    for(const p of parts){ p.vy += drift*0.004 }
+    drift*=0.92;
+  }, {passive:true});
+
+  function spawnBurst(x,y){
+    const rect=cnv.getBoundingClientRect();
+    const rx = x - rect.left, ry = y - rect.top;
+    spawnSpark(rx,ry);
+    // petit kick radial
+    for(let k=0;k<8;k++) spawnSpark(rx+rand(-6,6), ry+rand(-6,6));
+  }
+  window.addEventListener('pointerdown', e=> spawnBurst(e.clientX, e.clientY), {passive:true});
+
+  // Pause si onglet caché → stabilité et batterie
+  document.addEventListener('visibilitychange', ()=>{
+    running = !document.hidden;
+  });
+
+  // Resize (debounce léger)
+  let rAF=null;
+  window.addEventListener('resize', ()=>{
+    if(rAF) cancelAnimationFrame(rAF);
+    rAF = requestAnimationFrame(()=>{
+      dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+      resize();
+    });
+  });
+
+  resize(); init(); requestAnimationFrame(frame);
 })();
-
-/* ==== Utilitaires ==== */
-const $ = s => document.querySelector(s);
-const $$ = s => Array.from(document.querySelectorAll(s));
-
-/* ==== Intersection Observer: révèle cartes + tuiles ==== */
-const io = new IntersectionObserver((entries)=>{
-  entries.forEach(e=>{
-    if(e.isIntersecting){
-      e.target.classList.add('reveal');
-      if(e.target.classList.contains('card')){
-        // révélation progressive des tuiles internes
-        const tiles = e.target.querySelectorAll('.tile');
-        tiles.forEach((t,k)=> setTimeout(()=> t.classList.add('reveal'), 60*k));
-      }
-    }
-  });
-},{ threshold:.16 });
-$$('.card, .tile').forEach(n=> io.observe(n));
-
-/* ==== Tilt 3D doux (desktop seulement) ==== */
-if (window.matchMedia('(pointer:fine)').matches){
-  $$('.tilt').forEach(el=>{
-    let rID=null;
-    el.addEventListener('mousemove', (ev)=>{
-      const b = el.getBoundingClientRect();
-      const x = (ev.clientX - b.left)/b.width - .5;
-      const y = (ev.clientY - b.top)/b.height - .5;
-      cancelAnimationFrame(rID);
-      rID = requestAnimationFrame(()=>{
-        el.style.transform = `rotateY(${x*10}deg) rotateX(${-y*8}deg) translateZ(0)`;
-      });
-    });
-    el.addEventListener('mouseleave', ()=>{
-      el.style.transform = 'rotateY(0) rotateX(0)';
-    });
-  });
-}
-
-/* ==== Barre de progression de scroll & rail dots ==== */
-const progress = $('#progress');
-const sections = $$('main section');
-const dots = [$('#d1'),$('#d2'),$('#d3'),$('#d4')];
-
-function onScroll(){
-  const docH = document.documentElement.scrollHeight - window.innerHeight;
-  const p = Math.max(0, Math.min(1, window.scrollY / (docH || 1)));
-  progress.style.transform = `scaleX(${p})`;
-
-  // active dot closest to viewport center
-  const mid = window.scrollY + window.innerHeight/2;
-  let bestI = 0, bestD = Infinity;
-  sections.forEach((sec,i)=>{
-    const r = sec.getBoundingClientRect();
-    const center = window.scrollY + r.top + r.height/2;
-    const d = Math.abs(center - mid);
-    if(d < bestD){ bestD=d; bestI=i }
-  });
-  dots.forEach((d,i)=>{
-    const on = (i===bestI);
-    d.style.background = on ? 'var(--neon-pink)' : 'var(--neon-cyan)';
-    d.style.transform = `translateX(-50%) scale(${on?1.35:1})`;
-    d.style.boxShadow = on
-      ? '0 0 18px var(--neon-pink), 0 0 30px rgba(255,60,172,.35)'
-      : '0 0 12px var(--neon-cyan), 0 0 22px rgba(43,217,255,.35)';
-  });
-}
-document.addEventListener('scroll', onScroll, {passive:true});
-window.addEventListener('resize', ()=>{
-  document.documentElement.style.setProperty('--vh', window.innerHeight * 0.01 + 'px');
-});
-document.documentElement.style.setProperty('--vh', window.innerHeight * 0.01 + 'px');
-onScroll();
 </script>
 </body>
 </html>
