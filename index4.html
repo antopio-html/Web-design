@@ -2,376 +2,232 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Vitrine — Deck Futuriste (4 encarts)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Fond animé futuriste</title>
 <style>
   :root{
-    --bg:#f6faf9; --ink:#0e1116; --muted:#6b7a86;
-    --card:#ffffff; --ring:#e6edf0; --acc:#10b3b3;
-    --radius:18px; --shadow:0 18px 60px rgba(15,17,22,.10);
+    /* Palette claire et douce */
+    --bg: #f6faf9;
+    --glow-a: #bff6ef; /* vert-eau */
+    --glow-b: #e6f0ff; /* bleu très pâle */
+    --glow-c: #f9f1ff; /* lavande pâle */
+    --grid: #e8eef2;
+    --grain: rgba(0,0,0,.04);
   }
   @media (prefers-color-scheme: dark){
-    :root{ --bg:#0b1013; --ink:#eef3f6; --muted:#9fb0ba; --card:#0f151a; --ring:#1f2a33; --shadow:0 18px 60px rgba(0,0,0,.35)}
+    :root{
+      --bg:#0b1013; --glow-a:#073b3b; --glow-b:#101b38; --glow-c:#1c1235; --grid:#15202a;
+      --grain: rgba(255,255,255,.04);
+    }
   }
-  *{box-sizing:border-box}
-  html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
-    font:16px/1.55 system-ui,-apple-system,Segoe UI,Inter,Roboto,"Noto Sans",sans-serif}
-  body{overscroll-behavior:none}
 
-  /* Arrière-plan vivant (halo & grains subtils) */
-  .bg{
-    position:fixed; inset:-10% -10% -10% -10%; pointer-events:none; z-index:-1;
+  html,body{height:100%; margin:0; background:var(--bg)}
+  body{overflow:hidden; font:16px/1 system-ui,-apple-system,Segoe UI,Inter,Roboto,sans-serif}
+
+  /* Conteneur plein écran — le fond OCCUPE TOUT */
+  .stage{position:fixed; inset:0; isolation:isolate}
+
+  /* 1) Aurora (dégradés fluides) — ultra doux, GPU friendly */
+  .aurora{
+    position:absolute; inset:-20% -20% -20% -20%; filter: blur(40px) saturate(120%);
     background:
-      radial-gradient(60vmax 40vmax at 50% 8%, color-mix(in oklab, #e8fffb 35%, transparent), transparent 70%),
-      radial-gradient(40vmax 30vmax at 20% 85%, color-mix(in oklab, #f5f0ff 28%, transparent), transparent 70%),
-      radial-gradient(35vmax 30vmax at 80% 70%, color-mix(in oklab, #eaf6ff 28%, transparent), transparent 70%),
+      radial-gradient(40vmax 28vmax at 12% 18%, color-mix(in oklab, var(--glow-a) 75%, transparent), transparent 60%),
+      radial-gradient(44vmax 30vmax at 80% 18%, color-mix(in oklab, var(--glow-b) 70%, transparent), transparent 62%),
+      radial-gradient(38vmax 26vmax at 70% 80%, color-mix(in oklab, var(--glow-c) 70%, transparent), transparent 65%),
+      radial-gradient(28vmax 22vmax at 16% 74%, color-mix(in oklab, var(--glow-b) 40%, transparent), transparent 70%),
       var(--bg);
-    filter: saturate(110%) contrast(102%);
-    animation: bgfloat 24s ease-in-out infinite alternate;
+    mix-blend-mode: screen;
+    animation: floatA 28s ease-in-out infinite alternate;
+    will-change: transform;
   }
-  @keyframes bgfloat{
-    0%{ transform: translateY(0) }
-    100%{ transform: translateY(-1.2%) }
-  }
-
-  .app{min-height:100dvh; display:flex; flex-direction:column}
-
-  /* Topbar translucide */
-  .topbar{
-    position:sticky; top:0; z-index:3;
-    display:flex; align-items:center; justify-content:space-between; gap:12px;
-    padding:10px clamp(12px,4vw,28px);
-    backdrop-filter: saturate(140%) blur(8px);
-    border-bottom:1px solid color-mix(in oklab, var(--ring) 70%, transparent);
-    background: color-mix(in oklab, var(--card) 35%, transparent);
-  }
-  .brand{font-weight:700; letter-spacing:.2px}
-  .kbd{font:12px/1.2 ui-monospace,Menlo,Consolas,monospace; color:var(--muted)}
-
-  /* Carrousel horizontal avec snaps */
-  .deck{
-    position:relative; flex:1; overflow-x:auto; overflow-y:hidden;
-    scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch;
-    scrollbar-width:none; } .deck::-webkit-scrollbar{display:none}
-
-  .rail{display:flex; height:100%}
-
-  .slide{
-    scroll-snap-align:center; scroll-snap-stop:always;
-    flex:0 0 100%;
-    padding: clamp(14px, 4vw, 32px);
-    display:grid; place-items:center;
-    opacity:.0; transform: translateY(6px) scale(.995);
-    transition: opacity .5s ease, transform .5s ease;
-  }
-  .slide.is-near{
-    opacity:1; transform: translateY(0) scale(1);
+  @keyframes floatA{
+    0%   { transform: translate3d(0,0,0) scale(1) }
+    100% { transform: translate3d(0,-2%,0) scale(1.02) }
   }
 
-  /* Carte futuriste (verre, lumière douce) */
-  .card{
-    width:min(960px, 92vw);
-    min-height:min(76vh, 680px);
-    display:grid; grid-template-rows:auto 1fr auto; gap:18px;
-    background: linear-gradient(180deg,
-      color-mix(in oklab, var(--card) 92%, transparent),
-      color-mix(in oklab, var(--card) 80%, transparent));
-    border:1px solid var(--ring); border-radius:var(--radius); box-shadow:var(--shadow);
-    padding: clamp(18px, 4vw, 32px);
-    backdrop-filter: blur(10px) saturate(130%);
-    position:relative; overflow:hidden;
-    isolation:isolate;
+  /* 2) Grille dynamique très subtile (lignes claires) */
+  .grid{
+    position:absolute; inset:0; pointer-events:none; opacity:.6; mask-image: radial-gradient(60vmax 40vmax at 50% 45%, #000 60%, transparent 100%);
   }
-  .card::after{
-    content:""; position:absolute; inset:0; pointer-events:none;
-    background:
-      radial-gradient(40vmin 18vmin at 20% 0%, color-mix(in oklab, #ffffff 50%, transparent), transparent 60%),
-      radial-gradient(36vmin 20vmin at 90% 0%, color-mix(in oklab, #b3fff7 18%, transparent), transparent 70%);
-    mix-blend-mode: screen; opacity:.7;
+  .grid::before,
+  .grid::after{
+    content:""; position:absolute; inset:-2px; background:
+      repeating-linear-gradient(0deg,   transparent 0 46px, var(--grid) 46px 47px, transparent 47px 93px),
+      repeating-linear-gradient(90deg,  transparent 0 46px, var(--grid) 46px 47px, transparent 47px 93px);
+    transform: translateZ(0);
   }
-  .card h1{margin:0; font-size:clamp(24px, 5.4vw, 42px); letter-spacing:-.02em}
-  .card p{margin:0; color:var(--muted); font-size:clamp(14px, 2.6vw, 18px)}
-
-  .grid{display:grid; gap:12px; grid-template-columns:repeat(12,1fr)}
-  .tile{
-    grid-column:span 6; min-height:110px;
-    background: linear-gradient(180deg,
-      color-mix(in oklab, var(--card) 88%, transparent),
-      color-mix(in oklab, var(--card) 70%, transparent));
-    border:1px solid var(--ring); border-radius:14px; padding:14px;
-    opacity:0; transform: translateY(8px); transition:opacity .45s ease, transform .45s ease;
+  .grid::before{ animation: gridPanX 26s cubic-bezier(.2,.8,.2,1) infinite }
+  .grid::after { animation: gridPanY 32s cubic-bezier(.2,.8,.2,1) infinite reverse }
+  @keyframes gridPanX{
+    0% { transform: translate3d(0,0,0) }
+    100%{ transform: translate3d(-46px,0,0) }
   }
-  .slide.is-near .tile{ opacity:1; transform: translateY(0) }
-  .slide.is-near .tile:nth-child(1){ transition-delay:.04s }
-  .slide.is-near .tile:nth-child(2){ transition-delay:.10s }
-  .slide.is-near .tile:nth-child(3){ transition-delay:.16s }
-  .slide.is-near .tile:nth-child(4){ transition-delay:.22s }
-
-  /* Mobile */
-  @media (max-width: 860px){
-    .card{min-height:72vh}
-    .grid{grid-template-columns:1fr}
-    .tile{grid-column:1/-1}
+  @keyframes gridPanY{
+    0% { transform: translate3d(0,0,0) }
+    100%{ transform: translate3d(0,-46px,0) }
   }
 
-  .actions{display:flex; flex-wrap:wrap; gap:10px}
-  .btn{
-    appearance:none; cursor:pointer; padding:10px 14px; border-radius:12px; border:1px solid var(--ring);
-    background:linear-gradient(180deg, color-mix(in oklab, var(--card) 92%, transparent), color-mix(in oklab, var(--card) 80%, transparent));
-    color:var(--ink); transition: transform .18s ease, box-shadow .18s ease, background .3s ease;
-  }
-  .btn:active{transform:translateY(1px)}
-  .btn.primary{background: linear-gradient(180deg, #fff, color-mix(in oklab, var(--acc) 10%, #fff));
-    box-shadow:0 8px 28px color-mix(in oklab, var(--acc) 24%, transparent) }
-
-  /* Contrôles & pastilles translucides */
-  .controls{
-    position:absolute; left:0; right:0; bottom:12px; display:flex; justify-content:center; pointer-events:none;
-    padding:0 clamp(12px, 4vw, 28px); z-index:2;
-  }
-  .pill{
-    pointer-events:auto; display:flex; gap:10px; align-items:center;
-    background: color-mix(in oklab, var(--card) 65%, transparent);
-    border:1px solid var(--ring); padding:8px 10px; border-radius:999px; box-shadow:var(--shadow);
-    backdrop-filter: blur(6px) saturate(130%);
-  }
-  .navbtn{
-    width:42px; height:42px; border-radius:999px; border:1px solid var(--ring);
-    background:linear-gradient(180deg, color-mix(in oklab, var(--card) 88%, transparent), color-mix(in oklab, var(--card) 70%, transparent));
-    display:grid; place-items:center; cursor:pointer; transition: transform .18s ease;
-  }
-  .navbtn:active{ transform:translateY(1px) }
-  .dots{display:flex; gap:6px; padding:0 6px}
-  .dot{
-    width:10px; height:10px; border-radius:50%; background:color-mix(in oklab, var(--ring) 90%, transparent);
-    box-shadow:0 0 0 8px color-mix(in oklab, var(--ring) 22%, transparent);
-    cursor:pointer; transition: transform .25s ease, background .25s ease, box-shadow .25s ease, opacity .3s ease;
-    opacity:.7;
-  }
-  .dot.active{
-    background:var(--acc);
-    box-shadow:0 0 0 10px color-mix(in oklab, var(--acc) 26%, transparent);
-    transform:scale(1.12); opacity:1;
+  /* 3) Particules (canvas) — rendu faible densité */
+  canvas#fx{
+    position:absolute; inset:0; width:100%; height:100%;
+    filter: drop-shadow(0 0 6px color-mix(in oklab, var(--glow-a) 30%, transparent));
+    opacity:.75;
   }
 
-  /* Progression douce */
-  .progress{position:absolute; left:0; right:0; top:0; height:3px; background:var(--ring); opacity:.7}
-  .bar{height:100%; width:0%; background:linear-gradient(90deg, var(--acc), color-mix(in oklab, var(--acc) 40%, transparent))}
-
-  /* Hint tactile */
-  .hint{
-    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
-    color:var(--muted); font-size:13px;
-    background: color-mix(in oklab, var(--card) 70%, transparent);
-    border:1px dashed var(--ring); padding:8px 10px; border-radius:10px; user-select:none;
-    animation: hintfade 4s ease-out forwards;
-    backdrop-filter: blur(6px);
+  /* Grain très délicat (texture, évite l’effet plastifié) */
+  .grain{
+    position:absolute; inset:-2% -2% -2% -2%; pointer-events:none; opacity:.35;
+    background-image: url('data:image/svg+xml;utf8,\
+      <svg xmlns="http://www.w3.org/2000/svg" width=\"140\" height=\"140\" viewBox=\"0 0 140 140\">\
+      <filter id=\"n\"><feTurbulence type=\"fractalNoise\" baseFrequency=\"0.9\" numOctaves=\"2\" stitchTiles=\"stitch\"/></filter>\
+      <rect width=\"100%\" height=\"100%\" filter=\"url(%23n)\" opacity=\"0.06\"/>\
+      </svg>');
+    mix-blend-mode: overlay;
+    animation: grainShift 6s steps(2,end) infinite;
   }
-  @keyframes hintfade{ 0%{opacity:1} 60%{opacity:.9} 100%{opacity:0; visibility:hidden} }
-  @media (pointer:fine){ .hint{display:none} }
+  @keyframes grainShift{
+    0%{ transform:translate3d(0,0,0) }
+    100%{ transform:translate3d(-2%,1%,0) }
+  }
+
+  /* Slot de contenu optionnel (si jamais tu veux mettre un logo plus tard) */
+  .slot{
+    position:absolute; inset:0; display:grid; place-items:center; z-index:1;
+    color:#0f1115; mix-blend-mode:multiply; opacity:.0; /* masqué (fond uniquement) */
+  }
+
+  /* Accessibilité : réduit fortement les animations si demandé */
+  @media (prefers-reduced-motion: reduce){
+    .aurora, .grid::before, .grid::after, .grain{ animation: none !important }
+    canvas#fx{ display:none }
+  }
 </style>
 </head>
 <body>
-<div class="bg" aria-hidden="true"></div>
+<div class="stage" aria-hidden="true">
+  <div class="aurora"></div>
+  <div class="grid"></div>
+  <canvas id="fx"></canvas>
+  <div class="grain"></div>
 
-<div class="app" aria-live="polite">
-  <div class="topbar">
-    <div class="brand">Vitrine</div>
-    <div class="kbd">Astuce : molette (verticale) → navigation horizontale • swipe mobile</div>
-  </div>
-
-  <div class="deck" id="deck" aria-roledescription="carrousel">
-    <div class="progress"><div class="bar" id="bar"></div></div>
-    <div class="rail" id="rail">
-      <!-- 4 ENCARTS -->
-      <section class="slide" aria-label="01 Accueil">
-        <div class="card">
-          <header><h1>Accueil — cap sur l’essentiel</h1><p>4 encarts test. Fondus doux, freinage en fin de transition.</p></header>
-          <main class="grid">
-            <div class="tile"><small>Manifeste</small><h3>Clarté & espace</h3><p>Sans surcharge.</p></div>
-            <div class="tile"><small>Interaction</small><h3>Molette ↔ / Swipe</h3><p>Naturel & fiable.</p></div>
-            <div class="tile"><small>Design</small><h3>Verre dépoli</h3><p>Halo lumineux subtil.</p></div>
-            <div class="tile"><small>Perf</small><h3>Vanilla</h3><p>Transitions GPU 2D.</p></div>
-          </main>
-          <footer class="actions"><button class="btn primary">Découvrir</button><button class="btn">Contact</button></footer>
-        </div>
-      </section>
-
-      <section class="slide" aria-label="02 À propos">
-        <div class="card">
-          <header><h1>À propos — approche</h1><p>Utile, durable, élégant.</p></header>
-          <main class="grid">
-            <div class="tile"><small>Sobriété</small><h3>Aller à l’essentiel</h3><p>Respiration visuelle.</p></div>
-            <div class="tile"><small>Qualité</small><h3>Micro-interactions</h3><p>Sans artifice.</p></div>
-            <div class="tile"><small>Durabilité</small><h3>Code frugal</h3><p>Maintenable.</p></div>
-            <div class="tile"><small>Accessibilité</small><h3>Clavier / ARIA</h3><p>Tailles fluides.</p></div>
-          </main>
-          <footer class="actions"><button class="btn primary">Notre méthode</button></footer>
-        </div>
-      </section>
-
-      <section class="slide" aria-label="03 Technologie">
-        <div class="card">
-          <header><h1>Technologie — front léger</h1><p>HTML sémantique, CSS variables, JS minimal.</p></header>
-          <main class="grid">
-            <div class="tile"><small>Composabilité</small><h3>Modules clairs</h3><p>Testables.</p></div>
-            <div class="tile"><small>Intégrations</small><h3>APIs sobres</h3><p>Analytics éthiques.</p></div>
-            <div class="tile"><small>Performance</small><h3>60fps visés</h3><p>Lazy data.</p></div>
-            <div class="tile"><small>Handoff</small><h3>Guidelines</h3><p>Tokens & assets.</p></div>
-          </main>
-          <footer class="actions"><button class="btn primary">Voir un proto</button><button class="btn">Specs</button></footer>
-        </div>
-      </section>
-
-      <section class="slide" aria-label="04 Contact">
-        <div class="card">
-          <header><h1>Contact — parlons</h1><p>Une idée, une refonte ? On écoute.</p></header>
-          <main class="grid">
-            <div class="tile"><small>Email</small><h3>hello@vitrine.example</h3><p>Réponse rapide.</p></div>
-            <div class="tile"><small>RDV</small><h3>30 minutes</h3><p>Cadrage besoin.</p></div>
-            <div class="tile"><small>Livrables</small><h3>Prototype + guide</h3><p>Handoff clair.</p></div>
-            <div class="tile"><small>Engagement</small><h3>Clarté & exigence</h3><p>Sans blabla.</p></div>
-          </main>
-          <footer class="actions"><button class="btn primary">Écrire</button><button class="btn">Prendre RDV</button></footer>
-        </div>
-      </section>
-    </div>
-
-    <div class="hint">Glisse latéralement</div>
-
-    <!-- Contrôles -->
-    <div class="controls">
-      <div class="pill">
-        <button class="navbtn" id="prev" aria-label="Précédent">◄</button>
-        <div class="dots" id="dots"></div>
-        <button class="navbtn" id="next" aria-label="Suivant">►</button>
-      </div>
-    </div>
+  <!-- Optionnel : enlève complètement ce bloc pour n’avoir que le fond -->
+  <div class="slot">
+    <!-- <h1>Ton logo ici</h1> -->
   </div>
 </div>
 
 <script>
-/* ---------- Sélection DOM ---------- */
-const deck = document.getElementById('deck');
-const rail = document.getElementById('rail');
-const dots = document.getElementById('dots');
-const bar  = document.getElementById('bar');
-const slides = [...rail.children];
-const prevB = document.getElementById('prev');
-const nextB = document.getElementById('next');
+/* Particules légères & douces — optimisées mobile */
+(function(){
+  const cnv = document.getElementById('fx');
+  const ctx = cnv.getContext('2d', { alpha: true });
+  let dpr = Math.min(window.devicePixelRatio || 1, 2); // limite DPR pour perf
+  let W=0, H=0;
 
-let idx = 0;
+  const CFG = {
+    COUNT_BASE: 80,          // densité de base (sera ajustée selon taille)
+    SIZE_MIN: 0.8,
+    SIZE_MAX: 2.2,
+    SPEED_MIN: 0.04,
+    SPEED_MAX: 0.18,
+    LINK_DIST: 110,          // distance de liaison
+    LINK_ALPHA: 0.12
+  };
 
-/* ---------- EASING (freinage en fin) ---------- */
-const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
+  let pts = [];
 
-/* Scroll animé avec easing custom (pour clic, molette, flèches) */
-function scrollToIndex(i, dur=520){
-  idx = (i + slides.length) % slides.length;
-  const start = deck.scrollLeft;
-  const target = idx * deck.clientWidth;
-  const delta = target - start;
-  const t0 = performance.now();
-
-  function frame(now){
-    const k = Math.min(1, (now - t0) / dur);
-    const e = easeOutCubic(k);
-    deck.scrollLeft = start + delta * e;
-    if(k < 1) requestAnimationFrame(frame);
+  function rnd(a,b){ return a + Math.random()*(b-a) }
+  function resize(){
+    const rect = cnv.getBoundingClientRect();
+    W = Math.floor(rect.width  * dpr);
+    H = Math.floor(rect.height * dpr);
+    cnv.width = W; cnv.height = H;
+    ctx.setTransform(dpr,0,0,dpr,0,0); // normalise coords
+    // recalculer la densité selon surface
+    const area = rect.width*rect.height;
+    const count = Math.round(CFG.COUNT_BASE * (area / (1200*700)));
+    spawn(count);
   }
-  requestAnimationFrame(frame);
-  updateUI(); // sync UI
-}
 
-/* ---------- Pastilles ---------- */
-function renderDots(){
-  dots.innerHTML = "";
-  slides.forEach((_,i)=>{
-    const b = document.createElement('button');
-    b.className = 'dot' + (i===idx?' active':'');
-    b.addEventListener('click', ()=> scrollToIndex(i,480));
-    dots.appendChild(b);
-  });
-}
-
-/* ---------- Wheel vertical → navigation horizontale ---------- */
-let wheelLock = false;
-deck.addEventListener('wheel', (e)=>{
-  const delta = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
-  if(Math.abs(delta) < 6) return;
-  e.preventDefault();
-  if(wheelLock) return;
-  wheelLock = true;
-  delta > 0 ? scrollToIndex(idx+1,520) : scrollToIndex(idx-1,520);
-  setTimeout(()=> wheelLock=false, 360);
-},{passive:false});
-
-/* ---------- Clavier & boutons ---------- */
-window.addEventListener('keydown', e=>{
-  if(e.key==='ArrowRight') scrollToIndex(idx+1,520);
-  else if(e.key==='ArrowLeft') scrollToIndex(idx-1,520);
-});
-prevB.addEventListener('click', ()=> scrollToIndex(idx-1,520));
-nextB.addEventListener('click', ()=> scrollToIndex(idx+1,520));
-
-/* ---------- Swipe mobile (avec easing final) ---------- */
-let startX=0, startY=0, isTouch=false, moved=false;
-deck.addEventListener('touchstart', e=>{
-  isTouch=true; moved=false;
-  const t=e.touches[0]; startX=t.clientX; startY=t.clientY;
-},{passive:true});
-
-deck.addEventListener('touchmove', e=>{
-  if(!isTouch) return;
-  const t=e.touches[0]; const dx=t.clientX-startX; const dy=t.clientY-startY;
-  if(Math.abs(dx)>Math.abs(dy) && Math.abs(dx)>10){
-    moved=true;
-    deck.scrollLeft = idx*deck.clientWidth - dx; // suivi direct du pouce
+  function spawn(n){
+    pts = [];
+    for(let i=0;i<n;i++){
+      pts.push({
+        x: Math.random()*W/dpr,
+        y: Math.random()*H/dpr,
+        vx: rnd(-CFG.SPEED_MAX, CFG.SPEED_MAX),
+        vy: rnd(-CFG.SPEED_MAX, CFG.SPEED_MAX),
+        r: rnd(CFG.SIZE_MIN, CFG.SIZE_MAX),
+        hue: rnd(168, 210) // entre vert-eau et bleu doux
+      });
+    }
   }
-},{passive:true});
 
-function endSwipe(e){
-  if(!isTouch) return; isTouch=false;
-  const t = (e.changedTouches?e.changedTouches[0]:e);
-  const dx = t.clientX - startX;
-  if(Math.abs(dx)>40){ dx<0 ? scrollToIndex(idx+1,420) : scrollToIndex(idx-1,420) }
-  else { scrollToIndex(idx,380) }
-}
-deck.addEventListener('touchend', endSwipe, {passive:true});
-deck.addEventListener('touchcancel', endSwipe, {passive:true});
+  function step(t){
+    ctx.clearRect(0,0,cnv.width/dpr,cnv.height/dpr);
 
-/* ---------- Mise en avant (fondus + “near”) ---------- */
-function onScroll(){
-  const w = deck.clientWidth;
-  const left = deck.scrollLeft;
-  const center = left + w/2;
-  slides.forEach((s)=>{
-    const rect = s.getBoundingClientRect();
-    const slideCenter = rect.left + rect.width/2;
-    const dist = Math.abs(slideCenter - window.innerWidth/2);
-    const near = dist < w*0.42;
-    s.classList.toggle('is-near', near);
-  });
-  idx = Math.round(left / w);
-  updateUI();
-}
-deck.addEventListener('scroll', onScroll, {passive:true});
+    // update & draw points
+    for(let i=0;i<pts.length;i++){
+      const p = pts[i];
+      p.x += p.vx; p.y += p.vy;
 
-/* ---------- UI sync ---------- */
-function updateUI(){
-  [...dots.children].forEach((d,k)=> d.classList.toggle('active', k===idx));
-  bar.style.width = ((idx+1)/slides.length*100) + '%';
-}
+      // friction légère = "douceur" (freinage)
+      p.vx *= 0.998; p.vy *= 0.998;
 
-/* ---------- Resize ---------- */
-window.addEventListener('resize', ()=> scrollToIndex(idx,0));
+      // rebond souple
+      if(p.x < 0 || p.x > cnv.width/dpr){ p.vx *= -1; p.x = Math.max(0, Math.min(cnv.width/dpr, p.x)); }
+      if(p.y < 0 || p.y > cnv.height/dpr){ p.vy *= -1; p.y = Math.max(0, Math.min(cnv.height/dpr, p.y)); }
 
-/* ---------- Init ---------- */
-renderDots();
-scrollToIndex(0,0);
-setTimeout(()=> { // déclenche le fondu “near” au load
-  onScroll();
-}, 30);
+      // halo point
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      ctx.fillStyle = `hsla(${p.hue}, 70%, 60%, 0.8)`;
+      ctx.fill();
+
+      // léger glow
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r*2.2, 0, Math.PI*2);
+      ctx.fillStyle = `hsla(${p.hue}, 70%, 60%, 0.06)`;
+      ctx.fill();
+    }
+
+    // liaisons
+    for(let i=0;i<pts.length;i++){
+      for(let j=i+1;j<pts.length;j++){
+        const a = pts[i], b = pts[j];
+        const dx = a.x-b.x, dy = a.y-b.y;
+        const d2 = dx*dx + dy*dy;
+        const dist = Math.sqrt(d2);
+        if(dist < CFG.LINK_DIST){
+          const alpha = (1 - dist/CFG.LINK_DIST) * CFG.LINK_ALPHA;
+          ctx.strokeStyle = `rgba(16,179,179,${alpha})`; // proche de --acc
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+          ctx.stroke();
+        }
+      }
+    }
+
+    requestAnimationFrame(step);
+  }
+
+  // wheel vertical = léger drift sur la vitesse (option sympa)
+  let drift = 0;
+  window.addEventListener('wheel', (e)=>{
+    const s = Math.sign(e.deltaY);
+    drift += s * 0.02;
+    // applique un petit offset sur les vitesses
+    for(const p of pts){ p.vy += drift * 0.002 }
+    drift *= 0.95;
+  }, {passive:true});
+
+  // resize & start
+  window.addEventListener('resize', resize);
+  resize();
+  requestAnimationFrame(step);
+})();
 </script>
 </body>
 </html>
