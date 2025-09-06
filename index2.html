@@ -4,125 +4,101 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Paw & Fin — Bien-être animal</title>
-<meta name="description" content="Paw & Fin, animalerie moderne: chats & aquatiques. Bien-être, pédagogie, design.">
+<meta name="description" content="Paw & Fin : animalerie moderne & chaleureuse, spécialisée chats & aquatiques. Bien-être d’abord.">
 <style>
-/* ------------------ Design System ------------------ */
+/* ===== Design System (8px scale, grille 12 colonnes) ===== */
 :root{
   /* Couleurs */
   --ivory:#F6F5F0; --paper:#FCFBF7;
   --teal:#2BA6A1; --emerald:#1B7D73; --gold:#D4A65A;
-  --ink:#1C1C1C; --ink-2:#3a3a3a; --muted:#E9E6DD; --white:#fff;
+  --ink:#1C1C1C; --muted:#E9E6DD; --white:#fff;
 
-  /* Échelle + Rayons + Ombres */
-  --s-0:4px; --s-1:8px; --s-2:12px; --s-3:16px; --s-4:24px; --s-5:32px; --s-6:48px; --s-7:72px;
-  --radius-1:12px; --radius-2:16px; --radius-3:22px;
-  --shadow-1:0 6px 18px rgba(0,0,0,.08);
-  --shadow-2:0 12px 30px rgba(0,0,0,.10);
-  --shadow-3:0 30px 60px rgba(0,0,0,.12);
-
-  /* Largeurs & grille */
-  --max:1200px; --grid-gap:16px; --col: min(1fr, 360px);
-  --ring: 1px solid #ece8db;
+  /* Échelle / rayons / ombres */
+  --s1:8px; --s2:16px; --s3:24px; --s4:32px; --s5:48px; --s6:72px;
+  --r1:12px; --r2:16px; --r3:22px;
+  --ring:1px solid #ece8db;
+  --sh1:0 6px 18px rgba(0,0,0,.08);
+  --sh2:0 14px 32px rgba(0,0,0,.12);
+  --maxW:1200px;
 }
-
-@media (max-width:980px){
-  :root{ --grid-gap:14px; }
-}
-@media (max-width:680px){
-  :root{ --grid-gap:12px; }
-}
-
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--ivory);color:var(--ink);font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Arial}
-img{display:block;max-width:100%}
+img{max-width:100%;display:block}
 a{color:var(--emerald);text-decoration:none}
-.container{width:min(var(--max),92vw);margin:auto}
+.container{width:min(var(--maxW),92vw);margin:auto}
 
-/* ------------------ Header minimal sticky ------------------ */
-header{position:sticky;top:0;z-index:20;background:rgb(252 251 247/.82);backdrop-filter:saturate(120%) blur(6px);border-bottom:var(--ring)}
-.nav{display:flex;align-items:center;justify-content:space-between;gap:var(--s-2);padding:12px 0}
-nav a{margin-left:var(--s-3);font-weight:600}
-.btn{display:inline-flex;align-items:center;gap:.6rem;background:var(--emerald);color:var(--white);padding:10px 16px;border-radius:12px;box-shadow:var(--shadow-1)}
+/* ===== Header minimal sticky ===== */
+header{position:sticky;top:0;z-index:20;background:rgb(252 251 247/.84);backdrop-filter:saturate(120%) blur(6px);border-bottom:var(--ring)}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:var(--s2);padding:12px 0}
+.brandwrap{display:flex;align-items:center;gap:12px}
+.brandwrap img{width:40px;height:40px;object-fit:contain}
+.brand{font-weight:900;letter-spacing:.5px}
+nav a{margin-left:16px;font-weight:600}
+.btn{display:inline-flex;align-items:center;gap:.6rem;background:var(--emerald);color:#fff;padding:10px 16px;border-radius:12px;box-shadow:var(--sh1)}
 .btn:hover{background:var(--teal)}
 
-/* ------------------ LOGO GRAND (Hero) ------------------ */
-.hero{isolation:isolate;position:relative;padding:clamp(32px,5vw,56px) 0}
+/* ===== Hero (logo en gros + mission) ===== */
+.hero{position:relative;padding:clamp(28px,4.5vw,56px) 0;isolation:isolate}
 .hero::before{
   content:"";position:absolute;inset:0;z-index:-1;
   background:
-    radial-gradient(800px 300px at 50% 110%, rgba(212,166,90,.18), transparent 60%),
+    radial-gradient(900px 320px at 50% 110%, rgba(212,166,90,.18), transparent 60%),
     linear-gradient(180deg, rgba(255,255,255,0), rgba(255,255,255,.85));
 }
-.hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:var(--s-5);align-items:center}
-@media (max-width:980px){ .hero-grid{grid-template-columns:1fr} }
+.hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:var(--s4);align-items:center}
+@media (max-width:980px){.hero-grid{grid-template-columns:1fr}}
 
-/* Logo encadré */
-.logo-wrap{background:var(--paper);border:var(--ring);border-radius:var(--radius-3);
-  box-shadow:var(--shadow-2);padding:var(--s-5);display:flex;align-items:center;justify-content:center;min-height:320px}
-.logo-stack{display:grid;gap:var(--s-2);place-items:center}
+.logo-big{background:var(--paper);border:var(--ring);border-radius:var(--r3);box-shadow:var(--sh2);
+  padding:var(--s5);display:grid;place-items:center;min-height:320px}
+.logo-big img{width:min(420px,70vw);height:auto;object-fit:contain}
+.logo-caption{margin-top:10px;font-weight:800;color:var(--emerald)}
 
-/* SVG = patte + vague (cohérent avec itérations précédentes) */
-.logo svg{width:min(320px,60vw);height:auto}
-.brand{font-weight:900;letter-spacing:.6px;color:var(--emerald);font-size:clamp(18px,2vw,22px)}
-
-/* Texte mission */
-.hero-text{display:grid;gap:var(--s-3)}
-.kicker{color:var(--emerald);text-transform:uppercase;letter-spacing:.12em;font-weight:800;font-size:.78rem}
-h1{margin:0;font-size:clamp(28px,4.4vw,44px);line-height:1.15}
-.lead{color:var(--ink-2)}
-.badges{display:flex;flex-wrap:wrap;gap:var(--s-2)}
+.kicker{color:var(--emerald);text-transform:uppercase;letter-spacing:.12em;font-weight:800;font-size:.8rem}
+h1{margin:.2rem 0 1rem;font-size:clamp(28px,4.6vw,44px);line-height:1.15}
+.lead{opacity:.9}
+.badges{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
 .badge{background:var(--muted);border:var(--ring);padding:8px 12px;border-radius:999px;font-weight:700}
 
-/* ------------------ Bento Grid ------------------ */
-.section{padding:var(--s-6) 0}
-.t{display:flex;align-items:center;gap:10px;margin-bottom:var(--s-3)}
-.t h2{margin:0;font-size:clamp(22px,3vw,28px)}
+/* ===== Section titles ===== */
+.section{padding:var(--s5) 0}
+.t{display:flex;align-items:center;gap:10px;margin-bottom:var(--s2)}
+.t h2{margin:0;font-size:clamp(22px,3.2vw,28px)}
 .t .rule{height:1px;background:linear-gradient(90deg,var(--gold),transparent);flex:1}
 
-.bento{
-  display:grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: var(--grid-gap);
-}
-
-/* Cartes communes */
-.card{background:var(--white);border:var(--ring);border-radius:var(--radius-2);box-shadow:var(--shadow-1);overflow:hidden;position:relative}
-.card .p{padding:var(--s-4)}
+/* ===== Bento grid (12 colonnes) ===== */
+.bento{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
+.card{background:#fff;border:var(--ring);border-radius:var(--r2);box-shadow:var(--sh1);overflow:hidden;position:relative}
+.card .p{padding:var(--s3)}
 .card h3{margin:.2rem 0 .4rem}
 .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(27,125,115,.10);color:var(--emerald);font-weight:800;font-size:.8rem}
-
-/* Layout bento précis (desktop) */
-.b1{grid-column: span 7;}       /* Pourquoi (texte long) */
-.b2{grid-column: span 5;}       /* Valeurs rapides */
-.b3{grid-column: span 4;}       /* Produit chat */
-.b4{grid-column: span 4;}       /* Produit aquatique */
-.b5{grid-column: span 4;}       /* Visuel ambiance */
-.b6{grid-column: span 12;}      /* Bandeau pédagogique */
-
-/* Responsive bento */
-@media (max-width:1100px){
-  .b1{grid-column: span 12}
-  .b2{grid-column: span 12}
-  .b3,.b4,.b5{grid-column: span 12}
-}
-
-.cover{height:100%;object-fit:cover;width:100%}
-.media{aspect-ratio: 16/10;overflow:hidden}
+.media{aspect-ratio:16/10;overflow:hidden}
 .media img{width:100%;height:100%;object-fit:cover}
 
-/* ------------------ Animations douces ------------------ */
-@keyframes rise { from{transform:translateY(8px);opacity:.0} to{transform:none;opacity:1} }
-.reveal{animation: rise .7s cubic-bezier(.22,.9,.24,1) both}
-.card:hover{transform:translateY(-2px);box-shadow:var(--shadow-3)}
-@media (prefers-reduced-motion:reduce){
-  .reveal{animation:none}
-  .card:hover{transform:none}
+/* Spans précis */
+.b1{grid-column:span 7} /* Pourquoi */
+.b2{grid-column:span 5} /* Valeurs rapides */
+.b3,.b4,.b5{grid-column:span 4}
+.b6{grid-column:span 12} /* bandeau promesse */
+
+@media (max-width:1100px){
+  .b1,.b2,.b3,.b4,.b5,.b6{grid-column:span 12}
 }
 
-/* ------------------ Footer ------------------ */
-footer{margin-top:var(--s-6);background:var(--paper);border-top:var(--ring)}
-.foot{display:flex;justify-content:space-between;align-items:center;padding:18px 0;gap:var(--s-3)}
-.mini{color:#5a5a5a;font-size:.95rem}
+/* ===== Animations ===== */
+@keyframes rise{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
+.reveal{animation:rise .7s cubic-bezier(.22,.9,.24,1) both}
+.card:hover{transform:translateY(-2px);box-shadow:var(--sh2)}
+@media (prefers-reduced-motion:reduce){.reveal{animation:none}.card:hover{transform:none}}
+
+/* ===== Produits grille ===== */
+.products{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media (max-width:980px){.products{grid-template-columns:1fr 1fr}}
+@media (max-width:640px){.products{grid-template-columns:1fr}}
+
+/* ===== Footer ===== */
+footer{margin-top:var(--s5);background:var(--paper);border-top:var(--ring)}
+.foot{display:flex;justify-content:space-between;align-items:center;padding:18px 0;gap:16px}
+.mini{color:#565656;font-size:.95rem}
 .social a{margin-left:12px}
 </style>
 </head>
@@ -130,134 +106,106 @@ footer{margin-top:var(--s-6);background:var(--paper);border-top:var(--ring)}
 
 <header>
   <div class="container nav">
-    <div style="display:flex;align-items:center;gap:12px">
-      <strong>PAW &amp; FIN</strong>
-      <span class="mini" style="color:var(--emerald)">bien-être animal</span>
+    <div class="brandwrap">
+      <img src="logoPF.png" alt="Logo Paw & Fin">
+      <div class="brand">PAW &amp; FIN</div>
     </div>
     <nav>
       <a href="#pourquoi">Pourquoi</a>
       <a href="#valeurs">Valeurs</a>
-      <a href="#bento">Aperçu</a>
+      <a href="#produits">Produits</a>
       <a href="#contact">Contact</a>
     </nav>
     <a class="btn" href="#contact">Nous écrire</a>
   </div>
 </header>
 
-<!-- ===================== HERO : LOGO EN GROS + POURQUOI ===================== -->
+<!-- ===================== HERO : LOGO EN GROS + MISSION ===================== -->
 <section class="hero" id="pourquoi">
   <div class="container hero-grid">
-    <!-- Logo grand -->
-    <div class="logo-wrap reveal" style="order:2">
-      <div class="logo-stack">
-        <!-- SVG logo (patte + vague) -->
-        <svg class="logo" viewBox="0 0 512 320" role="img" aria-label="Logo Paw & Fin">
-          <!-- Pads -->
-          <ellipse cx="120" cy="60" rx="34" ry="26" fill="var(--gold)"/>
-          <ellipse cx="200" cy="42" rx="34" ry="26" fill="var(--gold)"/>
-          <ellipse cx="280" cy="60" rx="34" ry="26" fill="var(--gold)"/>
-          <ellipse cx="160" cy="105" rx="34" ry="26" fill="var(--gold)"/>
-          <!-- Vague-coussin -->
-          <path d="M120,210c40-70 150-70 210-8 35,34 15,92-40,106-87,22-188-15-170-98z"
-                fill="url(#wave)"/>
-          <!-- dégradé -->
-          <defs>
-            <linearGradient id="wave" x1="0" x2="1" y1="0" y2="1">
-              <stop offset="0%" stop-color="var(--teal)"/>
-              <stop offset="100%" stop-color="var(--emerald)"/>
-            </linearGradient>
-          </defs>
-        </svg>
-        <div class="brand">PAW &amp; FIN</div>
-      </div>
+    <div class="logo-big reveal" style="order:2">
+      <img src="logoPF.png" alt="Logo Paw & Fin — patte stylisée et vague">
+      <div class="logo-caption">Bien-être animal • Chats & Aquatiques</div>
     </div>
 
-    <!-- Mission / Pourquoi -->
-    <div class="hero-text reveal" style="order:1">
+    <div class="reveal" style="order:1">
       <div class="kicker">Pourquoi</div>
       <h1>Le bien-être d’abord : simplifier la vie des chats et des poissons… et la vôtre.</h1>
-      <p class="lead">Nous sélectionnons des produits utiles, sûrs et durables, expliqués simplement. 
-        Nos conseils s’appuient sur le comportement animal et des routines d’entretien **réalistes**.</p>
+      <p class="lead">Nos choix produits sont guidés par la santé, le confort et la pédagogie. Nous proposons des
+        routines d’entretien <strong>réalistes</strong>, des matériaux sûrs et des conseils honnêtes.</p>
       <div class="badges">
-        <span class="badge">Chats & Aquatiques</span>
-        <span class="badge">Conseil honnête</span>
+        <span class="badge">Conseil clair</span>
         <span class="badge">Design chaleureux</span>
         <span class="badge">Plantes faciles</span>
-      </div>
-      <div>
-        <a class="btn" href="#bento">Découvrir l’aperçu</a>
+        <span class="badge">Budget maîtrisé</span>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ===================== SECTION VALEURS ===================== -->
+<!-- ===================== VALEURS + APERÇU (BENTO) ===================== -->
 <section class="section container" id="valeurs">
   <div class="t"><h2>Nos valeurs</h2><div class="rule"></div></div>
+
   <div class="bento">
-    <!-- Valeur 1 -->
     <article class="card b1 reveal">
       <div class="p">
         <h3>Bien-être animal (prioritaire)</h3>
-        <p>Chaque référence est choisie pour son impact positif : confort, stress réduit, qualité des matériaux, transparence des compositions.</p>
+        <p>Confort, réduction du stress, qualité des matériaux et transparence des compositions guident notre sélection.</p>
         <ul>
-          <li>Litières douces / zones refuge / enrichissement.</li>
-          <li>Paramètres d’eau simples & stables, plantes robustes.</li>
-          <li>Guides “mini-entretien” pour tenir dans la durée.</li>
+          <li>Chats : zones refuge, enrichissement doux, nutrition lisible.</li>
+          <li>Aquatique : paramètres stables, plantes robustes, filtres silencieux.</li>
+          <li>Guides “mini-entretien” pensés pour tenir dans la durée.</li>
         </ul>
       </div>
     </article>
 
-    <!-- Valeurs rapides -->
     <article class="card b2 reveal">
       <div class="p" style="display:grid;gap:12px">
         <span class="pill">Pédagogie</span>
-        <h3>Conseils clairs</h3>
-        <p>Fiches didactiques, protocoles pas-à-pas, budgets adaptés.</p>
+        <h3>Conseils simples</h3>
+        <p>Fiches didactiques, protocoles pas-à-pas, alternatives par budget.</p>
+        <span class="pill">Responsable</span>
+        <h3>Durabilité</h3>
+        <p>Matériaux fiables, priorité au réutilisable, longévité.</p>
         <span class="pill">Design</span>
         <h3>Moderne & chaleureux</h3>
-        <p>Matériaux naturels, couleurs apaisantes, agencement lisible.</p>
-        <span class="pill">Responsable</span>
-        <h3>Choix durable</h3>
-        <p>Priorité au réutilisable, au fiable et à la longévité.</p>
+        <p>Signalétique claire, couleurs apaisantes, mise en scène aérée.</p>
       </div>
     </article>
 
-    <!-- Produits exemples (bento 3/4/5) -->
     <article class="card b3 reveal">
-      <div class="media"><img src="assets/hero2.png" alt="Pot lumineux — univers doux"/></div>
+      <div class="media"><img id="FMI-slot-1" alt="Ambiance claire 1"></div>
       <div class="p">
-        <span class="pill">Chat</span>
-        <h3>Zones de repos & jeux</h3>
-        <p>Cabas dodo, griffoirs, jouets sensoriels. Matériaux confort & sécurité.</p>
+        <span class="pill">Ambiance</span>
+        <h3>Boutique sereine</h3>
+        <p>Lumière douce, végétal, organisation lisible. On respire.</p>
       </div>
     </article>
 
     <article class="card b4 reveal">
-      <div class="media"><img src="assets/cultures.png" alt="Grappe d’olives — naturel"/></div>
+      <div class="media"><img id="FMI-slot-2" alt="Ambiance claire 2"></div>
       <div class="p">
         <span class="pill">Aquatique</span>
-        <h3>Kit 30–60L, plantes faciles</h3>
-        <p>Filtres silencieux, éclairage sobre, entretien hebdo &lt; 15 min.</p>
+        <h3>Kits 30–60L & plantes</h3>
+        <p>Entretien &lt; 15 min/semaine, choix robustes et esthétiques.</p>
       </div>
     </article>
 
     <article class="card b5 reveal">
-      <div class="media"><img src="assets/paysage_oliviers.png" alt="Ambiance méditerranéenne"/></div>
+      <div class="media"><img id="FMI-slot-3" alt="Ambiance claire 3"></div>
       <div class="p">
-        <span class="pill">Ambiance</span>
-        <h3>Boutique sereine</h3>
-        <p>Lumière douce, végétal, signalétique claire. On respire.</p>
+        <span class="pill">Chats</span>
+        <h3>Repos & jeux</h3>
+        <p>Matériaux confort, enrichissement sensoriel, sécurité.</p>
       </div>
     </article>
 
-    <!-- Bandeau pédagogique -->
     <article class="card b6 reveal" style="background:linear-gradient(135deg, rgba(212,166,90,.15), rgba(27,125,115,.10));">
       <div class="p" style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between">
         <div>
           <h3 style="margin:0 0 6px">Notre promesse</h3>
-          <p style="margin:0">Des routines réalistes et un accompagnement concret pour que vos animaux
-            vivent mieux — durablement.</p>
+          <p style="margin:0">Des routines réalistes, un accompagnement concret, et le bien-être comme boussole.</p>
         </div>
         <a class="btn" href="#contact">Demander un conseil</a>
       </div>
@@ -265,12 +213,18 @@ footer{margin-top:var(--s-6);background:var(--paper);border-top:var(--ring)}
   </div>
 </section>
 
-<!-- ===================== CONTACT / FOOTER ===================== -->
-<section id="contact" class="section container">
+<!-- ===================== PRODUITS ===================== -->
+<section class="section container" id="produits">
+  <div class="t"><h2>Produits en vitrine</h2><div class="rule"></div></div>
+  <div class="products" id="products"></div>
+</section>
+
+<!-- ===================== CONTACT ===================== -->
+<section class="section container" id="contact">
   <div class="t"><h2>Contact</h2><div class="rule"></div></div>
-  <div class="card reveal" style="display:grid;grid-template-columns:1fr 1fr;gap:var(--s-4);align-items:center">
+  <div class="card reveal" style="display:grid;grid-template-columns:1fr 1fr;gap:var(--s3);align-items:center">
     <div class="p">
-      <p class="mini" style="color:var(--ink-2)">Écrivez-nous pour un conseil personnalisé (chat, aquarium, plantes).</p>
+      <p class="mini" style="opacity:.9">Écrivez-nous pour un conseil personnalisé (chat, aquarium, plantes).</p>
       <form onsubmit="event.preventDefault(); toast('Merci ! Nous revenons vers vous rapidement.');">
         <label class="mini">Nom<br><input required style="width:100%;padding:10px;border:var(--ring);border-radius:12px"></label><br><br>
         <label class="mini">Email<br><input type="email" required style="width:100%;padding:10px;border:var(--ring);border-radius:12px"></label><br><br>
@@ -278,46 +232,88 @@ footer{margin-top:var(--s-6);background:var(--paper);border-top:var(--ring)}
         <button class="btn" type="submit">Envoyer</button>
       </form>
     </div>
-    <img src="assets/maison.png" alt="Atelier Paw & Fin, table en bois" style="border-radius:var(--radius-2);border:var(--ring)">
+    <div class="media" style="border-radius:12px;overflow:hidden;border:var(--ring)">
+      <img id="FMI-slot-4" alt="Atelier / table produits">
+    </div>
   </div>
 </section>
 
 <footer>
   <div class="container foot">
-    <div style="display:flex;align-items:center;gap:12px">
-      <strong>PAW &amp; FIN</strong>
-      <span class="mini">Casablanca • Bien-être animal</span>
+    <div class="brandwrap">
+      <img src="logoPF.png" alt="Logo Paw & Fin">
+      <div class="brand">PAW &amp; FIN</div>
     </div>
-    <div class="mini">© Paw & Fin — Chats & Aquatiques
-      <span class="social">
-        <a href="#">IG</a><a href="#">FB</a><a href="#">WA</a>
-      </span>
+    <div class="mini">© Paw & Fin — Chats & Aquatiques • Casablanca
+      <span class="social"><a href="#">IG</a><a href="#">FB</a><a href="#">WA</a></span>
     </div>
   </div>
 </footer>
 
 <script>
-/* micro-toast pour feedback formulaire */
+/* ===== Utilitaires ===== */
 function toast(msg){
   const t=document.createElement('div');
   t.textContent=msg;
-  Object.assign(t.style,{
-    position:'fixed',inset:'auto 50px 50px auto',padding:'12px 16px',
-    background:'var(--emerald)',color:'#fff',borderRadius:'12px',
-    boxShadow:'var(--shadow-2)',zIndex:999,opacity:0,transform:'translateY(8px)',
-    transition:'all .4s cubic-bezier(.22,.9,.24,1)'
-  });
+  Object.assign(t.style,{position:'fixed',right:'40px',bottom:'40px',padding:'12px 16px',
+    background:'var(--emerald)',color:'#fff',borderRadius:'12px',boxShadow:'var(--sh2)',
+    zIndex:999,opacity:0,transform:'translateY(8px)',transition:'all .4s cubic-bezier(.22,.9,.24,1)'});
   document.body.appendChild(t);
   requestAnimationFrame(()=>{t.style.opacity=1;t.style.transform='none';});
   setTimeout(()=>{t.style.opacity=0;t.style.transform='translateY(8px)';},2200);
   setTimeout(()=>t.remove(),2700);
 }
 
-/* révélation au scroll (simple & légère) */
-const obs=new IntersectionObserver(els=>{
-  els.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('reveal'); obs.unobserve(e.target);} });
-},{threshold:.08});
-document.querySelectorAll('.card:not(.reveal), .logo-wrap:not(.reveal)').forEach(el=>obs.observe(el));
+/* ===== Charger dynamiquement FMIx.png dans les slots ===== */
+(function loadFMI(){
+  const slots=['FMI-slot-1','FMI-slot-2','FMI-slot-3','FMI-slot-4'];
+  let idx=1;
+  slots.forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el) return;
+    // On tente FMI{idx}.png ; s’il n’existe pas, on passe au suivant
+    const tryNext=(k)=>{
+      if(k>10){ el.remove(); return; } // borne max
+      const src=`FMI${k}.png`;
+      const img=new Image();
+      img.onload=()=>{ el.src=src; };
+      img.onerror=()=>tryNext(k+1);
+      img.src=src;
+    };
+    tryNext(idx++);
+  });
+})();
+
+/* ===== Charger dynamiquement productA{n}.png ===== */
+(function loadProducts(){
+  const wrap=document.getElementById('products');
+  const MAX=12; // augmente si besoin
+  let found=0;
+  for(let i=1;i<=MAX;i++){
+    const src=`productA${i}.png`;
+    const img=new Image();
+    img.onload=()=>{
+      found++;
+      const card=document.createElement('article');
+      card.className='card reveal';
+      card.innerHTML=`
+        <div class="media"><img src="${src}" alt="Produit ${i}"></div>
+        <div class="p">
+          <span class="pill">${(i%2)?'Chat':'Aquatique'}</span>
+          <h3>Produit A${i}</h3>
+          <p>Description courte. Remplace ce texte par le bénéfice clé (bien-être, simplicité, durabilité).</p>
+        </div>`;
+      wrap.appendChild(card);
+    };
+    img.src=src;
+  }
+  // Option : si aucun produit trouvé, message neutre
+  setTimeout(()=>{ if(!wrap.children.length){ wrap.innerHTML = '<p class="mini">Ajoutez des images <strong>productA1.png</strong>… pour afficher vos produits.</p>'; }}, 1200);
+})();
+
+/* ===== Révélations au scroll ===== */
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('reveal'); io.unobserve(e.target);}}),{threshold:.08});
+document.querySelectorAll('.card:not(.reveal), .logo-big:not(.reveal)').forEach(el=>io.observe(el));
 </script>
 
 </body>
