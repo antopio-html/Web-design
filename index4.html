@@ -3,77 +3,73 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Fond animé — Cyberpunk Neon</title>
+<title>Vitrine Futuriste — Neon Vertical Flow</title>
 <style>
   :root{
-    /* Palette néon (clair mais punchy) */
-    --bg: #0a0b10;
-    --neon-pink: #ff3cac;
-    --neon-cyan: #2bd9ff;
-    --neon-violet: #8f00ff;
-    --neon-yellow: #f6ff6b;
-    --grid: #161a25;
-    --scanline: rgba(255,255,255,.06);
-  }
-  @media (prefers-color-scheme: light){
-    :root{ --bg:#0a0b10 } /* on garde un “night mode” pour le cyberpunk */
+    /* Cyberpunk palette (conservée) */
+    --bg:#0a0b10;
+    --neon-pink:#ff3cac;
+    --neon-cyan:#2bd9ff;
+    --neon-violet:#8f00ff;
+    --grid:#161a25;
+    --ink:#e8ecff;
+    --muted:#99a3c7;
+
+    /* Surface claire pour contenu “verre dépoli” */
+    --card: rgba(18,22,32,.42);
+    --ring: rgba(255,255,255,.08);
+    --shadow: 0 18px 70px rgba(0,0,0,.45);
+
+    /* Typo & rythme */
+    --maxw: 880px;          /* largeur max de la colonne */
+    --pad: clamp(18px, 4vw, 28px);
+    --vh: 1vh;
+
+    /* Speeds */
+    --t1: 360ms;
+    --t2: 560ms;
+    --bezier: cubic-bezier(.2,.8,.2,1);
   }
 
-  html,body{height:100%;margin:0;background:var(--bg);color:#e8ecff;font:16px/1.4 Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;overflow:hidden}
-  .stage{position:fixed; inset:0; isolation:isolate}
+  html, body { height:100%; margin:0; background:var(--bg); color:var(--ink); }
+  body {
+    font: 16px/1.6 Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
 
-  /* 0) Vignette douce pour cadrer l'œil */
+  /* ====== FOND CYBERPUNK (conservé & encapsulé) ====== */
+  .stage{ position:fixed; inset:0; z-index:-1; isolation:isolate }
   .vignette{position:absolute; inset:-10%; pointer-events:none;
-    background: radial-gradient(120vmax 70vmax at 50% 50%, transparent 60%, rgba(0,0,0,.35) 100%);
-    z-index:10;
-  }
-
-  /* 1) Halo “néon aurora” */
+    background: radial-gradient(120vmax 70vmax at 50% 50%, transparent 60%, rgba(0,0,0,.35) 100%); z-index:10;}
   .aurora{
     position:absolute; inset:-20% -20% -20% -20%; filter: blur(42px) saturate(130%);
     background:
       radial-gradient(40vmax 28vmax at 20% 20%, color-mix(in oklab, var(--neon-pink) 55%, transparent), transparent 60%),
       radial-gradient(45vmax 30vmax at 80% 25%, color-mix(in oklab, var(--neon-cyan) 55%, transparent), transparent 62%),
       radial-gradient(36vmax 24vmax at 70% 78%, color-mix(in oklab, var(--neon-violet) 45%, transparent), transparent 65%);
-    mix-blend-mode: screen;
-    animation: auroraFloat 28s ease-in-out infinite alternate;
-    will-change: transform;
+    mix-blend-mode: screen; animation: auroraFloat 28s ease-in-out infinite alternate;
   }
-  @keyframes auroraFloat{
-    0%{ transform: translate3d(0,0,0) scale(1)}
-    100%{ transform: translate3d(0,-1.5%,0) scale(1.02)}
-  }
-
-  /* 2) Soleil holographique (scan radial) */
+  @keyframes auroraFloat{ 0%{transform:translate3d(0,0,0) scale(1)} 100%{transform:translate3d(0,-1.5%,0) scale(1.02)}}
   .sun{
-    position:absolute; left:50%; top:32%;
-    width:min(52vmin, 56vw); aspect-ratio:1/1;
-    transform: translate(-50%,-50%);
-    border-radius:50%;
+    position:absolute; left:50%; top:28%;
+    width:min(52vmin, 56vw); aspect-ratio:1/1; transform:translate(-50%,-50%); border-radius:50%;
     background:
       radial-gradient(circle at 50% 60%, color-mix(in oklab, var(--neon-pink) 25%, transparent) 0 30%, transparent 60%),
       conic-gradient(from 0deg, color-mix(in oklab, var(--neon-cyan) 35%, transparent), transparent 40%, color-mix(in oklab, var(--neon-violet) 35%, transparent), transparent 80%, color-mix(in oklab, var(--neon-pink) 35%, transparent));
     box-shadow: 0 0 80px color-mix(in oklab, var(--neon-pink) 40%, transparent),
                 0 0 120px color-mix(in oklab, var(--neon-cyan) 30%, transparent);
-    opacity:.9;
-    overflow:hidden;
+    opacity:.85; overflow:hidden;
   }
   .sun::after{
     content:""; position:absolute; inset:0;
-    background: repeating-linear-gradient( to bottom,
-      rgba(255,255,255,.12) 0 3px, transparent 3px 8px );
-    mix-blend-mode: overlay; opacity:.35;
-    animation: sunScan 6s linear infinite;
+    background: repeating-linear-gradient(to bottom, rgba(255,255,255,.12) 0 3px, transparent 3px 8px);
+    mix-blend-mode: overlay; opacity:.35; animation: sunScan 6s linear infinite;
   }
-  @keyframes sunScan{
-    from{ transform: translateY(-8%) }
-    to  { transform: translateY(8%) }
-  }
-
-  /* 3) Grille en perspective (au sol) */
+  @keyframes sunScan{ from{transform:translateY(-8%)} to{transform:translateY(8%)} }
   .grid{
     position:absolute; inset:0; pointer-events:none; transform-origin:50% 100%;
-    transform: perspective(800px) rotateX(68deg) translateY(20%);
+    transform: perspective(800px) rotateX(68deg) translateY(28%);
     background:
       linear-gradient(var(--grid), var(--grid)) 0 0/100% 1px,
       linear-gradient(90deg, var(--grid), var(--grid)) 0 0/1px 100%;
@@ -84,176 +80,355 @@
     background:
       repeating-linear-gradient(0deg, transparent 0 56px, var(--grid) 56px 57px),
       repeating-linear-gradient(90deg, transparent 0 56px, var(--grid) 56px 57px);
-    animation: gridDrift 16s linear infinite;
-    opacity:.9;
+    animation: gridDrift 18s linear infinite;
   }
-  @keyframes gridDrift{
-    from{ transform: translate3d(0,0,0) }
-    to  { transform: translate3d(-56px,-56px,0) }
+  @keyframes gridDrift{ from{transform:translate3d(0,0,0)} to{transform:translate3d(-56px,-56px,0)} }
+  .scanlines{position:absolute; inset:0; pointer-events:none; opacity:.22; mix-blend-mode:soft-light;
+    background: repeating-linear-gradient(to bottom, rgba(255,255,255,.06) 0 1px, transparent 1px 3px);
+    animation: scanPulse 3.2s ease-in-out infinite alternate;}
+  @keyframes scanPulse{0%{opacity:.14}100%{opacity:.28}}
+  canvas#fx{ position:absolute; inset:0; width:100%; height:100%; filter:drop-shadow(0 0 6px #00ffff) drop-shadow(0 0 10px #ff33cc); opacity:.85 }
+
+  /* ====== CONTENU VERTICAL LONGILIGNE ====== */
+  .wrap{
+    position:relative; margin:0 auto; width: min(var(--maxw), 92vw);
+    padding-inline: var(--pad);
+  }
+  /* rail vertical lumineux (longiligne) */
+  .rail{
+    position:fixed; left: max(16px, 3vw); top:0; bottom:0; width:2px; z-index:2;
+    background: linear-gradient(180deg, transparent, color-mix(in oklab, var(--neon-cyan) 60%, transparent) 40%, color-mix(in oklab, var(--neon-pink) 60%, transparent) 60%, transparent);
+    opacity:.7; box-shadow: 0 0 14px color-mix(in oklab, var(--neon-cyan) 35%, transparent);
+  }
+  .rail .dot{
+    position:absolute; left:50%; transform:translateX(-50%);
+    width:10px; height:10px; border-radius:50%;
+    background: var(--neon-cyan);
+    box-shadow:0 0 12px var(--neon-cyan), 0 0 22px color-mix(in oklab, var(--neon-pink) 40%, transparent);
+    transition: transform var(--t1) var(--bezier), background var(--t1) var(--bezier);
   }
 
-  /* 4) Scanlines globales (CRT subtil) */
-  .scanlines{
-    position:absolute; inset:0; pointer-events:none; opacity:.28; mix-blend-mode:soft-light;
-    background: repeating-linear-gradient( to bottom, var(--scanline) 0 1px, transparent 1px 3px );
-    animation: scanPulse 3.2s ease-in-out infinite alternate;
-  }
-  @keyframes scanPulse{
-    0%{ opacity:.18}
-    100%{ opacity:.30}
+  /* sections très aérées */
+  section{
+    min-height: calc(100 * var(--vh));
+    display:grid; align-content:center; gap: 28px;
+    padding-block: clamp(60px, 16vh, 140px);
   }
 
-  /* 5) Particules canvas (lumière néon) */
-  canvas#fx{ position:absolute; inset:0; width:100%; height:100%;
-    filter: drop-shadow(0 0 6px #00ffff) drop-shadow(0 0 10px #ff33cc);
-    opacity:.85;
+  /* cartes verre dépoli longilignes */
+  .card{
+    background: var(--card); backdrop-filter: blur(14px) saturate(140%);
+    border:1px solid var(--ring); border-radius: 18px; box-shadow: var(--shadow);
+    padding: clamp(18px, 3.6vw, 30px);
+    transform: translateY(12px) scale(.985); opacity:0;
+    transition: transform var(--t2) var(--bezier), opacity var(--t2) var(--bezier), box-shadow var(--t1) var(--bezier);
+  }
+  .card.reveal{ transform: translateY(0) scale(1); opacity:1; }
+  .card h1{ margin:0 0 10px; font-size: clamp(28px, 5vw, 54px); letter-spacing:.02em }
+  .card p{ margin:0; color: var(--muted); font-size: clamp(14px, 2.4vw, 18px) }
+
+  /* lignes néon sous les titres */
+  .neon-underline{
+    position:relative; display:inline-block;
+  }
+  .neon-underline::after{
+    content:""; position:absolute; left:0; right:0; bottom:-6px; height:2px;
+    background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink));
+    box-shadow: 0 0 16px color-mix(in oklab, var(--neon-cyan) 40%, transparent);
+    transform-origin:left; transform: scaleX(0);
+    transition: transform 700ms var(--bezier);
+  }
+  .card.reveal .neon-underline::after{ transform: scaleX(1) }
+
+  /* grille de tuiles longilignes (1 colonne mobile → 2 colonnes desktop) */
+  .grid{ display:grid; gap:14px; grid-template-columns: 1fr }
+  @media (min-width: 900px){ .grid{ grid-template-columns: 1fr 1fr } }
+
+  .tile{
+    background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+    border:1px solid var(--ring); border-radius:14px; padding:16px; min-height:120px;
+    transform: translateY(8px); opacity:0;
+    transition: transform 500ms var(--bezier), opacity 500ms var(--bezier);
+  }
+  .tile.reveal{ transform: translateY(0); opacity:1 }
+  .tile h3{ margin:6px 0 6px; font-size: clamp(16px, 2.2vw, 22px) }
+  .tile p{ margin:0; color: var(--muted) }
+
+  /* CTA néon magnétiques */
+  .actions{ display:flex; flex-wrap:wrap; gap:10px; margin-top:6px }
+  .btn{
+    appearance:none; cursor:pointer;
+    padding:10px 16px; border-radius:12px; border:1px solid var(--ring);
+    background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
+    color:var(--ink); transition: transform 120ms ease, box-shadow 220ms var(--bezier), background 240ms var(--bezier);
+    box-shadow: 0 0 0 0 rgba(0,0,0,0);
+    position:relative; overflow:hidden;
+  }
+  .btn::before{
+    content:""; position:absolute; inset:-2px;
+    background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--neon-cyan) 30%, transparent), transparent);
+    transform: translateX(-100%); opacity:.7;
+  }
+  .btn:hover::before{ animation: sweep 1.2s var(--bezier) forwards }
+  @keyframes sweep{ to{ transform: translateX(100%) } }
+  .btn.primary{
+    border-color: color-mix(in oklab, var(--neon-cyan) 50%, transparent);
+    box-shadow: 0 10px 36px color-mix(in oklab, var(--neon-cyan) 26%, transparent);
+  }
+  .btn:active{ transform: translateY(1px) }
+
+  /* effet tilt 3D doux sur les cartes showcase (desktop only) */
+  @media (pointer: fine){
+    .tilt{ transform-style: preserve-3d; will-change: transform; }
+    .tilt:hover{ transition: transform 240ms var(--bezier) }
   }
 
-  /* 6) Glitch noise très léger (texture) */
-  .noise{
-    position:absolute; inset:-1% -1% -1% -1%; pointer-events:none; opacity:.12; mix-blend-mode:overlay;
-    background-image: url('data:image/svg+xml;utf8,\
-      <svg xmlns="http://www.w3.org/2000/svg" width=\"160\" height=\"160\" viewBox=\"0 0 160 160\">\
-      <filter id=\"n\"><feTurbulence type=\"fractalNoise\" baseFrequency=\"0.95\" numOctaves=\"2\"/></filter>\
-      <rect width=\"100%\" height=\"100%\" filter=\"url(%23n)\" opacity=\"0.4\"/>\
-      </svg>');
-    animation: jitter 5s steps(2,end) infinite;
-  }
-  @keyframes jitter{
-    0%{ transform:translate3d(0,0,0) }
-    100%{ transform:translate3d(-1%,1%,0) }
+  /* progress de scroll (barre en haut) */
+  .progress{
+    position: fixed; left:0; top:0; right:0; height:3px; z-index:5;
+    background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink));
+    transform-origin: 0 50%; transform: scaleX(0);
+    box-shadow: 0 0 16px color-mix(in oklab, var(--neon-cyan) 35%, transparent);
   }
 
-  /* Slot (facultatif) pour logo/texte; masqué par défaut */
-  .slot{position:absolute; inset:0; display:grid; place-items:center; z-index:6; opacity:0}
-  .slot h1{font-size:clamp(28px,6vw,56px); letter-spacing:.06em; text-transform:uppercase}
+  /* Footer clair et aérien */
+  footer{ padding: 60px 0 80px; text-align:center; color:var(--muted) }
 
-  /* Accessibilité */
+  /* Accessibilité : réduire animations si demandé */
   @media (prefers-reduced-motion: reduce){
-    .aurora, .sun::after, .grid::before, .scanlines, .noise{ animation:none !important }
-    canvas#fx{ display:none }
+    .aurora, .sun::after, .grid::before, .scanlines { animation: none !important }
+    .card, .tile, .neon-underline::after { transition: none !important }
   }
 </style>
 </head>
 <body>
+<!-- ===== FOND CYBERPUNK ===== -->
 <div class="stage" aria-hidden="true">
   <div class="aurora"></div>
   <div class="sun"></div>
   <div class="grid"></div>
   <canvas id="fx"></canvas>
   <div class="scanlines"></div>
-  <div class="noise"></div>
   <div class="vignette"></div>
-
-  <!-- Optionnel : retire ce bloc pour n’afficher QUE le fond -->
-  <div class="slot"><h1>NEON CITY</h1></div>
 </div>
 
+<!-- Rail vertical lumineux -->
+<div class="rail" aria-hidden="true">
+  <div class="dot" id="d1" style="top:16%"></div>
+  <div class="dot" id="d2" style="top:40%"></div>
+  <div class="dot" id="d3" style="top:64%"></div>
+  <div class="dot" id="d4" style="top:88%"></div>
+</div>
+
+<!-- Progress de scroll -->
+<div class="progress" id="progress"></div>
+
+<!-- ===== CONTENU ===== -->
+<main class="wrap">
+
+  <!-- HERO -->
+  <section id="hero">
+    <article class="card reveal tilt">
+      <h1><span class="neon-underline">Futur Web Design</span> — vertical, aérien, cyberpunk</h1>
+      <p>Un style <em>disruptif</em> et d’une grande douceur : fond animé néon, cartes en verre dépoli, révélations au scroll, parallax subtil, et micro-interactions magnétiques.</p>
+      <div class="actions">
+        <button class="btn primary">Démarrer</button>
+        <button class="btn">Découvrir</button>
+      </div>
+    </article>
+  </section>
+
+  <!-- SHOWCASE -->
+  <section id="showcase">
+    <article class="card reveal">
+      <h1 class="neon-underline">Showcase — Animations soyeuses</h1>
+      <div class="grid">
+        <div class="tile reveal tilt">
+          <h3>Révélations</h3>
+          <p>Chaque élément entre en douceur, avec un freinage en fin de mouvement (easeOut cubic).</p>
+        </div>
+        <div class="tile reveal tilt">
+          <h3>Parallax léger</h3>
+          <p>Le décor réagit au défilement : halos, particules et grille donnent une profondeur subtile.</p>
+        </div>
+        <div class="tile reveal tilt">
+          <h3>Glass Morphism</h3>
+          <p>Cartes verre dépoli, bords néon discrets, lisibilité parfaite sur fond dynamique.</p>
+        </div>
+        <div class="tile reveal tilt">
+          <h3>Motion frugal</h3>
+          <p>Vanilla JS, GPU 2D, respect de <code>prefers-reduced-motion</code>. Perfs mobiles soignées.</p>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <!-- MOTION LAB -->
+  <section id="lab">
+    <article class="card reveal">
+      <h1 class="neon-underline">Motion Lab — Interactions</h1>
+      <div class="grid">
+        <div class="tile reveal tilt">
+          <h3>Boutons magnétiques</h3>
+          <p>Le balayage lumineux suit le curseur, sans agressivité, “wow” mais ciselé.</p>
+        </div>
+        <div class="tile reveal tilt">
+          <h3>Tilt 3D doux</h3>
+          <p>Les cartes se penchent légèrement au survol ; sur mobile, l’effet est désactivé pour la stabilité.</p>
+        </div>
+        <div class="tile reveal tilt">
+          <h3>Progress de scroll</h3>
+          <p>Une barre néon en haut indique votre avancement dans la page.</p>
+        </div>
+        <div class="tile reveal tilt">
+          <h3>Rail lumineux</h3>
+          <p>La colonne verticale vit au rythme de votre position ; les pastilles s’illuminent.</p>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn primary">Essayer</button>
+        <button class="btn">Plus d’exemples</button>
+      </div>
+    </article>
+  </section>
+
+  <!-- CONTACT / CTA -->
+  <section id="cta">
+    <article class="card reveal tilt">
+      <h1 class="neon-underline">Prêt·e pour l’effet “wawou” ?</h1>
+      <p>On transforme votre vitrine en une expérience futuriste, lisible et performante. Intégration marque, contenus, assets et design tokens.</p>
+      <div class="actions">
+        <button class="btn primary">Parler projet</button>
+        <button class="btn">Voir un prototype</button>
+      </div>
+    </article>
+  </section>
+
+  <footer>© 2025 — Neon Vertical Flow. Design & code vanilla.</footer>
+</main>
+
 <script>
-/* Particules néon (légères, mobile-friendly) */
+/* ==== Particules néon (comme la version fond), optimisées ==== */
 (function(){
   const cnv = document.getElementById('fx');
   const ctx = cnv.getContext('2d', { alpha: true });
   let dpr = Math.min(window.devicePixelRatio || 1, 2);
   let W=0, H=0, pts=[];
-
-  const CFG = {
-    COUNT_BASE: 90,        // densité base (auto-scalée)
-    SIZE_MIN: 0.9,
-    SIZE_MAX: 2.4,
-    SPEED_MIN: 0.05,
-    SPEED_MAX: 0.22,
-    LINK_DIST: 120,
-    LINK_ALPHA: 0.13
-  };
-  function rnd(a,b){ return a + Math.random()*(b-a) }
+  const CFG = { COUNT_BASE: 90, SIZE_MIN:.9, SIZE_MAX:2.4, SPEED_MAX:.22, LINK_DIST:120, LINK_ALPHA:.13 };
+  const rnd=(a,b)=> a + Math.random()*(b-a);
 
   function resize(){
     const rect = cnv.getBoundingClientRect();
-    W = Math.floor(rect.width * dpr);
-    H = Math.floor(rect.height * dpr);
-    cnv.width = W; cnv.height = H;
-    ctx.setTransform(dpr,0,0,dpr,0,0);
-    const area = rect.width*rect.height;
-    const n = Math.round(CFG.COUNT_BASE * (area / (1280*720)));
-    spawn(n);
-  }
-
-  function spawn(n){
-    pts.length = 0;
+    W = Math.floor(rect.width * dpr); H = Math.floor(rect.height * dpr);
+    cnv.width=W; cnv.height=H; ctx.setTransform(dpr,0,0,dpr,0,0);
+    const area = rect.width*rect.height; const n = Math.round(CFG.COUNT_BASE*(area/(1280*720)));
+    pts.length=0;
     for(let i=0;i<n;i++){
-      const hue = Math.random() < 0.5 ? 305 : 190; // magenta ou cyan
-      pts.push({
-        x: Math.random()*W/dpr,
-        y: Math.random()*H/dpr,
-        vx: rnd(-CFG.SPEED_MAX, CFG.SPEED_MAX),
-        vy: rnd(-CFG.SPEED_MAX, CFG.SPEED_MAX),
-        r: rnd(CFG.SIZE_MIN, CFG.SIZE_MAX),
-        hue,
-      });
+      pts.push({ x:Math.random()*W/dpr, y:Math.random()*H/dpr,
+        vx:rnd(-CFG.SPEED_MAX, CFG.SPEED_MAX), vy:rnd(-CFG.SPEED_MAX, CFG.SPEED_MAX),
+        r:rnd(.9,2.4), hue: (Math.random()<.5?305:190) });
     }
   }
 
   function step(){
     ctx.clearRect(0,0,cnv.width/dpr,cnv.height/dpr);
-
-    // update/draw points
-    for(let i=0;i<pts.length;i++){
-      const p = pts[i];
-      p.x += p.vx; p.y += p.vy;
-      p.vx *= 0.998; p.vy *= 0.998; // léger freinage
-      // rebond
-      if(p.x<0||p.x>cnv.width/dpr){ p.vx*=-1; p.x = Math.max(0, Math.min(cnv.width/dpr, p.x)) }
-      if(p.y<0||p.y>cnv.height/dpr){ p.vy*=-1; p.y = Math.max(0, Math.min(cnv.height/dpr, p.y)) }
-
-      // point
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
-      ctx.fillStyle = `hsla(${p.hue}, 100%, 60%, .9)`;
-      ctx.fill();
-
-      // halo
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r*2.1, 0, Math.PI*2);
-      ctx.fillStyle = `hsla(${p.hue}, 100%, 60%, .10)`;
-      ctx.fill();
+    for(const p of pts){
+      p.x+=p.vx; p.y+=p.vy; p.vx*=.998; p.vy*=.998;
+      if(p.x<0||p.x>cnv.width/dpr){ p.vx*=-1; p.x=Math.max(0,Math.min(cnv.width/dpr,p.x)) }
+      if(p.y<0||p.y>cnv.height/dpr){ p.vy*=-1; p.y=Math.max(0,Math.min(cnv.height/dpr,p.y)) }
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`hsla(${p.hue},100%,60%,.9)`; ctx.fill();
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r*2.1,0,Math.PI*2);
+      ctx.fillStyle=`hsla(${p.hue},100%,60%,.10)`; ctx.fill();
     }
-
-    // liaisons
     for(let i=0;i<pts.length;i++){
       for(let j=i+1;j<pts.length;j++){
-        const a=pts[i], b=pts[j];
-        const dx=a.x-b.x, dy=a.y-b.y;
-        const dist = Math.hypot(dx,dy);
-        if(dist < CFG.LINK_DIST){
-          const alpha = (1 - dist/CFG.LINK_DIST) * CFG.LINK_ALPHA;
-          // dégradé vers le centre de l’écran
-          ctx.strokeStyle = `rgba(43,217,255,${alpha})`;
-          if(a.hue===305 || b.hue===305) ctx.strokeStyle = `rgba(255,60,172,${alpha})`;
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(a.x, a.y);
-          ctx.lineTo(b.x, b.y);
-          ctx.stroke();
+        const a=pts[i], b=pts[j]; const dx=a.x-b.x, dy=a.y-b.y; const dist=Math.hypot(dx,dy);
+        if(dist<CFG.LINK_DIST){
+          const alpha=(1-dist/CFG.LINK_DIST)*CFG.LINK_ALPHA;
+          ctx.strokeStyle = (a.hue===305||b.hue===305)?`rgba(255,60,172,${alpha})`:`rgba(43,217,255,${alpha})`;
+          ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
         }
       }
     }
-
     requestAnimationFrame(step);
   }
 
-  // Petit “kick” au scroll (donne vie au décor)
-  let drift = 0;
-  window.addEventListener('wheel', (e)=>{
-    const s = Math.sign(e.deltaY);
-    drift += s*0.02;
-    for(const p of pts){ p.vy += drift*0.002 }
-    drift *= 0.95;
-  }, {passive:true});
-
-  window.addEventListener('resize', resize);
-  resize(); requestAnimationFrame(step);
+  window.addEventListener('resize', resize); resize(); requestAnimationFrame(step);
 })();
+
+/* ==== Utilitaires ==== */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+
+/* ==== Intersection Observer: révèle cartes + tuiles ==== */
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add('reveal');
+      if(e.target.classList.contains('card')){
+        // révélation progressive des tuiles internes
+        const tiles = e.target.querySelectorAll('.tile');
+        tiles.forEach((t,k)=> setTimeout(()=> t.classList.add('reveal'), 60*k));
+      }
+    }
+  });
+},{ threshold:.16 });
+$$('.card, .tile').forEach(n=> io.observe(n));
+
+/* ==== Tilt 3D doux (desktop seulement) ==== */
+if (window.matchMedia('(pointer:fine)').matches){
+  $$('.tilt').forEach(el=>{
+    let rID=null;
+    el.addEventListener('mousemove', (ev)=>{
+      const b = el.getBoundingClientRect();
+      const x = (ev.clientX - b.left)/b.width - .5;
+      const y = (ev.clientY - b.top)/b.height - .5;
+      cancelAnimationFrame(rID);
+      rID = requestAnimationFrame(()=>{
+        el.style.transform = `rotateY(${x*10}deg) rotateX(${-y*8}deg) translateZ(0)`;
+      });
+    });
+    el.addEventListener('mouseleave', ()=>{
+      el.style.transform = 'rotateY(0) rotateX(0)';
+    });
+  });
+}
+
+/* ==== Barre de progression de scroll & rail dots ==== */
+const progress = $('#progress');
+const sections = $$('main section');
+const dots = [$('#d1'),$('#d2'),$('#d3'),$('#d4')];
+
+function onScroll(){
+  const docH = document.documentElement.scrollHeight - window.innerHeight;
+  const p = Math.max(0, Math.min(1, window.scrollY / (docH || 1)));
+  progress.style.transform = `scaleX(${p})`;
+
+  // active dot closest to viewport center
+  const mid = window.scrollY + window.innerHeight/2;
+  let bestI = 0, bestD = Infinity;
+  sections.forEach((sec,i)=>{
+    const r = sec.getBoundingClientRect();
+    const center = window.scrollY + r.top + r.height/2;
+    const d = Math.abs(center - mid);
+    if(d < bestD){ bestD=d; bestI=i }
+  });
+  dots.forEach((d,i)=>{
+    const on = (i===bestI);
+    d.style.background = on ? 'var(--neon-pink)' : 'var(--neon-cyan)';
+    d.style.transform = `translateX(-50%) scale(${on?1.35:1})`;
+    d.style.boxShadow = on
+      ? '0 0 18px var(--neon-pink), 0 0 30px rgba(255,60,172,.35)'
+      : '0 0 12px var(--neon-cyan), 0 0 22px rgba(43,217,255,.35)';
+  });
+}
+document.addEventListener('scroll', onScroll, {passive:true});
+window.addEventListener('resize', ()=>{
+  document.documentElement.style.setProperty('--vh', window.innerHeight * 0.01 + 'px');
+});
+document.documentElement.style.setProperty('--vh', window.innerHeight * 0.01 + 'px');
+onScroll();
 </script>
 </body>
 </html>
