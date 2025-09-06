@@ -3,11 +3,10 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Bar à Chat — Cartes défilantes (sans 3D)</title>
-<meta name="description" content="Zone d’accueil puis cartes plein écran avec défilement vertical, scroll-snap et animations fluides.">
+<title>Bar à Chat — Intro + Cartes</title>
+<meta name="description" content="Introduction avec logo et pitch, puis cartes plein écran en défilement vertical avec menu de navigation sticky.">
 <style>
   :root{
-    /* Charte “bar à chat” latte/rose/menthe */
     --bg1:#f8f3ec; --bg2:#f3e7da; --ink:#2b2623; --muted:#6d625b;
     --primary:#c98552; --accent:#79c9bf; --rose:#f0a9b7;
     --panel:#ffffff; --line:#eadccd; --focus:#e08aa0;
@@ -26,82 +25,101 @@
       linear-gradient(180deg, var(--bg1), var(--bg2));
   }
 
-  /* --- HEADER / INTRO classique --- */
+  /* --- NAV sticky qui apparaît au scroll --- */
   header.site{
-    position:sticky; top:0; z-index:10;
-    background:linear-gradient(to bottom, rgba(255,255,255,.85), rgba(255,255,255,0));
-    border-bottom:1px solid var(--line); backdrop-filter: blur(8px) saturate(1.05);
+    position:sticky; top:0; z-index:20;
+    backdrop-filter: blur(8px) saturate(1.05);
+    border-bottom:1px solid var(--line);
+    transition: background .3s ease, box-shadow .3s ease, opacity .3s ease;
+    background:linear-gradient(to bottom, rgba(255,255,255,.0), rgba(255,255,255,.0));
+    opacity:.0; pointer-events:none;
   }
-  .nav{display:flex; justify-content:space-between; align-items:center; max-width:1100px; margin:auto; padding:12px 20px;}
+  body.scrolled header.site{
+    background:linear-gradient(to bottom, rgba(255,255,255,.85), rgba(255,255,255,.65));
+    box-shadow:0 8px 24px rgba(90,60,30,.08);
+    opacity:1; pointer-events:auto;
+  }
+  .nav{
+    display:flex; justify-content:space-between; align-items:center;
+    max-width:1100px; margin:auto; padding:12px 20px;
+  }
   .brand{display:flex; gap:10px; align-items:center; font-weight:800; letter-spacing:.4px}
-  .mug{width:18px; height:18px; border-radius:4px 4px 10px 10px; position:relative;
+  .logo{
+    position:relative; width:28px; height:28px; border-radius:7px 7px 14px 14px;
     background:linear-gradient(180deg, var(--primary), #b77448);
-    box-shadow:0 6px 14px rgba(201,133,82,.35) inset, 0 1px 0 rgba(255,255,255,.6)}
-  .mug:after{content:""; position:absolute; right:-6px; top:4px; width:8px; height:8px; border:3px solid #b77448; border-left-color:transparent; border-bottom-color:transparent; border-radius:50%}
-  .cta{ display:inline-block; padding:10px 14px; border-radius:999px; font-weight:700; background:#fff; border:1px solid var(--line); box-shadow:0 8px 18px rgba(90,60,30,.12); color:var(--ink); }
-
-  .hero{
-    max-width:1100px; margin:24px auto 0; padding:28px 20px 10px;
-    display:grid; grid-template-columns:1.2fr .8fr; gap:26px; align-items:center;
+    box-shadow:0 6px 14px rgba(201,133,82,.35) inset, 0 1px 0 rgba(255,255,255,.6);
   }
-  @media (max-width:920px){ .hero{ grid-template-columns:1fr; } }
-  .hero h1{ font-size: clamp(28px, 5vw, 48px); margin:.2rem 0 .4rem }
-  .lead{ color:var(--muted); font-size: clamp(15px, 2.2vw, 18px) }
-  .tile{ border:1px solid var(--line); background:#fff; border-radius:16px; padding:16px; box-shadow:0 8px 20px rgba(90,60,30,.08); }
-  .welcome{ max-width:1100px; margin:18px auto 0; padding:0 20px; display:grid; gap:18px; grid-template-columns:repeat(3,1fr); }
-  @media (max-width:920px){ .welcome{ grid-template-columns:1fr; } }
-  .welcome .tile h3{ margin:.2rem 0 .4rem }
+  .logo:after{
+    content:""; position:absolute; right:-7px; top:6px; width:10px; height:10px;
+    border:3px solid #b77448; border-left-color:transparent; border-bottom-color:transparent; border-radius:50%
+  }
+  .menu{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+  .menu a{
+    display:inline-block; padding:8px 10px; border-radius:999px;
+    border:1px solid var(--line); background:#fff; color:var(--ink); text-decoration:none; font-weight:600; font-size:13px;
+  }
+  .menu a.is-active{ outline:2px solid rgba(224,138,160,.28) }
 
-  /* Grand espace avant les cartes (demande client) */
-  .spacer{
-    height: 160vh; display:flex; align-items:center; justify-content:center; color:var(--muted);
+  /* --- INTRO plein écran --- */
+  #intro{
+    min-height:100svh; display:grid; place-items:center; padding:24px 20px; position:relative;
+  }
+  .introBox{
+    max-width:min(860px, 92vw); text-align:center;
+    border:1px solid var(--line); border-radius:22px; background:#fff;
+    padding: clamp(20px, 5vw, 36px);
+    box-shadow:0 18px 50px rgba(90,60,30,.14);
+  }
+  .introLogo{
+    width:92px; height:92px; border-radius:22px;
+    background:
+      radial-gradient(24px 24px at 65% 35%, #fff8, transparent),
+      linear-gradient(180deg, var(--primary), #b77448);
+    margin:0 auto 14px; position:relative; box-shadow:0 8px 26px rgba(201,133,82,.32);
+  }
+  .introLogo:before, .introLogo:after{
+    content:""; position:absolute; top:-10px; width:22px; height:22px; background:#fff; border:2px solid var(--line); transform:rotate(45deg);
+  }
+  .introLogo:before{ left:14px; border-bottom:none; border-right:none }
+  .introLogo:after{ right:14px; border-bottom:none; border-left:none }
+  .introBox h1{ font-size: clamp(28px, 5vw, 52px); margin:.2rem 0 .4rem }
+  .introLead{ color:var(--muted); font-size: clamp(15px, 2.2vw, 18px); margin:.3rem auto 1rem; }
+  .introCtas{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+  .cta{
+    display:inline-block; padding:10px 14px; border-radius:999px; font-weight:700;
+    background:#fff; border:1px solid var(--line); box-shadow:0 8px 18px rgba(90,60,30,.12); color:var(--ink); text-decoration:none;
   }
 
-  /* --- Section CARTES défilantes (sans 3D) --- */
+  /* --- CARTES défilantes (sans 3D) --- */
   section#cartes{
     height: 100vh;
-    scroll-snap-type: y mandatory; /* le container snap */
+    scroll-snap-type: y mandatory;
     overflow-y: auto;
-    overscroll-behavior: contain;   /* pas d’élastique */
+    overscroll-behavior: contain;
     position: relative;
     border-top:1px solid var(--line);
     box-shadow: 0 -10px 30px rgba(90,60,30,.06) inset;
     -webkit-overflow-scrolling: touch;
   }
-
-  /* Progress (colonne droite) */
   .progress{
     position:sticky; top:12px; right:12px; float:right; margin:12px;
     width:6px; height: calc(100vh - 24px); border-radius:999px; background:#eadfce; overflow:hidden; border:1px solid var(--line);
   }
   .progress i{display:block; width:100%; height:0%; background:linear-gradient(180deg,var(--primary),var(--rose));}
 
-  /* Une “slide” = 1 écran */
   .slide{
-    min-height: 100vh;
-    scroll-snap-align: start;
-    display:grid; place-items:center;
-    padding: 18px;
-    position: relative;
+    min-height:100vh; scroll-snap-align:start; display:grid; place-items:center; padding:18px; position:relative;
   }
-
-  /* Carte (style bar à chat), aucune 3D */
   .card{
-    width:min(680px, 92vw);
+    width:min(720px, 92vw);
     border-radius: var(--radius);
     background:linear-gradient(180deg, var(--panel), #fffaf6);
     border:1px solid var(--line);
     box-shadow: 0 18px 40px rgba(90,60,30,.12), 0 1px 0 rgba(255,255,255,.8) inset;
     padding: clamp(16px, 3.2vw, 24px);
-    position:relative;
-    transform-origin: 50% 60%;
-    /* état “au repos” (pour WAAPI fallback) */
+    position:relative; transform-origin:50% 60%;
   }
-  /* oreilles de chat */
-  .card:before,.card:after{
-    content:""; position:absolute; top:-12px; width:26px; height:26px; background:var(--panel);
-    border:1px solid var(--line); transform: rotate(45deg)
-  }
+  .card:before,.card:after{content:""; position:absolute; top:-12px; width:26px; height:26px; background:var(--panel); border:1px solid var(--line); transform: rotate(45deg)}
   .card:before{left:28px; border-bottom:none; border-right:none}
   .card:after{right:28px; border-bottom:none; border-left:none}
 
@@ -109,21 +127,17 @@
         background:linear-gradient(180deg,#fff,#fde9e9); color:#7a3b44; border:1px solid #f1d1d8; margin-right:6px}
   .chip.mint{ background:linear-gradient(180deg,#fff,#e9f7f5); color:#2b605a; border-color:#cfece8 }
   .chip.caramel{ background:linear-gradient(180deg,#fff,#f5e6d8); color:#7b4a2c; border-color:#ecd7c3 }
-
   .card h2{margin:.2rem 0 .4rem; font-size: clamp(20px, 4.8vw, 28px)}
   .card p{color:var(--muted); margin:.2rem 0; font-size: clamp(14px, 3.8vw, 16px)}
-
-  .media{ margin-top:10px; border-radius:14px; overflow:hidden; border:1px solid #efdfd1; background:#fff;
-          box-shadow:0 10px 18px rgba(90,60,30,.08); }
+  .media{ margin-top:10px; border-radius:14px; overflow:hidden; border:1px solid #efdfd1; background:#fff; box-shadow:0 10px 18px rgba(90,60,30,.08); }
   .media img{ width:100%; height:auto; display:block; }
 
-  /* État visuel “active” (au centre) */
   .slide.is-active .card{
     outline: 2px solid rgba(224,138,160,.22);
     box-shadow: 0 28px 64px rgba(90,60,30,.14), 0 0 0 1px rgba(255,255,255,.6) inset;
   }
 
-  /* Pattes discrètes sur toute la page */
+  /* pattes décoratives */
   .paws{
     position:fixed; inset:-40px; z-index:-1; pointer-events:none; opacity:.07; mix-blend-mode:multiply;
     background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="220" height="220" viewBox="0 0 220 220"><g fill="%23c8b6a6"><circle cx="40" cy="40" r="10"/><circle cx="65" cy="30" r="8"/><circle cx="25" cy="25" r="8"/><circle cx="50" cy="60" r="8"/><path d="M85 85c18-12 34 8 20 20s-38 2-20-20z"/></g></svg>') repeat;
@@ -131,7 +145,6 @@
   }
   @keyframes paws { to { transform: translate(110px,110px) } }
 
-  /* Bouton retour haut (facile sur mobile) */
   .backTop{
     position:fixed; right:12px; bottom:16px; z-index:30;
     width:48px; height:48px; border-radius:14px; border:1px solid var(--line); background:#fff; color:var(--ink);
@@ -143,41 +156,40 @@
 
 <div class="paws" aria-hidden="true"></div>
 
-<!-- INTRO -->
-<header class="site">
+<!-- NAV -->
+<header class="site" id="siteHeader">
   <nav class="nav">
-    <div class="brand"><span class="mug" aria-hidden="true"></span> Bar à Chat</div>
-    <a class="cta" href="#cartes">Aller aux cartes ↓</a>
+    <div class="brand"><span class="logo" aria-hidden="true"></span> Bar à Chat</div>
+    <div class="menu">
+      <a href="#intro" data-target="intro" class="is-active">Intro</a>
+      <a href="#c1" data-target="c1">Concept</a>
+      <a href="#c2" data-target="c2">Chats</a>
+      <a href="#c3" data-target="c3">Menu</a>
+      <a href="#c4" data-target="c4">Engagements</a>
+      <a href="#c5" data-target="c5">Nous trouver</a>
+    </div>
   </nav>
 </header>
 
-<section class="hero" id="top">
-  <div>
+<!-- INTRO -->
+<section id="intro" aria-label="Introduction">
+  <div class="introBox">
+    <div class="introLogo" aria-hidden="true"></div>
     <h1>Bienvenue au Bar à Chat</h1>
-    <p class="lead">Un endroit cosy pour savourer un cappuccino, rencontrer nos pensionnaires et soutenir l’adoption responsable.</p>
-    <a class="cta" href="#cartes">Découvrir les cartes</a>
+    <p class="introLead">Un lieu cosy pour savourer un cappuccino, rencontrer nos pensionnaires et soutenir l’adoption responsable.  
+      Bien-être félin, douceur, et moments de calme — miaou.</p>
+    <div class="introCtas">
+      <a class="cta" href="#cartes">Découvrir les cartes ↓</a>
+      <a class="cta" href="#c5">Nous trouver</a>
+    </div>
   </div>
-  <div class="tile" style="align-self:stretch;">
-    <h3>Horaires & Ambiance</h3>
-    <p>Ouvert tous les jours de 10h à 20h. Espace calme, livres, plaid, wifi — et des chats heureux 🐾</p>
-  </div>
 </section>
 
-<section class="welcome">
-  <div class="tile"><h3>Adoptions</h3><p>Avec nos associations partenaires, nous facilitons l’adoption responsable.</p></div>
-  <div class="tile"><h3>Éthique</h3><p>Bien-être félin : repos, soins, zones calmes et règles claires.</p></div>
-  <div class="tile"><h3>Évènements</h3><p>Ateliers, lectures, rencontres — suivez nos réseaux pour les dates.</p></div>
-</section>
-
-<section class="spacer" aria-hidden="true">
-  <div>↓ Faites défiler pour découvrir nos cartes plein écran ↓</div>
-</section>
-
-<!-- CARTES défilantes, sans 3D -->
+<!-- CARTES défilantes -->
 <section id="cartes" aria-label="Cartes défilantes">
   <div class="progress" aria-hidden="true"><i id="progBar"></i></div>
 
-  <div class="slide" data-i="1">
+  <div class="slide" id="c1">
     <article class="card">
       <span class="chip caramel">Concept</span>
       <h2>Le concept</h2>
@@ -186,7 +198,7 @@
     </article>
   </div>
 
-  <div class="slide" data-i="2">
+  <div class="slide" id="c2">
     <article class="card">
       <span class="chip mint">Chats</span>
       <h2>Nos chats</h2>
@@ -195,7 +207,7 @@
     </article>
   </div>
 
-  <div class="slide" data-i="3">
+  <div class="slide" id="c3">
     <article class="card">
       <span class="chip caramel">Menu</span>
       <h2>Au menu</h2>
@@ -204,7 +216,7 @@
     </article>
   </div>
 
-  <div class="slide" data-i="4">
+  <div class="slide" id="c4">
     <article class="card">
       <span class="chip">Engagements</span>
       <h2>Nos engagements</h2>
@@ -213,7 +225,7 @@
     </article>
   </div>
 
-  <div class="slide" data-i="5">
+  <div class="slide" id="c5">
     <article class="card">
       <span class="chip mint">Nous trouver</span>
       <h2>Comment nous trouver</h2>
@@ -223,83 +235,80 @@
   </div>
 </section>
 
-<a class="backTop" href="#top" title="Retour à l’intro">↑</a>
+<a class="backTop" href="#intro" title="Retour à l’intro">↑</a>
 
 <script>
-/* =========================
-   Défilement vertical “fort” sans 3D
-   - Scroll-snap : chaque slide s’aligne plein écran.
-   - IntersectionObserver + Web Animations API pour des entrées/sorties fluides (scale/translate/blur/opacity).
-   - Barre de progression sur la droite.
-   ========================= */
+/* ====== Animations d’entrée/sortie + menu sticky qui apparaît + scrollspy ====== */
 (function(){
+  const header = document.getElementById('siteHeader');
   const container = document.getElementById('cartes');
-  const slides = Array.from(container.querySelectorAll('.slide'));
   const progBar = document.getElementById('progBar');
+  const slides = Array.from(container.querySelectorAll('.slide'));
+  const menuLinks = Array.from(document.querySelectorAll('.menu a'));
 
-  // Easing cubic-bezier “énergique mais propre”
-  const E_IN  = 'cubic-bezier(.2,.8,.2,1)';
-  const E_OUT = 'cubic-bezier(.2,.8,.2,1)';
+  // Header: apparaît après quelques pixels
+  const onScrollGlobal = ()=>{
+    if(window.scrollY > 24) document.body.classList.add('scrolled');
+    else document.body.classList.remove('scrolled');
+  };
+  addEventListener('scroll', onScrollGlobal, {passive:true}); onScrollGlobal();
 
-  // Animation builders
+  // Easing cubic-bezier énergique et propre
+  const E = 'cubic-bezier(.2,.8,.2,1)';
   function enterAnim(card){
-    // de bas + léger zoom + blur -> net
     card.animate([
       { transform:'translateY(60px) scale(.94)', filter:'blur(8px)', opacity:0 },
       { transform:'translateY(0) scale(1)',      filter:'blur(0px)', opacity:1 }
-    ], { duration:520, easing:E_OUT, fill:'both' });
+    ], { duration:520, easing:E, fill:'both' });
   }
-  function exitUpAnim(card){
-    // remonte et s’atténue (si on scrolle vers le bas, la slide précédente sort par le haut)
+  function exitUp(card){
     card.animate([
       { transform:'translateY(0) scale(1)', filter:'blur(0px)', opacity:1 },
       { transform:'translateY(-60px) scale(.98)', filter:'blur(6px)', opacity:0.25 }
-    ], { duration:420, easing:E_IN, fill:'both' });
+    ], { duration:420, easing:E, fill:'both' });
   }
-  function exitDownAnim(card){
-    // redescend et s’atténue (si on remonte)
+  function exitDown(card){
     card.animate([
       { transform:'translateY(0) scale(1)', filter:'blur(0px)', opacity:1 },
       { transform:'translateY(60px) scale(.98)', filter:'blur(6px)', opacity:0.25 }
-    ], { duration:420, easing:E_IN, fill:'both' });
+    ], { duration:420, easing:E, fill:'both' });
   }
 
-  // IO : active la slide au centre de l’écran
+  // IO sur les slides pour animer + scrollspy nav
   const io = new IntersectionObserver((entries)=>{
     entries.forEach(ent=>{
       const slide = ent.target;
       const card = slide.querySelector('.card');
+      const id = slide.id;
+      // scrollspy: active le lien correspondant
       if(ent.isIntersecting && ent.intersectionRatio > 0.6){
         slide.classList.add('is-active');
         enterAnim(card);
+        menuLinks.forEach(a=>a.classList.toggle('is-active', a.dataset.target===id || a.getAttribute('href')==='#'+id));
       }else{
-        // choisir sens : si la slide est au-dessus, on sort vers le haut
-        const rect = slide.getBoundingClientRect();
+        const r = slide.getBoundingClientRect();
         slide.classList.remove('is-active');
-        if(rect.top < 0) exitUpAnim(card); else exitDownAnim(card);
+        if(r.top < 0) exitUp(card); else exitDown(card);
       }
     });
     updateProgress();
-  }, {threshold:[0, .6, 1]});
+  }, {threshold:[0,.6,1]});
   slides.forEach(s=>io.observe(s));
 
+  // Barre de progression (hauteur selon scroll interne au container)
   function updateProgress(){
-    // ratio = index moyen visible / total
     const h = container.scrollHeight - container.clientHeight;
     const y = container.scrollTop;
     const p = h>0 ? y/h : 0;
     progBar.style.height = (p*100).toFixed(1)+'%';
   }
-
-  // Scroll handling : doux & précis sur mobile
   container.addEventListener('scroll', ()=>{ updateProgress(); }, {passive:true});
 
-  // Pour un “snap” plus franc sur iOS (optionnel) : si arrêt proche, on force au centre
+  // Snap helper (iOS) : quand on s’arrête, on recale la slide la plus proche
   let snapTO=null;
   container.addEventListener('scroll', ()=>{
     clearTimeout(snapTO);
     snapTO = setTimeout(()=>{
-      // slide la plus proche du centre
       const mid = window.innerHeight/2;
       let best=null, dmin=1e9;
       for(const s of slides){
@@ -308,20 +317,23 @@
         const d = Math.abs(c - mid);
         if(d<dmin){ dmin=d; best=s; }
       }
-      if(best){
-        best.scrollIntoView({behavior:'smooth', block:'start'});
-      }
-    }, 120); // petit délai après l’arrêt du scroll
+      if(best){ best.scrollIntoView({behavior:'smooth', block:'start'}); }
+    }, 120);
   }, {passive:true});
 
-  // Tap sur progress (facultatif) → sauter à la slide
-  // (simple: click au-dessus = remonter, en-dessous = descendre)
-  document.querySelector('.progress')?.addEventListener('click', (e)=>{
-    const y = e.clientY;
-    const mid = window.innerHeight/2;
-    const idx = slides.findIndex(s=>s.classList.contains('is-active'));
-    if(y < mid && idx > 0) slides[idx-1].scrollIntoView({behavior:'smooth'});
-    if(y >= mid && idx < slides.length-1) slides[idx+1].scrollIntoView({behavior:'smooth'});
+  // Liens du menu: si cible = slide dans #cartes, on scrolle d’abord au container puis à la slide
+  menuLinks.forEach(a=>{
+    a.addEventListener('click', (e)=>{
+      const href = a.getAttribute('href') || '';
+      if(href.startsWith('#c')){ // c1..c5 sont dans #cartes
+        e.preventDefault();
+        document.getElementById('cartes').scrollIntoView({behavior:'smooth'});
+        setTimeout(()=>{
+          document.querySelector(href)?.scrollIntoView({behavior:'smooth', block:'start'});
+        }, 250);
+      }
+      // sinon (intro), comportement par défaut
+    });
   });
 
 })();
