@@ -3,346 +3,289 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Tunnel 3D Scroll — Zoom In/Out</title>
-<meta name="description" content="Scroll = avance caméra : éléments arrivent du fond vers le premier plan puis sortent du cadre.">
+<title>Tunnel 3D — Mobile Boost</title>
+<meta name="description" content="Viewport fixe. Scroll/Swipe = avance caméra en Z. Version mobile réactive avec inertie.">
 <style>
   :root{
-    --bg:#0a0b0f;
-    --ink:#ececf1;
-    --muted:#a7a7b5;
-    --primary:#ff1f43;
-    --panel:#111219;
-    --radius:14px;
+    --bg:#080a0f; --ink:#ececf1; --muted:#a7a7b5; --primary:#ff1f43; --panel:#0f1118; --radius:14px;
   }
-  *{box-sizing:border-box}
-  html,body{height:100%; margin:0}
+  *{box-sizing:border-box} html,body{height:100%; margin:0}
   body{
     background:
       radial-gradient(900px 400px at 80% -10%, rgba(255,31,67,.12), transparent),
       radial-gradient(800px 400px at 10% 30%, rgba(255,31,67,.08), transparent),
       var(--bg);
-    color:var(--ink); font:15px/1.6 Inter, system-ui, Segoe UI, Roboto, Ubuntu, Arial, sans-serif;
-    overflow-x:hidden;
+    color:var(--ink);
+    font: clamp(14px, 1.3vw, 16px)/1.6 Inter, system-ui, Segoe UI, Roboto, Ubuntu, Arial, sans-serif;
+    overflow-x:hidden; -webkit-tap-highlight-color: transparent;
   }
   a{color:inherit; text-decoration:none}
 
-  /* Viewport fixé : on “épingle” l’affichage */
+  /* Viewport fixé */
   .viewport{
     position:fixed; inset:0; overflow:hidden;
-    perspective: 1200px; perspective-origin: 50% 50%;
-    /* pour un effet plus "zoom", baisse la perspective (900px, 700px…) */
+    perspective: clamp(700px, 85vw, 1200px); /* plus petit = plus de “zoom” */
+    perspective-origin: 50% 50%;
+    touch-action:none; /* on gère le swipe nous-même pour plus de dynamisme */
   }
+  .scene{ position:absolute; inset:0; transform-style:preserve-3d; will-change: transform }
 
-  /* Scène 3D : on déplace la caméra le long de Z (en fait on translate la scène) */
-  .scene{
-    position:absolute; inset:0;
-    transform-style:preserve-3d;
-    will-change: transform;
-  }
-
-  /* HUD / overlay fixe */
   header{
-    position:fixed; top:0; left:0; right:0; z-index:10;
-    display:flex; align-items:center; justify-content:space-between;
-    padding:12px 16px;
-    background:linear-gradient(to bottom, rgba(10,11,15,.6), rgba(10,11,15,0));
-    border-bottom:1px solid rgba(255,255,255,.05);
-    backdrop-filter: blur(8px) saturate(1.1);
+    position:fixed; inset:0 0 auto 0; z-index:10; display:flex; align-items:center; justify-content:space-between;
+    padding: clamp(8px, 2.5vw, 14px) clamp(10px, 3vw, 18px);
+    background:linear-gradient(to bottom, rgba(8,10,15,.65), rgba(8,10,15,0));
+    border-bottom:1px solid rgba(255,255,255,.06); backdrop-filter: blur(10px) saturate(1.15);
   }
-  .brand{display:flex; gap:10px; align-items:center; font-weight:800; letter-spacing:.5px}
+  .brand{display:flex; gap:10px; align-items:center; font-weight:800; letter-spacing:.5px; font-size: clamp(14px, 2.8vw, 16px)}
   .dot{width:12px; height:12px; border-radius:50%;
-    background:radial-gradient(circle at 30% 30%, #fff, #fff0 30%),
-               linear-gradient(180deg, var(--primary), #b3122b);
-    box-shadow:0 0 18px rgba(255,31,67,.55);
+    background:radial-gradient(circle at 30% 30%, #fff, #fff0 30%), linear-gradient(180deg, var(--primary), #b3122b);
+    box-shadow:0 0 14px rgba(255,31,67,.55);
   }
-  .hud{
-    display:flex; align-items:center; gap:10px; color:#d4d4de; font-size:13px;
-  }
-  .bar{
-    width:160px; height:6px; border-radius:999px; background:#1a1b24; overflow:hidden; border:1px solid #23232f;
-  }
+  .hud{display:flex; align-items:center; gap:10px; color:#d4d4de; font-size:12px}
+  .bar{width: clamp(120px, 30vw, 200px); height:6px; border-radius:999px; background:#1a1b24; overflow:hidden; border:1px solid #23232f}
   .bar>i{display:block; height:100%; width:0%; background:linear-gradient(90deg,var(--primary),#ff94a7)}
 
-  /* Cartes/éléments 3D */
   .layer{
     position:absolute; top:50%; left:50%;
-    transform-style:preserve-3d;
-    transform: translate(-50%,-50%) translateZ(var(--z, 0px)) scale(var(--s,1)) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));
-    opacity:var(--o,1);
-    filter: blur(var(--blur, 0px)) saturate(1.05);
-    transition: filter .1s linear;
-    will-change: transform, opacity, filter;
+    transform-style:preserve-3d; will-change: transform, opacity, filter;
+    opacity:var(--o,1); filter: blur(var(--blur, 0px)) saturate(1.05);
   }
-
   .card{
-    min-width: min(520px, 86vw);
-    padding:18px;
-    border-radius:var(--radius);
-    background:linear-gradient(180deg, #161823, #0f1118);
+    min-width: min(560px, 92vw);
+    padding: clamp(14px, 3.2vw, 20px);
+    border-radius: clamp(12px, 2.8vw, 16px);
+    background:linear-gradient(180deg, #161823, var(--panel));
     border:1px solid #222436;
-    box-shadow:
-      0 24px 60px rgba(0,0,0,.5),
-      inset 0 0 40px rgba(255,255,255,.04);
+    box-shadow: 0 24px 60px rgba(0,0,0,.55), inset 0 0 40px rgba(255,255,255,.04);
   }
-  .card h2{margin:.2rem 0 .4rem; font-size:22px}
-  .card p{color:var(--muted); margin:.2rem 0}
-
-  /* Vignettes / puces */
+  .card h2{margin:.2rem 0 .45rem; font-size: clamp(18px, 4.5vw, 24px)}
+  .card p{color:var(--muted); margin:.2rem 0; font-size: clamp(13px, 3.7vw, 15px)}
   .chip{display:inline-block; padding:4px 8px; border-radius:999px; font-size:12px;
         background:#1a0d11; color:#ffb2bf; border:1px solid #2a1419; margin-right:6px}
 
-  /* Astuces UI */
   .hint{
     position:fixed; left:50%; bottom:16px; transform:translateX(-50%); z-index:10;
-    color:#c8c8d5; font-size:13px; opacity:.85; user-select:none;
+    color:#c8c8d5; font-size:12px; opacity:.9; user-select:none;
     backdrop-filter: blur(6px); background:rgba(10,11,15,.35); border:1px solid rgba(255,255,255,.06);
     padding:8px 10px; border-radius:999px;
   }
 
-  /* Grand espace de scroll “virtuel” pour piloter la caméra */
-  .scrollspace{ height: 8000px } /* ajuste la longueur du voyage */
+  /* Boutons flottants (mobile friendly) */
+  .ctrls{
+    position:fixed; right:12px; bottom:72px; z-index:12; display:flex; flex-direction:column; gap:10px;
+  }
+  .ctrls button{
+    width:48px; height:48px; border-radius:12px; border:1px solid #26293a; background:#13151f; color:#fff;
+    box-shadow:0 10px 24px rgba(0,0,0,.45); font-size:18px; touch-action:none;
+  }
+  .ctrls button:active{transform:scale(.98)}
 
-  /* Discret grain + halo pour futurisme */
+  /* Espace de scroll “virtuel” (on garde pour compat desktop, mais on n’en dépend plus) */
+  .scrollspace{ height: 2000px }
+
   .grain{
     position:fixed; inset:-40px; z-index:0; opacity:.06; pointer-events:none; mix-blend-mode:soft-light;
     background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="140" height="140"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2"/></filter><rect width="100%" height="100%" filter="url(%23n)"/></svg>');
     animation:grain 6s steps(2) infinite;
   }
   @keyframes grain{to{transform:translate(50px,0)}}
-
-  /* Responsive tweaks */
-  @media (max-width:560px){
-    .card{min-width: 92vw}
-  }
 </style>
 </head>
 <body>
 <header>
   <div class="brand"><span class="dot" aria-hidden="true"></span> Tunnel 3D — Démo</div>
-  <div class="hud">
-    <span>Profondeur</span>
-    <div class="bar" aria-label="Progression de profondeur"><i id="prog"></i></div>
-    <span id="depthVal">Z: 0m</span>
+  <div class="hud" aria-label="Profondeur">
+    <span style="display:none" aria-hidden="true">Profondeur</span>
+    <div class="bar"><i id="prog"></i></div>
+    <span id="depthVal">Z: 0</span>
   </div>
 </header>
 
-<!-- Viewport fixe et scène 3D -->
-<div class="viewport" aria-hidden="false" aria-label="Scène 3D">
+<div class="viewport" id="viewport" aria-label="Scène 3D">
   <div class="scene" id="scene">
-    <!-- LAYERS — data-z = position initiale le long de Z (négative = loin, positive = vers l'avant) -->
-    <!-- On répartit les couches tous les ~800px en Z -->
-    <div class="layer" data-z="-4000">
-      <div class="card">
-        <span class="chip">Intro</span>
-        <h2>Bienvenue dans le tunnel 3D</h2>
-        <p>Scrollez pour “avancer” : les cartes viennent du fond vers vous, deviennent nettes et repartent.</p>
-      </div>
-    </div>
-
-    <div class="layer" data-z="-3200">
-      <div class="card">
-        <span class="chip">Concept</span>
-        <h2>Caméra → Z</h2>
-        <p>La caméra progresse en profondeur. Perspective CSS, <code>translateZ</code>, et échelle ≈ distance.</p>
-      </div>
-    </div>
-
-    <div class="layer" data-z="-2400">
-      <div class="card">
-        <span class="chip">FX</span>
-        <h2>Netteté & Opacité</h2>
-        <p>Plus un élément est loin, plus il est petit, flou et transparent. Quand il passe au plan 0, il est net.</p>
-      </div>
-    </div>
-
-    <div class="layer" data-z="-1600">
-      <div class="card">
-        <span class="chip">Timing</span>
-        <h2>Fenêtre unique, scènes qui “entrent”</h2>
-        <p>Le viewport est fixé. Les anciens éléments sortent du cadre en arrière-plan.</p>
-      </div>
-    </div>
-
-    <div class="layer" data-z="-800">
-      <div class="card">
-        <span class="chip">Motion</span>
-        <h2>Léger Tilt Parallaxe</h2>
-        <p>Inclinaison subtile au pointeur pour apporter du relief, sans gêner la lisibilité.</p>
-      </div>
-    </div>
-
-    <div class="layer" data-z="0">
-      <div class="card">
-        <span class="chip">Focus</span>
-        <h2>Plan Z = 0</h2>
-        <p>Ici, l’élément est “au premier plan” : taille 1, netteté max, opacité 1.</p>
-      </div>
-    </div>
-
-    <div class="layer" data-z="800">
-      <div class="card">
-        <span class="chip">Suite</span>
-        <h2>Sortie progressive</h2>
-        <p>En poursuivant, la carte passe devant vous et s’éloigne (rétrécit, redevient floue).</p>
-      </div>
-    </div>
-
-    <div class="layer" data-z="1600">
-      <div class="card">
-        <span class="chip">Custom</span>
-        <h2>Ajoutez vos scènes</h2>
-        <p>Dupliquez une <code>.layer</code> et réglez <code>data-z</code> par pas de 700~900 pour rythmer le voyage.</p>
-      </div>
-    </div>
-
-    <div class="layer" data-z="2400">
-      <div class="card">
-        <span class="chip">Fin</span>
-        <h2>Atterrissage</h2>
-        <p>On arrive au bout. Haut/Bas = +/- profondeur. PgUp/PgDn sautent d’une scène.</p>
-      </div>
-    </div>
+    <!-- Répartis par ~750 à 900 en Z -->
+    <div class="layer" data-z="-3600"><div class="card"><span class="chip">Intro</span><h2>Bienvenue</h2><p>Swipe / Scroll = avance rapide dans le tunnel 3D.</p></div></div>
+    <div class="layer" data-z="-2800"><div class="card"><span class="chip">Concept</span><h2>Caméra en Z</h2><p>Perspective CSS + translateZ. Les objets viennent du fond, passent net, repartent.</p></div></div>
+    <div class="layer" data-z="-2000"><div class="card"><span class="chip">FX</span><h2>Netteté / Opacité</h2><p>Distance → taille, blur, opacity. Focus au plan Z=0.</p></div></div>
+    <div class="layer" data-z="-1200"><div class="card"><span class="chip">Rythme</span><h2>Entrées cadencées</h2><p>Ajoute des scènes par pas réguliers pour un flow maîtrisé.</p></div></div>
+    <div class="layer" data-z="-400"><div class="card"><span class="chip">Focus</span><h2>Plan 0</h2><p>Ici, la carte est nette, grande, lisible.</p></div></div>
+    <div class="layer" data-z="400"><div class="card"><span class="chip">Suite</span><h2>Devant puis loin</h2><p>En avançant, elle vous dépasse et s’éloigne.</p></div></div>
+    <div class="layer" data-z="1200"><div class="card"><span class="chip">Custom</span><h2>Vos contenus</h2><p>Dupliquez une <code>.layer</code> et réglez <code>data-z</code>.</p></div></div>
+    <div class="layer" data-z="2000"><div class="card"><span class="chip">Fin</span><h2>Atterrissage</h2><p>Boutons ► / ◄, PgUp/PgDn, ↑/↓ pour piloter.</p></div></div>
   </div>
 </div>
 
-<!-- Espace de scroll virtuel pour piloter la profondeur -->
+<!-- Contrôles mobiles -->
+<div class="ctrls" aria-label="Contrôles">
+  <button id="back" aria-label="Reculer">◄</button>
+  <button id="fw" aria-label="Avancer">►</button>
+</div>
+
 <div class="scrollspace" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
-
-<div class="hint">🖱️ Scrollez • ⌨️ ↑/↓ • PgUp/PgDn • (mobile : glissez)</div>
+<div class="hint">Swipe / Scroll • Press & Hold sur ► / ◄</div>
 
 <script>
 /*
-  Principe :
-  - Le viewport est FIXE (position:fixed).
-  - On mappe le scroll (page “fantôme”) à une profondeur caméra (cameraZ).
-  - Chaque .layer a un data-z (sa position “monde”).
-  - On calcule depth = layerZ - cameraZ, puis :
-      scale ≈ clamp( 1 / (1 + depth/1000) , 0.25..2 )
-      opacity, blur en fonction de |depth|
-      translateZ = depth (pour la perspective)
+  Version mobile boostée :
+  - Contrôle direct de la profondeur (targetCamZ) via wheel/touch/btns.
+  - Sensibilité amplifiée (SPEED, TOUCH_SENS).
+  - Inertie (velocity) et friction.
+  - On ne dépend plus du scroll natif : la barre de progression est mappée sur notre range Z.
 */
 (function(){
   const scene = document.getElementById('scene');
+  const viewport = document.getElementById('viewport');
   const layers = Array.from(document.querySelectorAll('.layer'));
   const prog = document.getElementById('prog');
   const depthText = document.getElementById('depthVal');
+  const btnFw = document.getElementById('fw');
+  const btnBk = document.getElementById('back');
 
-  // Réglages “physiques”
-  const config = {
-    // Profondeur totale pilotée par la hauteur de scrollspace (voir CSS)
-    // On mappe 0..scrollMax -> cameraZ range.
-    zMin: -4500,     // départ loin
-    zMax:  3000,     // arrivée devant
-    blurMax: 12,     // px
-    visibilityZ: 2600, // au-delà de cette distance, fade out
-    tiltMax: 6,      // deg (tilt pointeur)
+  const cfg = {
+    zMin: -3800,
+    zMax:  2300,
+    blurMax: 12,
+    visibilityZ: 2400,
+    tiltMax: 5,
     scaleClampMin: .28,
-    scaleClampMax: 2.4
+    scaleClampMax: 2.4,
+    SPEED: 2.0,         // >> plus grand = plus réactif au wheel
+    TOUCH_SENS: 2.6,    // >> plus grand = petit swipe = gros déplacement
+    KEY_STEP: 260,      // ↑/↓
+    BTN_STEP: 380,      // ► / ◄ (press)
+    SNAP_NEAR: 140      // option de snap léger quand proche d’une layer
   };
 
-  let targetCamZ = config.zMin;
-  let camZ = targetCamZ;
+  let targetZ = 0; // on set juste après
+  let camZ = 0;
+  let vZ = 0; // velocity
+  let ttx=0, tty=0, tiltX=0, tiltY=0;
 
-  function scrollToZ(){
-    const h = document.documentElement;
-    const p = (h.scrollTop) / ((h.scrollHeight - h.clientHeight) || 1);
-    // Lissage “smooth” : easeInOut
-    targetCamZ = config.zMin + (config.zMax - config.zMin)*p;
-  }
+  // place la caméra au début
+  targetZ = cfg.zMin; camZ = cfg.zMin;
 
-  function updateHUD(){
-    const h = document.documentElement;
-    const p = (h.scrollTop) / ((h.scrollHeight - h.clientHeight) || 1);
-    prog.style.width = (p*100).toFixed(2)+'%';
-    depthText.textContent = `Z: ${Math.round(camZ)}m`;
-  }
-
-  addEventListener('scroll', scrollToZ, {passive:true});
-  scrollToZ();
-
-  // Tilt parallax au pointeur
-  let tiltX=0, tiltY=0, ttx=0, tty=0;
-  addEventListener('pointermove', (e)=>{
+  // track pointer pour tilt subtil
+  addEventListener('pointermove', e=>{
     const cx = innerWidth/2, cy = innerHeight/2;
-    const nx = (e.clientX - cx)/cx; // -1..1
+    const nx = (e.clientX - cx)/cx;
     const ny = (e.clientY - cy)/cy;
-    tiltY = nx * config.tiltMax;
-    tiltX = -ny * config.tiltMax;
+    tty = nx * cfg.tiltMax;
+    ttx = -ny * cfg.tiltMax;
   }, {passive:true});
 
-  // Touch scrolling inertiel (mobile)
-  let touching=false, lastY=0, vY=0;
-  addEventListener('touchstart', e=>{ touching=true; lastY=e.touches[0].clientY; vY=0 }, {passive:true});
-  addEventListener('touchmove', e=>{
+  // Wheel (desktop & mobiles avec souris)
+  addEventListener('wheel', e=>{
+    const dy = e.deltaY;
+    vZ += dy * cfg.SPEED; // positif -> avance vers zMax
+    e.preventDefault();
+  }, {passive:false});
+
+  // Touch swipe sur toute la viewport (super sensible)
+  let touching=false, lastY=0, lastT=0;
+  viewport.addEventListener('touchstart', e=>{
+    touching=true; vZ*=0.35; // réduit l’inertie existante
+    lastY = e.touches[0].clientY;
+    lastT = performance.now();
+  }, {passive:true});
+
+  viewport.addEventListener('touchmove', e=>{
     if(!touching) return;
     const y = e.touches[0].clientY;
-    const dy = lastY - y;
-    lastY = y;
-    window.scrollBy(0, dy);
-    vY = dy;
+    const dy = (lastY - y) * cfg.TOUCH_SENS; // inversé = glisse vers le haut = avance
+    const now = performance.now();
+    const dt = Math.max(16, now - lastT);
+    vZ += (dy * 16 / dt) * 24; // normalise la vitesse par le temps pour plus de peps
+    lastY = y; lastT = now;
+    e.preventDefault();
   }, {passive:false});
-  addEventListener('touchend', ()=>{ touching=false; });
 
-  // Contrôles clavier
+  addEventListener('touchend', ()=>{ touching=false; }, {passive:true});
+
+  // Boutons ►/◄ press & hold
+  let holdFw=false, holdBk=false;
+  btnFw.addEventListener('pointerdown', ()=>{ holdFw=true; vZ -= cfg.BTN_STEP; });
+  btnBk.addEventListener('pointerdown', ()=>{ holdBk=true; vZ += cfg.BTN_STEP; });
+  addEventListener('pointerup', ()=>{ holdFw=false; holdBk=false; });
+
+  // Clavier
   addEventListener('keydown', e=>{
     const k = e.key.toLowerCase();
-    if(k==='arrowdown') window.scrollBy({top: 200, behavior:'smooth'});
-    if(k==='arrowup') window.scrollBy({top: -200, behavior:'smooth'});
-    if(k==='pageDown'.toLowerCase()) window.scrollBy({top: innerHeight*.8, behavior:'smooth'});
-    if(k==='pageUp'.toLowerCase()) window.scrollBy({top: -innerHeight*.8, behavior:'smooth'});
+    if(k==='arrowdown' || k==='pageDown'.toLowerCase()){ vZ -= cfg.KEY_STEP*2; }
+    if(k==='arrowup'   || k==='pageUp'.toLowerCase()){   vZ += cfg.KEY_STEP*2; }
   });
+
+  // Mise à jour UI (progress, texte)
+  function updateHUD(){
+    const p = (camZ - cfg.zMin) / (cfg.zMax - cfg.zMin);
+    prog.style.width = (Math.max(0,Math.min(1,p))*100).toFixed(1)+'%';
+    depthText.textContent = `Z: ${Math.round(camZ)}`;
+  }
 
   function clamp(v,min,max){ return Math.max(min, Math.min(max,v)); }
 
+  function maybeSnap(){
+    // Snap léger si on est très proche d'une layer
+    let nearest = null, dmin = 1e9;
+    for(const L of layers){
+      const z0 = +L.dataset.z||0;
+      const d = Math.abs(z0 - camZ);
+      if(d<dmin){ dmin=d; nearest=z0; }
+    }
+    if(dmin < cfg.SNAP_NEAR && Math.abs(vZ) < 40){
+      // attire doucement
+      targetZ += (nearest - camZ) * 0.12;
+    }
+  }
+
   function render(){
-    // Easing caméra
-    camZ += (targetCamZ - camZ)*0.08;
+    // Press & hold
+    if(holdFw) vZ -= 14;
+    if(holdBk) vZ += 14;
 
-    // Easing tilt
-    ttx += (tiltX - ttx)*0.12;
-    tty += (tiltY - tty)*0.12;
+    // Intégration vitesse → target
+    targetZ += vZ;
 
-    // Applique tilt à la scène entière (léger)
-    scene.style.transform = `rotateX(${ttx}deg) rotateY(${tty}deg)`;
+    // Frictions & limites
+    vZ *= 0.86;
+    targetZ = clamp(targetZ, cfg.zMin, cfg.zMax);
+
+    // Easing vers target
+    camZ += (targetZ - camZ)*0.12;
+
+    // Tilt easing
+    const ex=0.12; tiltX += (ttx - tiltX)*ex; tiltY += (tty - tiltY)*ex;
+
+    // Snap si on est quasi arrêté
+    if(Math.abs(vZ) < 12) maybeSnap();
+
+    // Applique tilt à la scène
+    scene.style.transform = `rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
 
     // Met à jour chaque couche
     for(const L of layers){
-      const z0 = parseFloat(L.dataset.z)||0;
-      const depth = z0 - camZ; // distance relative à la caméra (0 = plan focal)
-      // Échelle basée sur la profondeur (plus proche => plus grand)
-      const scale = clamp( 1 / (1 + (depth/1200)), config.scaleClampMin, config.scaleClampMax );
-      // Opacité et flou : fade quand trop loin
+      const z0 = +L.dataset.z||0;
+      const depth = z0 - camZ;
+      const scale = clamp( 1 / (1 + (depth/1100)), cfg.scaleClampMin, cfg.scaleClampMax );
       const ad = Math.abs(depth);
-      const o = clamp(1 - (ad/config.visibilityZ), 0, 1);
-      const blur = (1 - Math.max(0, 1 - ad/900)) * config.blurMax; // 0 près, max loin
+      const o = clamp(1 - (ad/cfg.visibilityZ), 0, 1);
+      const blur = (1 - Math.max(0, 1 - ad/850)) * cfg.blurMax;
+      const yOffset = (depth/42);
 
-      // Décalage vertical subtil quand on “passe” le plan
-      const yOffset = (depth/40); // donne une sensation de passage
-
-      L.style.setProperty('--z', `${depth.toFixed(2)}px`);
-      L.style.setProperty('--s', scale.toFixed(3));
+      L.style.transform = `translate(-50%,-50%) translateZ(${depth}px) translateY(${yOffset}px) scale(${scale}) rotateX(${tiltX*0.35}deg) rotateY(${tiltY*0.35}deg)`;
       L.style.setProperty('--o', o.toFixed(3));
       L.style.setProperty('--blur', blur.toFixed(2)+'px');
-      L.style.setProperty('--rx', (ttx*0.35).toFixed(2)+'deg');
-      L.style.setProperty('--ry', (tty*0.35).toFixed(2)+'deg');
 
-      L.style.transform =
-        `translate(-50%,-50%) translateZ(${depth}px) translateY(${yOffset}px) `+
-        `scale(${scale}) rotateX(${ttx*0.35}deg) rotateY(${tty*0.35}deg)`;
-
-      // Accessibilité: aria-hidden si trop loin
-      if(o < 0.05) {
-        L.setAttribute('aria-hidden','true');
-      } else {
-        L.removeAttribute('aria-hidden');
-      }
+      if(o < 0.05) L.setAttribute('aria-hidden','true'); else L.removeAttribute('aria-hidden');
     }
 
     updateHUD();
     requestAnimationFrame(render);
   }
   render();
+
+  // Resize safe guard (aucun layout cassé)
+  addEventListener('resize', ()=>{ /* rien de spécial : tout est relatif */ }, {passive:true});
 })();
 </script>
 </body>
