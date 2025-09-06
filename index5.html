@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Worldblox-lite — migration & orks 4-dir</title>
+<style>
+  :root{ --bg:#e9eff7; --left:#0f1b2e; --panel:#142238; --ink:#e6f0ff; --muted:#9fb0c9; --line:#20314f; }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,sans-serif;
+    display:grid; grid-template-columns:260px minmax(0,1fr) 360px; grid-template-rows:1fr; height:100vh; overflow:hidden;
+  }
+  nav{ background:var(--left); border-right:1px solid var(--line); padding:10px; display:flex; flex-direction:column; gap:10px; overflow:auto; }
+  .title{ font-weight:800; letter-spacing:.2px }
+  .group{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:8px}
+  .grp-title{font-size:.8rem; color:var(--muted); margin-bottom:6px}
+  .toolgrid{display:grid; grid-template-columns:repeat(6,1fr); gap:6px}
+  .tool{display:grid; place-items:center; aspect-ratio:1/1; border:1px solid var(--line); border-radius:10px; background:#0a1526; color:#d8e7ff; cursor:pointer; font-size:20px}
+  .tool:hover{outline:2px solid rgba(80,170,255,.35)}
+  .tool[aria-pressed="true"]{outline:2px solid rgba(80,170,255,.85)}
+  .row{display:flex; gap:8px; align-items:center}
+  select{ width:100%; background:#0a1526; color:#e6f0ff; border:1px solid var(--line); border-radius:10px; padding:6px 8px; font-weight:600; }
+  .swatch{width:18px;height:18px;border-radius:5px;border:1px solid var(--line);background:#eee}
+
+  main{ position:relative; display:grid; place-items:center; padding:12px; background:linear-gradient(180deg,#eef4ff 0%, #e8effa 100%); overflow:hidden; }
+  .stage{ position:relative; }
+  canvas{
+    display:block; image-rendering:pixelated; background:#eaf5ff;
+    border-radius:12px; box-shadow:0 14px 40px rgba(15,23,42,.18), 0 0 0 1px rgba(0,0,0,.18) inset;
+    max-width:100%; max-height:100%;
+  }
+  .cursor{ position:absolute; pointer-events:none; border:2px dashed rgba(255,255,255,.9); border-radius:50%; transform:translate(-50%,-50%); box-shadow:0 0 0 2px rgba(0,0,0,.25) inset; }
+
+  aside{ background:var(--left); border-left:1px solid var(--line); padding:12px; overflow:auto; }
+  h3{margin:.2rem 0 .6rem}
+  .kv{display:grid; grid-template-columns:auto 1fr; gap:2px 8px; margin:.3rem 0}
+  .muted{color:var(--muted); font-size:.92rem}
+  .bar{height:8px;background:#0a1526;border-radius:6px;overflow:hidden;border:1px solid var(--line); margin:.3rem 0 .7rem}
+  .bar>span{display:block;height:100%}
+  .stats{margin-top:10px; text-align:center; font-weight:800}
+  .section{margin-bottom:14px; padding-bottom:10px; border-bottom:1px dashed #20314f;}
+</style>
+</head>
+<body>
+  <!-- LEFT -->
+  <nav>
+    <div class="title">Worldblox-lite</div>
+
+    <div class="group">
+      <div class="grp-title">Terrain</div>
+      <div class="toolgrid">
+        <button class="tool" data-tool="paint:water" title="Eau">🌊</button>
+        <button class="tool" data-tool="paint:grass" title="Prairie">🌾</button>
+        <button class="tool" data-tool="paint:forest" title="Forêt">🌲</button>
+        <button class="tool" data-tool="paint:mountain" title="Montagne">⛰️</button>
+        <button class="tool" data-tool="select" title="Sélection ville">🖱️</button>
+        <button class="tool" data-tool="eraseCountry" title="Effacer frontières">🧹</button>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <label style="min-width:90px">Brush</label>
+        <select id="brush"><option>1</option><option>2</option><option>3</option><option selected>4</option><option>6</option><option>8</option><option>12</option></select>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="grp-title">Entités</div>
+      <div class="toolgrid">
+        <button class="tool" data-tool="human" title="Humain">🧍</button>
+        <button class="tool" data-tool="ork" title="Ork">👹</button>
+        <button class="tool" data-tool="city" title="Ville">🏛️</button>
+        <button class="tool" data-tool="regen" title="Carte aléatoire">🗺️</button>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="grp-title">Pays</div>
+      <div class="row">
+        <select id="countrySel"></select>
+        <span id="swatch" class="swatch"></span>
+      </div>
+      <div class="row" style="margin-top:6px">
+        <button class="tool" id="newCountry" title="Nouveau pays" style="width:48px">🏳️</button>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="grp-title">God mode</div>
+      <div class="toolgrid">
+        <button class="tool" data-tool="god:food" title="Ajouter nourriture à une ville">🍞+</button>
+        <button class="tool" data-tool="god:wood" title="Ajouter bois à une ville">🪵+</button>
+        <button class="tool" data-tool="god:weapons" title="Ajouter armes à une ville">⚔️+</button>
+        <button class="tool" data-tool="god:both" title="Ajouter 🍞 et 🪵">➕</button>
+        <button class="tool" data-tool="god:lightning" title="Foudre">⚡</button>
+        <button class="tool" data-tool="god:fire" title="Feu">🔥</button>
+      </div>
+      <div class="muted" style="margin-top:6px">Clique une ville ou à proximité (la plus proche sera ciblée).</div>
+    </div>
+
+    <div class="group">
+      <div class="grp-title">Infos</div>
+      <div class="stats">
+        <span id="statHum">0</span> 🧑 •
+        <span id="statOrk">0</span> 👹 •
+        <span id="statCit">0</span> 🏙️ •
+        <span id="statCtr">0</span> 🏳️
+      </div>
+      <div class="muted">Une case produit seulement si un citoyen est dessus (🍞/🪵/⛓️ selon biome). Humain équipé = dégâts ×3.</div>
+    </div>
+  </nav>
+
+  <!-- CENTER -->
+  <main id="main">
+    <div class="stage" id="stage">
+      <canvas id="cv"></canvas>
+      <div id="cursor" class="cursor" hidden></div>
+    </div>
+  </main>
+
+  <!-- RIGHT -->
+  <aside>
+    <div class="section">
+      <h3>Ville sélectionnée</h3>
+      <div id="cityPanel" class="muted">Cliquez une ville (outil 🖱️).</div>
+    </div>
+    <div class="section">
+      <h3>Pays sélectionné</h3>
+      <div id="countryPanel" class="muted">Choisissez un pays dans la liste de gauche.</div>
+    </div>
+  </aside>
+
+<script>
+/* ======= DOM refs ======= */
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+const stage=document.getElementById('stage'), mainEl=document.getElementById('main');
+const cursorEl=document.getElementById('cursor');
+const countrySel=document.getElementById('countrySel');
+const cityPanel=document.getElementById('cityPanel');
+const countryPanel=document.getElementById('countryPanel');
+const statHum=document.getElementById('statHum');
+const statOrk=document.getElementById('statOrk');
+const statCit=document.getElementById('statCit');
+const statCtr=document.getElementById('statCtr');
+
+/* ========= Palettes ========= */
+const COLORS = {
+  water:   ['#bfe6ff','#aeddff','#c9edff','#a3d4ff'],
+  grass:   ['#cfe8a9','#c5e09c','#d8f0b6'],
+  forest:  ['#8fc7a3','#82bb98','#78b08e'],
+  mount:   ['#d8dfe6','#cfd7de','#e2e6ec']
+};
+const CID_COL = ['#ff6b6b','#4dabf7','#ffd43b','#51cf66','#f783ac','#94d82d','#74c0fc','#e599f7'];
+
+/* ========= Monde & types ========= */
+const MAP = { W:100, H:100 };
+const Tile = { WATER:0, GRASS:1, FOREST:2, MOUNT:3 };
+const TILE_PALETTE = {
+  [Tile.WATER]: COLORS.water,
+  [Tile.GRASS]: COLORS.grass,
+  [Tile.FOREST]: COLORS.forest,
+  [Tile.MOUNT]: COLORS.mount,
+};
+const CITY_ICON = '🏛️';
+
+/* ========= Noms ========= */
+const COUNTRY_NAMES = ["Avalon","Marinia","Nordhelm","Solaria","Kavros","Virdia","Terranelle","Aurelia","Stormgard","Iskandar","Lysandre","Orvalia","Brumor","Caldera","Eldoria"];
+const CITY_NAMES    = ["Rivemont","Boisclair","PortAzur","Rochebrune","Valdor","Montelac","Pinedor","Clairmont","Vallon","Serene","Bordemer","Grandchêne","Belrivage","Cendrelac","Azurîle"];
+let countryNamePtr=0, cityNamePtr=0;
+const nextCountryName=()=>COUNTRY_NAMES[countryNamePtr++ % COUNTRY_NAMES.length];
+const nextCityName=()=>CITY_NAMES[cityNamePtr++ % CITY_NAMES.length];
+
+/* ========= Balances ========= */
+const BAL = {
+  // éco & tours
+  foodPerGrassPerSec: 0.25,
+  woodPerForestPerSec: 0.18,
+  ironPerMountPerSec: 0.12,     // ⛰️ → fer
+  craftPerSec: 2,               // vitesse craft armes
+  cityRadiusDefault: 4,
+  moveStepSec: 0.15,
+  godFood: 50,
+  godWood: 50,
+  godWeapons: 20,
+  birthFoodCost: 100,
+  birthProb: 0.30,
+  expandProb: 0.45,
+  expandWoodCost: 5,            // coût d’expansion
+  orphanTTL: 30,
+  groupMin: 5,
+  groupRadius: 2,
+  groupFoundProbPerSec: 0.02,
+  soloFoundProbPerSec: 0.003,
+  seekBias: 5,
+  ownTileWeight: 9,
+  neutralTileWeight: 2,
+  foreignTileWeight: 0.15,
+  TURN_SEC: 1.0,
+  FOOD_PER_POP_PER_TURN: 5,
+  zeroDeathProbPerTurn: 0.35,
+  migrateProbPerTurn: 0.75,     // tente la migration avant la mort si famine
+
+  // Combat
+  humanAtk: 6,
+  humanHP: 100,
+  orkAtk: 10,
+  orkHP: 120,
+  orkSeekRadius: 50,            // vision 50
+  orkCounterDamageFactor: 0.5,
+
+  // Équipement
+  humanArmedDmgMult: 3.0,       // ×3 dégâts si équipé
+  armMaxShare: 0.5,
+  armAssignPerSec: 4
+};
+
+/* ========= États ========= */
+let tiles, tvar, owner, heat;
+let humans, orks, cities, countries;
+let nextCityId=1, nextCountryId=1, activeCountry=null;
+let tool={kind:'paint', arg:'grass'}, brushR=4;
+let selectedCity=null;
+let orkFactionId=null;
+
+/* ========= Utils ========= */
+const idx=(x,y)=>y*MAP.W+x;
+const inB=(x,y)=>x>=0&&y>=0&&x<MAP.W&&y<MAP.H;
+const randInt=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const getCountryById=(id)=> countries.find(c=>c.id===id) || null;
+const colorCountry=(id)=> getCountryById(id)?.color || CID_COL[(id-1) % CID_COL.length];
+const cityAt=(x,y)=>cities.find(c=>c.x===x && c.y===y) || null;
+function nearestCity(x,y, maxR=3){
+  let best=null, bd=1e9;
+  for(const c of cities){
+    const d=Math.abs(c.x-x)+Math.abs(c.y-y);
+    if(d<bd && d<=maxR){ best=c; bd=d; }
+  }
+  return best;
+}
+function nearestCityOfCountry(cid, x,y){
+  let best=null, bd=1e9;
+  for(const c of cities){
+    if(c.countryId!==cid || c.ruin) continue;
+    const d=Math.abs(c.x-x)+Math.abs(c.y-y);
+    if(d<bd){ bd=d; best=c; }
+  }
+  return {city:best, dist:bd};
+}
+function nearestCityAny(x,y, maxR=12){
+  let best=null, bd=1e9;
+  for(const c of cities){
+    const d=Math.abs(c.x-x)+Math.abs(c.y-y);
+    if(d<bd && d<=maxR){ best=c; bd=d; }
+  }
+  return best;
+}
+
+/* ========= Noise ========= */
+function hash32(x, y, seed) {
+  let h = (x * 374761393) ^ (y * 668265263) ^ (seed * 1442695041);
+  h = (h ^ (h >>> 13)) >>> 0;
+  h = Math.imul(h, 1274126177) >>> 0;
+  return h / 4294967295;
+}
+function noise2(x,y,scale,seed){
+  const sx = x*scale, sy=y*scale;
+  const x0=Math.floor(sx), y0=Math.floor(sy);
+  const tx=sx-x0, ty=sy-y0;
+  const a = hash32(x0,y0,seed), b=hash32(x0+1,y0,seed);
+  const c = hash32(x0,y0+1,seed), d=hash32(x0+1,y0+1,seed);
+  const ix0 = a + (b-a)*tx;
+  const ix1 = c + (d-c)*tx;
+  return ix0 + (ix1-ix0)*ty;
+}
+
+/* ========= Génération ========= */
+function generateWorld(){
+  tiles = new Uint8Array(MAP.W*MAP.H);
+  tvar  = new Uint8Array(MAP.W*MAP.H);
+  owner = new Int16Array(MAP.W*MAP.H).fill(-1);
+  heat  = new Float32Array(MAP.W*MAP.H).fill(0);
+
+  const s1=12345, s2=54321, s3=99999, s4=77777;
+  for(let y=0;y<MAP.H;y++){
+    for(let x=0;x<MAP.W;x++){
+      const e = 0.60*noise2(x,y,0.06,s1) + 0.30*noise2(x,y,0.12,s2) + 0.10*noise2(x,y,0.25,s3);
+      const nx=(x/MAP.W - 0.5)*1.2, ny=(y/MAP.H - 0.5)*1.2;
+      const fall = Math.hypot(nx,ny)*0.55;
+      const elev = e - fall;
+      const m = 0.6*noise2(x,y,0.10,s4) + 0.4*noise2(x,y,0.28,s3);
+
+      let t = Tile.GRASS;
+      if(elev < 0.22) t = Tile.WATER;
+      else if(elev > 0.60) t = Tile.MOUNT;
+      else if(m > 0.58) t = Tile.FOREST;
+
+      tiles[idx(x,y)] = t;
+      tvar[idx(x,y)]  = randInt(0,3);
+    }
+  }
+
+  // micro-lacs/plages
+  for(let y=1;y<MAP.H-1;y++){
+    for(let x=1;x<MAP.W-1;x++){
+      if(tiles[idx(x,y)]!==Tile.WATER){
+        let n=0; for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++) if(tiles[idx(x+dx,y+dy)]===Tile.WATER) n++;
+        if(n>=6 && Math.random()<0.25) tiles[idx(x,y)]=Tile.WATER;
+      }
+    }
+  }
+}
+
+/* ========= Pays / Villes / Entités ========= */
+function randomNiceColor(){ return CID_COL[(nextCountryId-1) % CID_COL.length]; }
+function newCountry(color){
+  const id=nextCountryId++;
+  const name = nextCountryName();
+  const c={id, name, color: color || randomNiceColor()};
+  (countries??=[]).push(c);
+  activeCountry = c.id;
+  return id;
+}
+function ensureOrkFaction(){
+  if(orkFactionId) return orkFactionId;
+  const id=nextCountryId++;
+  const c={id, name:'Horde Ork', color:'#2f9e44'};
+  countries.push(c);
+  orkFactionId = id;
+  return id;
+}
+function addCity(x,y,countryId){
+  if(!inB(x,y)) return null;
+  const t=tiles[idx(x,y)];
+  if(t===Tile.WATER || t===Tile.MOUNT) return null;
+  const c={
+    id:nextCityId++, x, y, countryId, name: nextCityName(), ruin:false,
+    pop:0, food:20, wood:10, iron:0, weapons:0, radius:BAL.cityRadiusDefault,
+    craftAcc:0
+  };
+  cities.push(c);
+  return c;
+}
+function addHuman(x,y,countryId, cityId=null){
+  if(!inB(x,y)) return;
+  if(tiles[idx(x,y)]===Tile.WATER) return; // montagne autorisée
+  humans.push({x,y,countryId, cityId, hp:BAL.humanHP, atk:BAL.humanAtk, equipped:false, orphanTime:0});
+}
+function addOrk(x,y){
+  if(!inB(x,y)) return;
+  if(tiles[idx(x,y)]===Tile.WATER) return; // montagne autorisée
+  const cid=ensureOrkFaction();
+  orks.push({x,y,countryId:cid, hp:BAL.orkHP, atk:BAL.orkAtk});
+}
+
+/* ========= Frontières ========= */
+function claimDisk(countryId, cx,cy, r){
+  const rr=r*r;
+  const x0=Math.max(0,cx-r), x1=Math.min(MAP.W-1,cx+r), y0=Math.max(0,cy-r), y1=Math.min(MAP.H-1,cy+r);
+  for(let y=y0;y<=y1;y++){
+    for(let x=x0;x<=x1;x++){
+      const dx=x-cx, dy=y-cy;
+      if(dx*dx+dy*dy<=rr){
+        if(tiles[idx(x,y)]!==Tile.WATER && owner[idx(x,y)]===-1){
+          owner[idx(x,y)] = countryId;
+        }
+      }
+    }
+  }
+}
+function expandOnePixel(c){
+  const r=c.radius+2;
+  const x0=Math.max(0,c.x-r), x1=Math.min(MAP.W-1,c.x+r), y0=Math.max(0,c.y-r), y1=Math.min(MAP.H-1,c.y+r);
+  const cand=[];
+  for(let y=y0;y<=y1;y++){
+    for(let x=x0;x<=x1;x++){
+      const id=idx(x,y);
+      if(owner[id]!==-1) continue;
+      if(tiles[id]===Tile.WATER) continue; // montagne ok
+      if( (x>0   && owner[idx(x-1,y)]===c.countryId) ||
+          (x<MAP.W-1 && owner[idx(x+1,y)]===c.countryId) ||
+          (y>0   && owner[idx(x,y-1)]===c.countryId) ||
+          (y<MAP.H-1 && owner[idx(x,y+1)]===c.countryId) ){
+        cand.push([x,y]);
+      }
+    }
+  }
+  if(!cand.length) return false;
+  const [x,y] = cand[randInt(0,cand.length-1)];
+  owner[idx(x,y)] = c.countryId;
+
+  let maxr=c.radius;
+  const R=c.radius+3, xa=Math.max(0,c.x-R), xb=Math.min(MAP.W-1,c.x+R), ya=Math.max(0,c.y-R), yb=Math.min(MAP.H-1,c.y+R);
+  for(let yy=ya; yy<=yb; yy++) for(let xx=xa; xx<=xb; xx++){
+    if(owner[idx(xx,yy)]===c.countryId){
+      const d=Math.abs(xx-c.x)+Math.abs(yy-c.y); if(d>maxr) maxr=d;
+    }
+  }
+  c.radius=maxr;
+  return true;
+}
+
+/* ========= Fondations ========= */
+function humansAround(x,y, radius, countryId){
+  const rr=radius*radius; const list=[];
+  const x0=Math.max(0,x-radius), x1=Math.min(MAP.W-1,x+radius), y0=Math.max(0,y-radius), y1=Math.min(MAP.H-1,y+radius);
+  for(let yy=y0; yy<=y1; yy++){
+    for(let xx=x0; xx<=x1; xx++){
+      const dx=xx-x, dy=yy-y; if(dx*dx+dy*dy>rr) continue;
+      for(const h of humans){ if(h.x===xx && h.y===yy && h.countryId===countryId) list.push(h); }
+    }
+  }
+  return list;
+}
+function tooCloseToCity(x,y,minD=5){
+  for(const c of cities){
+    const d=Math.abs(c.x-x)+Math.abs(c.y-y);
+    if(d<minD) return true;
+  }
+  return false;
+}
+function canFoundCityHere(x,y){
+  const t=tiles[idx(x,y)];
+  if(t===Tile.WATER) return false; // montagne ok
+  if(cityAt(x,y)) return false;
+  if(tooCloseToCity(x,y,5)) return false;
+  return true;
+}
+function attemptFoundCityByGroup(h, dt){
+  const list = humansAround(h.x,h.y, BAL.groupRadius, h.countryId);
+  if(list.length >= BAL.groupMin && Math.random() < BAL.groupFoundProbPerSec*dt){
+    if(!canFoundCityHere(h.x,h.y)) return null;
+    const c = addCity(h.x,h.y,h.countryId);
+    if(c){
+      claimDisk(c.countryId, c.x,c.y, c.radius);
+      for(const p of list){ p.cityId = c.id; p.orphanTime = 0; }
+      return c;
+    }
+  }
+  return null;
+}
+function attemptFoundCitySolo(h, dt){
+  if(!canFoundCityHere(h.x,h.y)) return null;
+  if(Math.random() < BAL.soloFoundProbPerSec * dt){
+    const c = addCity(h.x,h.y,h.countryId);
+    if(c){
+      claimDisk(c.countryId, c.x,c.y, c.radius);
+      h.cityId = c.id; h.orphanTime=0;
+      return c;
+    }
+  }
+  return null;
+}
+
+/* ========= Feu / Foudre ========= */
+function ignite(x,y, level=0.6){
+  if(!inB(x,y)) return;
+  const id=idx(x,y);
+  if(tiles[id]===Tile.WATER) return;
+  heat[id] = Math.max(heat[id], level);
+}
+function stepFire(dt){
+  for(let y=0;y<MAP.H;y++){
+    for(let x=0;x<MAP.W;x++){
+      const id=idx(x,y);
+      if(heat[id] > 0){
+        heat[id] = Math.min(1, heat[id] + dt*0.9);
+        if(heat[id] > 0.25){
+          const dirs=[[1,0],[-1,0],[0,1],[0,-1]];
+          const [dx,dy] = dirs[randInt(0,3)];
+          const nx=x+dx, ny=y+dy;
+          if(inB(nx,ny)){
+            const nid=idx(nx,ny), tt=tiles[nid];
+            const p = tt===Tile.FOREST? 0.35 : (tt===Tile.GRASS? 0.12 : 0.0);
+            if(Math.random() < p) ignite(nx,ny, 0.5);
+          }
+        }
+        if(heat[id] >= 1){
+          heat[id]=0;
+          if(tiles[id]===Tile.FOREST) tiles[id]=Tile.GRASS;
+        }
+      }
+    }
+  }
+}
+
+/* ========= Rendu ========= */
+let dpr = window.devicePixelRatio? Math.min(2, window.devicePixelRatio) : 1;
+function resizeCanvas(){
+  const pad=16;
+  const rect = mainEl.getBoundingClientRect();
+  const availW = Math.max(200, rect.width - pad*2);
+  const availH = Math.max(200, rect.height - pad*2);
+  const cell = Math.max(3, Math.floor(Math.min(availW/MAP.W, availH/MAP.H)));
+
+  const cssW = MAP.W*cell;
+  const cssH = MAP.H*cell;
+
+  stage.style.width = cssW+'px';
+  stage.style.height= cssH+'px';
+  cv.style.width  = cssW+'px';
+  cv.style.height = cssH+'px';
+  cv.width  = Math.floor(cssW * dpr);
+  cv.height = Math.floor(cssH * dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.imageSmoothingEnabled = false;
+
+  draw();
+}
+
+function draw(){
+  const pw = Math.floor(cv.width/dpr);
+  const ph = Math.floor(cv.height/dpr);
+  const cell = Math.max(1, Math.floor(pw/MAP.W));
+
+  ctx.clearRect(0,0,pw,ph);
+
+  // 1) Terrain
+  for(let y=0;y<MAP.H;y++){
+    for(let x=0;x<MAP.W;x++){
+      const id=idx(x,y);
+      const t  = tiles[id];
+      const pal= TILE_PALETTE[t];
+      const v  = tvar[id] % pal.length;
+      ctx.fillStyle = pal[v];
+      ctx.fillRect(x*cell,y*cell,cell,cell);
+    }
+  }
+
+  // 1b) Feu overlay
+  for(let y=0;y<MAP.H;y++){
+    for(let x=0;x<MAP.W;x++){
+      const h=heat[idx(x,y)];
+      if(h>0){
+        const a = Math.min(0.85, 0.20 + h*0.6);
+        ctx.fillStyle = `rgba(255,120,10,${a})`;
+        ctx.fillRect(x*cell,y*cell,cell,cell);
+      }
+    }
+  }
+
+  // 2) Frontières (halo + trait épais)
+  const pwthick = Math.max(3, Math.floor(cell*0.90));
+  const pwthin  = Math.max(2, Math.floor(cell*0.60));
+  ctx.lineJoin = 'miter'; ctx.lineCap='square';
+  for(let y=0;y<MAP.H;y++){
+    for(let x=0;x<MAP.W;x++){
+      const me = owner[idx(x,y)];
+      if(me===-1) continue;
+      const cx=x*cell, cy=y*cell;
+      const drawSide=(x0,y0,x1,y1,color)=>{
+        ctx.strokeStyle='rgba(255,255,255,0.9)'; ctx.lineWidth=pwthick; ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1); ctx.stroke();
+        ctx.strokeStyle=color; ctx.lineWidth=pwthin; ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1); ctx.stroke();
+      };
+      const col = colorCountry(me);
+      if(y===0 || owner[idx(x,y-1)]!==me) drawSide(cx,cy,cx+cell,cy,col);
+      if(y===MAP.H-1 || owner[idx(x,y+1)]!==me) drawSide(cx,cy+cell,cx+cell,cy+cell,col);
+      if(x===0 || owner[idx(x-1,y)]!==me) drawSide(cx,cy,cx,cy+cell,col);
+      if(x===MAP.W-1 || owner[idx(x+1,y)]!==me) drawSide(cx+cell,cy,cx+cell,cy+cell,col);
+    }
+  }
+
+  // 3) Villes (🏛️ + nom)
+  for(const c of cities){
+    const cx=c.x*cell, cy=c.y*cell;
+    if(c.ruin){
+      const w=Math.max(2,Math.floor(cell*0.6)), x0=cx+Math.floor((cell-w)/2), y0=cy+cell-Math.max(2,Math.floor(cell*0.25));
+      ctx.fillStyle="#5a6470"; ctx.fillRect(x0,y0,w,Math.max(2,Math.floor(cell*0.25)));
+      ctx.fillStyle="#8a95a1"; ctx.fillRect(x0+Math.floor(w*0.15), y0-Math.max(2,Math.floor(cell*0.35)), Math.max(1,Math.floor(w*0.2)), Math.max(2,Math.floor(cell*0.35)));
+    } else {
+      const size = Math.min(Math.floor(cell*0.85*10), Math.floor(cell*3));
+      ctx.font = `${size}px Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, system-ui, sans-serif`;
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(CITY_ICON, cx+cell/2, cy+cell/2+1);
+
+      ctx.font = `${Math.max(10, Math.floor(cell*0.55))}px ui-sans-serif`;
+      ctx.fillStyle = '#0f172a';
+      ctx.textAlign='left'; ctx.textBaseline='top';
+      ctx.fillText(c.name, cx + cell*0.6, cy + 2);
+    }
+  }
+
+  // 4) Ville sélectionnée
+  if(selectedCity){
+    const c=selectedCity, cx=c.x*cell, cy=c.y*cell;
+    ctx.strokeStyle="#ffffff"; ctx.lineWidth=Math.max(1,cell*0.28);
+    ctx.strokeRect(cx-1,cy-1,cell+2,cell+2);
+  }
+
+  // 5) Population (humains) + marquage "équipé"
+  for(const h of humans){
+    const hx=h.x*cell, hy=h.y*cell;
+    const s=Math.min(Math.floor(cell*0.9), Math.max(1, Math.floor(cell*0.22*5)));
+    ctx.fillStyle = colorCountry(h.countryId);
+    const px = hx + Math.floor(cell/2 - s/2), py = hy + Math.floor(cell/2 - s/2);
+    ctx.fillRect(px, py, s, s);
+    if(h.equipped){
+      ctx.fillStyle = 'rgba(255,255,255,0.95)';
+      ctx.fillRect(px, py-1, s, 1);
+      ctx.font = `${Math.max(8, Math.floor(cell*0.5))}px Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji`;
+      ctx.textAlign='left'; ctx.textBaseline='middle';
+      ctx.fillText('🪖', px-1, py);
+    }
+  }
+  // 6) Orks
+  for(const o of orks){
+    const hx=o.x*cell, hy=o.y*cell;
+    const s=Math.min(Math.floor(cell*0.9), Math.max(1, Math.floor(cell*0.22*5)));
+    ctx.fillStyle = colorCountry(o.countryId);
+    ctx.fillRect(hx + Math.floor(cell/2 - s/2), hy + Math.floor(cell/2 - s/2), s, s);
+  }
+}
+
+/* ========= Économie & villes ========= */
+function attachHumansToCity(c){
+  for(const h of humans){
+    if(h.countryId!==c.countryId) continue;
+    if(Math.abs(h.x-c.x)<=c.radius && Math.abs(h.y-c.y)<=c.radius){ h.cityId = c.id; h.orphanTime=0; }
+  }
+}
+const humansOfCity = (c)=> humans.filter(h=>h.cityId===c.id);
+const humansArmedOfCity = (c)=> humansOfCity(c).filter(h=>h.equipped);
+const humansUnarmedOfCity = (c)=> humansOfCity(c).filter(h=>!h.equipped);
+
+function removeOneHumanOfCity(c){
+  const list = humansOfCity(c);
+  if(!list.length) return false;
+  let worstGlobalIdx=-1, worstD=-1;
+  for(let i=0;i<humans.length;i++){
+    const h=humans[i];
+    if(h.cityId!==c.id) continue;
+    const d=Math.abs(h.x-c.x)+Math.abs(h.y-c.y);
+    if(d>worstD){ worstD=d; worstGlobalIdx=i; }
+  }
+  if(worstGlobalIdx>=0){ humans.splice(worstGlobalIdx,1); return true; }
+  return false;
+}
+function spawnHumanNearCity(c){
+  for(let k=0;k<10;k++){
+    const nx=c.x+randInt(-c.radius-1,c.radius+1);
+    const ny=c.y+randInt(-c.radius-1,c.radius+1);
+    if(!inB(nx,ny)) continue;
+    if(tiles[idx(nx,ny)]===Tile.WATER) continue; // montagne ok
+    addHuman(nx,ny,c.countryId,c.id);
+    return true;
+  }
+  return false;
+}
+
+/* === Migration : trouver une ville receveuse et ré-attacher un habitant === */
+function bestReceivingCity(countryId, excludeId){
+  let best=null, bestScore=-Infinity;
+  for(const d of cities){
+    if(d.ruin || d.countryId!==countryId || d.id===excludeId) continue;
+    if(d.food <= 0) continue;
+    const pop = humansOfCity(d).length;
+    const score = d.food - pop * BAL.FOOD_PER_POP_PER_TURN * 2;
+    if(score > bestScore){ bestScore = score; best = d; }
+  }
+  return best;
+}
+function migrateOneFromCity(c){
+  const dest = bestReceivingCity(c.countryId, c.id);
+  if(!dest) return false;
+
+  const list = humansOfCity(c);
+  if(!list.length) return false;
+
+  // prend l'habitant le plus éloigné du centre
+  let pickIdx=-1, bestD=-1;
+  for(let i=0;i<humans.length;i++){
+    const h=humans[i];
+    if(h.cityId!==c.id) continue;
+    const d=Math.abs(h.x-c.x)+Math.abs(h.y-c.y);
+    if(d>bestD){ bestD=d; pickIdx=i; }
+  }
+  if(pickIdx<0) return false;
+  const h = humans[pickIdx];
+
+  // rattache et pousse d'un pas vers la destination (évite l'eau)
+  h.cityId = dest.id;
+  const dx = Math.sign(dest.x - h.x), dy = Math.sign(dest.y - h.y);
+  const preferX = Math.abs(dest.x - h.x) >= Math.abs(dest.y - h.y);
+  const tryMoves = preferX ? [[h.x+dx,h.y],[h.x,h.y+dy]] : [[h.x,h.y+dy],[h.x+dx,h.y]];
+  for(const [nx,ny] of tryMoves){
+    if(inB(nx,ny) && tiles[idx(nx,ny)]!==Tile.WATER){ h.x=nx; h.y=ny; break; }
+  }
+  return true;
+}
+
+let ecoTurnClock = 0;
+function cityTick(dt){
+  ecoTurnClock += dt;
+
+  // Présence des humains par ville (exploitation = où ils se tiennent)
+  const presence = new Map(); // cityId -> Set(cellIdx)
+  for(const h of humans){
+    if(!h.cityId) continue;
+    let s = presence.get(h.cityId);
+    if(!s){ s = new Set(); presence.set(h.cityId, s); }
+    s.add(idx(h.x,h.y));
+  }
+
+  for(const c of cities){
+    if(c.ruin) { c.pop=0; continue; }
+
+    attachHumansToCity(c);
+
+    // Production par présence
+    const pres = presence.get(c.id);
+    if(pres && pres.size){
+      let food=0, wood=0, iron=0;
+      for(const id of pres){
+        const t=tiles[id];
+        if(t===Tile.GRASS)  food += BAL.foodPerGrassPerSec;
+        if(t===Tile.FOREST) wood += BAL.woodPerForestPerSec;
+        if(t===Tile.MOUNT)  iron += BAL.ironPerMountPerSec;
+      }
+      c.food += food * dt;
+      c.wood += wood * dt;
+      c.iron += iron * dt;
+    }
+
+    // Craft d'armes depuis le fer
+    c.craftAcc += BAL.craftPerSec * dt;
+    while(c.craftAcc >= 1 && c.iron >= 1){
+      c.weapons += 1;
+      c.iron -= 1;
+      c.craftAcc -= 1;
+    }
+
+    // Distribution d'armes (auto)
+    const popNow = humansOfCity(c).length;
+    const armedNow = humansArmedOfCity(c).length;
+    const unarmed = humansUnarmedOfCity(c);
+    const cap = Math.floor(popNow * BAL.armMaxShare);
+    let canEquip = Math.max(1, Math.floor(BAL.armAssignPerSec * dt));
+    let toEquip = Math.min(cap - armedNow, c.weapons, unarmed.length, canEquip);
+    while(toEquip>0){
+      const h = unarmed[randInt(0, unarmed.length-1)];
+      if(!h) break;
+      h.equipped = true;
+      c.weapons -= 1;
+      toEquip--;
+      const i = unarmed.indexOf(h); if(i>=0) unarmed.splice(i,1);
+    }
+
+    // Conso discrète + migration en cas de famine
+    if(ecoTurnClock >= BAL.TURN_SEC){
+      const turns = Math.floor(ecoTurnClock / BAL.TURN_SEC);
+      for(let k=0;k<turns;k++){
+        const popNow2 = humansOfCity(c).length;
+
+        // payer la nourriture pour UN tour
+        const cost = popNow2 * BAL.FOOD_PER_POP_PER_TURN;
+        c.food = Math.max(0, c.food - cost);
+
+        // famine => migration avant mortalité
+        if(c.food===0 && popNow2>0){
+          let migrated = false;
+          if(Math.random() < BAL.migrateProbPerTurn){
+            migrated = migrateOneFromCity(c);
+          }
+          if(!migrated && Math.random() < BAL.zeroDeathProbPerTurn){
+            removeOneHumanOfCity(c);
+          }
+        }
+      }
+    }
+
+    // MAJ pop + ruine si zéro
+    c.pop = humansOfCity(c).length;
+    if(c.pop===0){ c.ruin = true; }
+
+    // Naissance
+    if(c.food >= BAL.birthFoodCost && Math.random() < BAL.birthProb * dt * 6){
+      if(spawnHumanNearCity(c)) c.food = Math.max(0, c.food - BAL.birthFoodCost);
+    }
+
+    // Expansion (bois 5/case)
+    if(c.wood >= BAL.expandWoodCost && Math.random() < BAL.expandProb * dt * 6){
+      if(expandOnePixel(c)){ c.wood -= BAL.expandWoodCost; }
+    }
+  }
+
+  if(ecoTurnClock >= BAL.TURN_SEC){
+    ecoTurnClock = ecoTurnClock % BAL.TURN_SEC;
+  }
+}
+
+/* ========= Lien ville obligatoire (humains) ========= */
+function ensureCitizenLinkFor(h, dt){
+  // déjà lié à une ville valide ?
+  if (h.cityId && cities.some(v => v.id === h.cityId && !v.ruin)) return;
+
+  // ville nationale la plus proche
+  const nearInfo = nearestCityOfCountry(h.countryId, h.x, h.y);
+  const near = nearInfo.city;
+
+  if (near){
+    const inRadius = Math.max(Math.abs(h.x - near.x), Math.abs(h.y - near.y)) <= near.radius + 1;
+    if (inRadius){
+      h.cityId = near.id;
+      h.orphanTime = 0;
+      return;
+    }
+    // en route vers la ville
+    h.orphanTime = 0;
+    return;
+  }
+
+  // aucune ville nationale → tentatives de fondation (faible), sinon orphelin → mort
+  if (attemptFoundCityByGroup(h, dt)) return;
+  if (attemptFoundCitySolo(h, dt)) return;
+
+  h.orphanTime += dt;
+  if (h.orphanTime > BAL.orphanTTL){
+    const i = humans.indexOf(h);
+    if (i >= 0) humans.splice(i, 1);
+  }
+}
+
+/* ========= COMBAT ========= */
+function findHumanAt(x,y){
+  for(let i=0;i<humans.length;i++){ const h=humans[i]; if(h.x===x && h.y===y) return i; }
+  return -1;
+}
+function findNearbyHumanIndex8(x,y){
+  let i=findHumanAt(x,y); if(i>=0) return i;
+  for(let dy=-1; dy<=1; dy++){
+    for(let dx=-1; dx<=1; dx++){
+      if(dx===0 && dy===0) continue;
+      i=findHumanAt(x+dx, y+dy); if(i>=0) return i;
+    }
+  }
+  return -1;
+}
+
+/* === Orks : déplacement 4 directions (haut/bas/gauche/droite) et combat === */
+function orkStepAndFight(){
+  for (let i = orks.length - 1; i >= 0; i--) {
+    const o = orks[i];
+
+    // 1) Cible humaine la plus proche (vision 50)
+    let target = null, bd2 = 1e12;
+    for (const h of humans) {
+      const dx = h.x - o.x, dy = h.y - o.y;
+      const d2 = dx*dx + dy*dy;
+      if (d2 < bd2 && d2 <= BAL.orkSeekRadius * BAL.orkSeekRadius) { bd2 = d2; target = h; }
+    }
+
+    // 2) Déplacement 4-dir (priorise l'axe le plus éloigné), évite l'eau
+    if (target) {
+      const dx = Math.sign(target.x - o.x);
+      const dy = Math.sign(target.y - o.y);
+      const preferX = Math.abs(target.x - o.x) >= Math.abs(target.y - o.y);
+
+      const candidates = preferX
+        ? [{x:o.x+dx, y:o.y}, {x:o.x, y:o.y+dy}, {x:o.x-dx, y:o.y}, {x:o.x, y:o.y-dy}]
+        : [{x:o.x, y:o.y+dy}, {x:o.x+dx, y:o.y}, {x:o.x, y:o.y-dy}, {x:o.x-dx, y:o.y}];
+
+      for (const c of candidates) {
+        if (!inB(c.x, c.y)) continue;
+        if (tiles[idx(c.x, c.y)] === Tile.WATER) continue; // montagne autorisée
+        o.x = c.x; o.y = c.y; break;
+      }
+    } else {
+      // 3) Errance 4-dir
+      const dirs = [[1,0],[-1,0],[0,1],[0,-1]];
+      const d = dirs[randInt(0, dirs.length - 1)];
+      const nx = o.x + d[0], ny = o.y + d[1];
+      if (inB(nx, ny) && tiles[idx(nx, ny)] !== Tile.WATER) { o.x = nx; o.y = ny; }
+    }
+
+    // 4) Combat au contact (même case ou 8-voisins)
+    const hi = findNearbyHumanIndex8(o.x, o.y);
+    if (hi >= 0) {
+      const h = humans[hi];
+      const hAtk = (h.atk || BAL.humanAtk) * (h.equipped ? BAL.humanArmedDmgMult : 1);
+      h.hp -= o.atk;
+      o.hp -= hAtk * BAL.orkCounterDamageFactor;
+
+      if (h.hp <= 0) { humans.splice(hi, 1); }
+      if (o.hp <= 0) { orks.splice(i, 1); continue; }
+    }
+  }
+}
+
+/* ========= Déplacements humains ========= */
+function stepHumans(){
+  for(const h of humans){
+    const dirs = [[1,0],[-1,0],[0,1],[0,-1]];
+    const cand=[];
+    const assigned = h.cityId ? cities.find(c=>c.id===h.cityId && !c.ruin) : null;
+    const target = assigned || nearestCityOfCountry(h.countryId, h.x, h.y).city;
+    const curDist = target? (Math.abs(h.x-target.x)+Math.abs(h.y-target.y)) : null;
+    const hereOwn = owner[idx(h.x,h.y)]===h.countryId;
+
+    for(const d of dirs){
+      const nx=h.x+d[0], ny=h.y+d[1];
+      if(!inB(nx,ny)) continue;
+      if(tiles[idx(nx,ny)]===Tile.WATER) continue; // montagne OK
+
+      const own = owner[idx(nx,ny)];
+      let w = 1;
+      if(own===h.countryId) w = BAL.ownTileWeight;
+      else if(own===-1)     w = BAL.neutralTileWeight;
+      else                  w = BAL.foreignTileWeight;
+
+      if(target && curDist!=null){
+        const nextDist = Math.abs(nx-target.x)+Math.abs(ny-target.y);
+        if(nextDist < curDist) w += BAL.seekBias;
+        if(hereOwn && nextDist < curDist) w += 1.0;
+      }
+      cand.push({nx,ny,w});
+    }
+    if(cand.length===0) continue;
+    let sum=0; for(const c of cand) sum+=c.w;
+    let r=Math.random()*sum;
+    let pick=cand[0];
+    for(const c of cand){ r-=c.w; if(r<=0){ pick=c; break; } }
+    h.x=pick.nx; h.y=pick.ny;
+
+    // Rattachement si dans le rayon d'une ville nationale
+    for(const c of cities){
+      if(c.countryId!==h.countryId || c.ruin) continue;
+      if(Math.abs(h.x-c.x)<=c.radius && Math.abs(h.y-c.y)<=c.radius){ h.cityId=c.id; h.orphanTime=0; break; }
+    }
+  }
+}
+
+/* ========= Country (Royaume) stats & UI ========= */
+function countryStats(countryId){
+  const citiesOf = cities.filter(c=>c.countryId===countryId && !c.ruin);
+  const pop = humans.filter(h=>h.countryId===countryId).length;
+  const armed = humans.filter(h=>h.countryId===countryId && h.equipped).length;
+  let food=0, wood=0, iron=0, weapons=0; 
+  for(const c of citiesOf){ food+=c.food; wood+=c.wood; iron+=c.iron; weapons+=c.weapons; }
+  let area=0; for(let i=0;i<owner.length;i++) if(owner[i]===countryId) area++;
+  return { cities: citiesOf.length, pop, armed, food, wood, iron, weapons, area, cityNames: citiesOf.map(c=>c.name).join(', ') || '—' };
+}
+function refreshCountryPanel(){
+  if(!activeCountry){ countryPanel.textContent="Choisissez un pays dans la liste de gauche."; return; }
+  const k = getCountryById(activeCountry);
+  if(!k){ countryPanel.textContent="(aucun pays actif)"; return; }
+  const s = countryStats(k.id);
+  countryPanel.innerHTML = `
+    <div class="kv">
+      <b>Pays</b><span><span class="swatch" style="background:${k.color}"></span> ${k.name}</span>
+      <b>Villes</b><span>${s.cities}</span>
+      <b>Population</b><span>${s.pop} (⚔️ ${s.armed})</span>
+      <b>Nourriture</b><span>🍞 ${s.food.toFixed(1)}</span>
+      <b>Bois</b><span>🪵 ${s.wood.toFixed(1)}</span>
+      <b>Fer</b><span>⛓️ ${s.iron.toFixed(1)}</span>
+      <b>Armes</b><span>⚔️ ${s.weapons.toFixed(0)}</span>
+      <b>Superficie</b><span>${s.area} cases</span>
+      <b>Villes</b><span>${s.cityNames}</span>
+    </div>
+  `;
+}
+
+/* ========= UI ========= */
+function setToolActive(){
+  document.querySelectorAll('.tool[data-tool]').forEach(b=>b.setAttribute('aria-pressed','false'));
+  const sel = document.querySelector(`.tool[data-tool="${tool.kind}${tool.arg?':'+tool.arg:''}"]`);
+  if(sel) sel.setAttribute('aria-pressed','true');
+  cv.style.cursor = tool.kind==='select' ? 'crosshair' : 'default';
+}
+document.querySelector('nav').addEventListener('click', e=>{
+  const b=e.target.closest('.tool[data-tool]'); if(!b) return;
+  const [kind,arg] = b.dataset.tool.split(':'); 
+  if(kind==='regen'){ boot(); return; }
+  tool={kind,arg:arg||null}; setToolActive();
+});
+document.getElementById('brush').addEventListener('change', e=> brushR=parseInt(e.target.value,10));
+
+function updateCountryUI(){
+  countrySel.innerHTML='';
+  for(const c of countries){ const o=document.createElement('option'); o.value=c.id; o.textContent=c.name; if(c.id===activeCountry) o.selected=true; countrySel.appendChild(o) }
+  document.getElementById('swatch').style.background = activeCountry? colorCountry(activeCountry) : '#666';
+  refreshCountryPanel();
+}
+countrySel.addEventListener('change', e=>{ activeCountry=Number(e.target.value)||null; updateCountryUI(); });
+document.getElementById('newCountry').addEventListener('click', ()=>{ newCountry(); updateCountryUI(); });
+
+/* Brush preview + pointer capture */
+const cursorBox=document.getElementById('cursor');
+let painting=false, lastPointerId=null;
+cv.addEventListener('pointerenter', ()=>{ cursorBox.hidden=false; });
+cv.addEventListener('pointerleave', ()=>{ cursorBox.hidden=true; painting=false; try{cv.releasePointerCapture?.(lastPointerId);}catch{} });
+cv.addEventListener('pointerdown', e=>{ 
+  lastPointerId=e.pointerId; cv.setPointerCapture?.(e.pointerId);
+  painting=true; applyAt(e,true); 
+});
+window.addEventListener('pointerup', ()=> { painting=false; try{cv.releasePointerCapture?.(lastPointerId);}catch{} });
+cv.addEventListener('pointermove', e=>{
+  const {gx,gy,cell,rect}=canvasToGrid(e);
+  const stageRect=stage.getBoundingClientRect();
+  cursorBox.style.left = ((rect.left-stageRect.left)+(gx+0.5)*cell)+'px';
+  cursorBox.style.top  = ((rect.top -stageRect.top )+(gy+0.5)*cell)+'px';
+  const pxR=brushR*cell; cursorBox.style.width=(pxR*2)+'px'; cursorBox.style.height=(pxR*2)+'px';
+  if(painting) applyAt(e,false);
+});
+
+function canvasToGrid(e){
+  const r=cv.getBoundingClientRect(); const cell=Math.max(1, Math.floor(r.width/MAP.W));
+  return {gx:clamp(Math.floor((e.clientX-r.left)/cell),0,MAP.W-1), gy:clamp(Math.floor((e.clientY-r.top)/cell),0,MAP.H-1), cell, rect:r};
+}
+function forDisk(cx,cy,r,fn){
+  const rr=r*r; 
+  const x0=Math.max(0,cx-r), x1=Math.min(MAP.W-1,cx+r), y0=Math.max(0,cy-r), y1=Math.min(MAP.H-1,cy+r);
+  for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){ const dx=x-cx,dy=y-cy; if(dx*dx+dy*dy<=rr) fn(x,y); }
+}
+
+function applyAt(e,click){
+  const {gx,gy}=canvasToGrid(e);
+
+  if(tool.kind==='select'){ 
+    if(click){ 
+      selectedCity = cityAt(gx,gy) || nearestCity(gx,gy,3); 
+      if(selectedCity){ activeCountry = selectedCity.countryId; updateCountryUI(); }
+      draw(); refreshCityPanel(); 
+    } 
+    return; 
+  }
+
+  if(tool.kind==='human'){
+    ensureCountry();
+    let cid=activeCountry, nearby = nearestCityOfCountry(cid, gx,gy).city;
+    if(nearby && Math.abs(nearby.x-gx)+Math.abs(nearby.y-gy) <= nearby.radius+1){
+      addHuman(gx,gy,cid,nearby.id);
+    } else {
+      addHuman(gx,gy,cid,null);
+    }
+    stats(); draw(); refreshCityPanel(); refreshCountryPanel(); return;
+  }
+
+  if(tool.kind==='ork'){
+    const r=brushR;
+    ensureOrkFaction();
+    forDisk(gx,gy,r,(x,y)=> addOrk(x,y) );
+    stats(); draw(); return;
+  }
+
+  if(tool.kind==='city'){
+    ensureCountry();
+    const c = addCity(gx,gy,activeCountry);
+    if(c){ claimDisk(c.countryId, gx,gy, c.radius); selectedCity = c; activeCountry=c.countryId; updateCountryUI(); refreshCityPanel(); }
+    stats(); draw(); return;
+  }
+
+  if(tool.kind==='eraseCountry'){
+    forDisk(gx,gy,brushR,(x,y)=> { owner[idx(x,y)]=-1; heat[idx(x,y)]=0; });
+    draw(); return;
+  }
+
+  if(tool.kind==='paint'){
+    const map={water:Tile.WATER, grass:Tile.GRASS, forest:Tile.FOREST, mountain:Tile.MOUNT};
+    const t=map[tool.arg];
+    forDisk(gx,gy,brushR,(x,y)=>{ 
+      const id=idx(x,y);
+      tiles[id]=t; tvar[id]=randInt(0,3); 
+      if(t===Tile.WATER) owner[id]=-1, heat[id]=0;
+    });
+    draw(); return;
+  }
+
+  if(tool.kind==='god'){
+    if(tool.arg==='food' || tool.arg==='wood' || tool.arg==='weapons' || tool.arg==='both'){
+      let c = cityAt(gx,gy) || nearestCityAny(gx,gy,12) || selectedCity;
+      if(c){
+        if(tool.arg==='food' || tool.arg==='both') c.food += BAL.godFood;
+        if(tool.arg==='wood' || tool.arg==='both') c.wood += BAL.godWood;
+        if(tool.arg==='weapons') c.weapons = (c.weapons||0) + BAL.godWeapons;
+        if(selectedCity && selectedCity.id===c.id) refreshCityPanel();
+        refreshCountryPanel();
+      }
+      draw(); return;
+    }
+    if(tool.arg==='lightning'){ ignite(gx,gy, 1.0); draw(); return; }
+    if(tool.arg==='fire'){ forDisk(gx,gy,brushR,(x,y)=> ignite(x,y, 0.6)); draw(); return; }
+  }
+}
+
+/* ========= Panneau ville ========= */
+function refreshCityPanel(){
+  if(!selectedCity){ cityPanel.textContent="Cliquez une ville (outil 🖱️) ou utilisez les outils God."; return; }
+  const c=selectedCity, co=getCountryById(c.countryId);
+  const armed = humansArmedOfCity(c).length;
+  cityPanel.innerHTML = `
+    <div class="kv">
+      <b>Ville</b><span>${c.name} ${c.ruin? '(ruine)':''}</span>
+      <b>Pays</b><span><span class="swatch" style="background:${co?.color||'#777'}"></span> ${co?.name||('#'+c.countryId)}</span>
+      <b>Coord.</b><span>${c.x}, ${c.y}</span>
+      <b>Population</b><span>${c.pop} (⚔️ ${armed})</span>
+      <b>Nourriture</b><span>🍞 ${c.food.toFixed(1)}</span>
+      <b>Bois</b><span>🪵 ${c.wood.toFixed(1)}</span>
+      <b>Fer</b><span>⛓️ ${c.iron.toFixed(1)}</span>
+      <b>Armes</b><span>⚔️ ${c.weapons|0}</span>
+      <b>Rayon</b><span>${c.radius}</span>
+    </div>
+    <div class="bar"><span style="width:${Math.min(100, c.food)}%; background:#22c55e"></span></div>
+    <div class="bar"><span style="width:${Math.min(100, c.wood)}%; background:#a16207"></span></div>
+    <div class="bar"><span style="width:${Math.min(100, c.iron)}%; background:#6b7280"></span></div>
+    <div class="bar"><span style="width:${Math.min(100, (c.weapons||0))}%; background:#94a3b8"></span></div>
+    <div class="muted">Chaque citoyen “active” la case sous ses pieds (production ajoutée à la ville).</div>
+  `;
+}
+
+/* ========= Stats ========= */
+function stats(){
+  statHum.textContent = humans.length;
+  statOrk.textContent = orks.length;
+  statCit.textContent = cities.length;
+  statCtr.textContent = countries.length;
+}
+
+/* ========= Boot & loop ========= */
+function ensureCountry(){
+  if(!countries.length){ newCountry(); newCountry(); }
+  if(!activeCountry) activeCountry = countries[0].id;
+  updateCountryUI();
+}
+function findBuildableNear(cx,cy, maxR=20){
+  for(let r=0;r<=maxR;r++){
+    for(let y=cy-r;y<=cy+r;y++){
+      for(let x=cx-r;x<=cx+r;x++){
+        if(!inB(x,y)) continue;
+        if(tiles[idx(x,y)]!==Tile.WATER) return {x,y}; // montagne ok
+      }
+    }
+  }
+  return {x:12,y:12};
+}
+
+function boot(){
+  generateWorld();
+  humans=[]; orks=[]; cities=[]; countries=[];
+  nextCityId=1; nextCountryId=1; activeCountry=null; selectedCity=null; orkFactionId=null;
+  countryNamePtr=0; cityNamePtr=0;
+
+  const c1 = newCountry(); const c2 = newCountry();
+  activeCountry = c1; updateCountryUI();
+
+  const s = findBuildableNear(12,12,30);
+  const v = addCity(s.x,s.y,c1); claimDisk(c1,s.x,s.y,BAL.cityRadiusDefault);
+  v.weapons = 6; v.iron = 10;
+  for(let i=0;i<25;i++) addHuman(s.x+randInt(-2,2),s.y+randInt(-2,2), c1, v.id);
+
+  ensureOrkFaction();
+  for(let i=0;i<10;i++) addOrk(s.x+randInt(10,15), s.y+randInt(10,15));
+
+  resizeCanvas(); draw(); stats(); refreshCityPanel(); refreshCountryPanel(); setToolActive();
+}
+
+let last=performance.now(), moveAcc=0, ecoAcc=0, fireAcc=0, countryUiAcc=0;
+function loop(t){
+  const dt=(t-last)/1000; last=t;
+
+  // Déplacements + combats
+  moveAcc+=dt;
+  if(moveAcc>BAL.moveStepSec){
+    moveAcc=0; 
+    stepHumans();
+    orkStepAndFight();
+  }
+
+  // Économie + fondations/logique de survie
+  ecoAcc+=dt;
+  if(ecoAcc>0.2){
+    cityTick(ecoAcc);
+    for(const h of [...humans]) ensureCitizenLinkFor(h, ecoAcc);
+    ecoAcc=0;
+  }
+
+  // Feu
+  fireAcc+=dt;
+  if(fireAcc>0.08){ stepFire(fireAcc); fireAcc=0; }
+
+  // UI pays
+  countryUiAcc+=dt;
+  if(countryUiAcc>0.3){ refreshCountryPanel(); countryUiAcc=0; }
+
+  draw(); stats(); if(selectedCity) refreshCityPanel();
+  requestAnimationFrame(loop);
+}
+
+window.addEventListener('resize', resizeCanvas);
+boot(); requestAnimationFrame(loop);
+</script>
+</body>
+</html>
