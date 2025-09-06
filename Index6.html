@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Flux publics — NASA APOD, POTD, SpaceX</title>
+<meta name="description" content="Agrégateur simple de flux publics : NASA APOD (image du jour), Wikimedia Picture of the Day, SpaceX dernier lancement.">
+<style>
+:root{
+  --bg:#0f172a; --panel:#111827; --card:#0b1226; --muted:#94a3b8;
+  --ink:#e5e7eb; --accent:#22d3ee; --accent2:#10b981; --ring:1px solid #1f2937;
+  --radius:14px; --shadow:0 12px 28px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:linear-gradient(180deg,#0b1021,#0a1427 40%,#0e2130);color:var(--ink);font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Arial}
+img{max-width:100%;display:block}
+a{color:var(--accent);text-decoration:none}
+.container{width:min(1200px,92vw);margin:auto}
+
+header{position:sticky;top:0;z-index:30;background:rgba(10,18,39,.75);backdrop-filter:saturate(120%) blur(8px);border-bottom:var(--ring)}
+.bar{display:flex;align-items:center;justify-content:space-between;padding:12px 0}
+h1{font-size:clamp(22px,3.2vw,32px);margin:0}
+.actions{display:flex;gap:10px;align-items:center}
+.btn{display:inline-flex;align-items:center;gap:.5rem;padding:10px 14px;border-radius:12px;background:#111827;border:1px solid #1f2937;color:#e5e7eb}
+.btn:hover{border-color:#334155}
+.btn.primary{background:linear-gradient(135deg,#22d3ee,#10b981);color:#062227;border:0;font-weight:700}
+.badge{display:inline-block;padding:6px 10px;border-radius:999px;background:#0b1226;border:1px solid #1f2937;color:#9ca3af;font-weight:700;font-size:.82rem}
+
+.grid{display:grid;grid-template-columns:2fr 1fr;gap:18px;margin:20px 0 28px}
+@media (max-width:980px){.grid{grid-template-columns:1fr}}
+
+.card{background:var(--card);border:1px solid #1f2937;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.card .p{padding:16px}
+.card h2{margin:.1rem 0 .4rem;font-size:clamp(18px,2.6vw,22px)}
+.meta{color:var(--muted);font-size:.92rem}
+.media{aspect-ratio:16/9;background:#0a1026;display:grid;place-items:center;overflow:hidden}
+.media img, .media video{width:100%;height:100%;object-fit:cover}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:780px){.row{grid-template-columns:1fr}}
+
+footer{border-top:var(--ring);margin-top:24px}
+.foot{display:flex;justify-content:space-between;align-items:center;padding:16px 0;color:#9aa5b1;font-size:.95rem}
+
+/* panneau réglages */
+#settingsPanel{position:fixed;right:18px;bottom:18px;z-index:40;width:min(380px,92vw);
+  background:#0b1226;border:1px solid #1f2937;border-radius:16px;box-shadow:var(--shadow);display:none}
+#settingsPanel .p{padding:16px}
+.label{display:block;font-size:.9rem;color:#cbd5e1;margin-bottom:6px}
+.input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid #243041;background:#0b162b;color:#e5e7eb}
+.small{color:#9aa5b1;font-size:.85rem}
+.kicker{color:#86efac;text-transform:uppercase;letter-spacing:.14em;font-weight:800;font-size:.74rem}
+
+@keyframes rise{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
+.reveal{animation:rise .7s cubic-bezier(.22,.9,.24,1) both}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container bar">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="badge">Flux publics</div>
+      <h1>Images & données du jour</h1>
+    </div>
+    <div class="actions">
+      <button class="btn" id="refreshBtn">Rafraîchir</button>
+      <button class="btn primary" id="openSettings">Réglages</button>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  <section class="grid">
+    <!-- NASA APOD -->
+    <article class="card reveal" id="apodCard">
+      <div class="media" id="apodMedia"><span class="small">Chargement de NASA APOD…</span></div>
+      <div class="p">
+        <h2>NASA APOD — Image du jour</h2>
+        <div class="meta" id="apodMeta"></div>
+        <p id="apodDesc" class="small"></p>
+        <div style="display:flex;gap:10px;align-items:center;margin-top:8px;flex-wrap:wrap">
+          <label class="small">Date :
+            <input type="date" id="apodDate" class="input" style="width:auto">
+          </label>
+          <button class="btn" id="apodPrev">⟵ Jour -1</button>
+          <button class="btn" id="apodNext">Jour +1 ⟶</button>
+          <button class="btn" id="apodToday">Aujourd’hui</button>
+        </div>
+      </div>
+    </article>
+
+    <!-- Wikimedia Picture of the Day -->
+    <article class="card reveal" id="potdCard">
+      <div class="media" id="potdMedia"><span class="small">Chargement de Wikimedia POTD…</span></div>
+      <div class="p">
+        <h2>Wikimedia — Picture of the Day</h2>
+        <div class="meta" id="potdMeta"></div>
+        <p id="potdDesc" class="small"></p>
+        <div class="small">Source: Wikimedia Commons (libre de droits selon licence indiquée).</div>
+      </div>
+    </article>
+  </section>
+
+  <!-- SpaceX + mosaïque APOD (archives rapides) -->
+  <section class="row">
+    <article class="card reveal">
+      <div class="p">
+        <h2>Dernier lancement SpaceX</h2>
+        <div class="meta" id="spxMeta"></div>
+        <div id="spxContent" class="small" style="margin-top:8px">Chargement…</div>
+      </div>
+    </article>
+
+    <article class="card reveal">
+      <div class="p">
+        <h2>APOD — 6 dernières</h2>
+        <div class="meta small">Un échantillon récent (images/vidéos).</div>
+      </div>
+      <div id="apodStrip" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 16px 16px">
+        <!-- mini tuiles -->
+      </div>
+    </article>
+  </section>
+</main>
+
+<!-- Réglages -->
+<div id="settingsPanel">
+  <div class="p">
+    <div class="kicker">Réglages</div>
+    <h3 style="margin:.2rem 0 8px">Clé API NASA</h3>
+    <p class="small">La clé <code>DEMO_KEY</code> est limitée. Ajoute ta clé gratuite depuis
+      <a href="https://api.nasa.gov/" target="_blank" rel="noopener">api.nasa.gov</a> pour plus de requêtes.</p>
+    <label class="label" for="nasaKey">NASA API Key</label>
+    <input id="nasaKey" class="input" placeholder="DEMO_KEY">
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn primary" id="saveKey">Enregistrer</button>
+      <button class="btn" id="closeSettings">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="container foot">
+    <div>© Flux publics — NASA • Wikimedia • SpaceX</div>
+    <div class="small">Astuce : clique “Rafraîchir” si un flux tarde (réseau/CORS).</div>
+  </div>
+</footer>
+
+<script>
+/* ===== Util ===== */
+const $ = s => document.querySelector(s);
+const pad2 = n => String(n).padStart(2,'0');
+const todayStr = () => {
+  const d=new Date();
+  return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+};
+const store = {
+  get key(){ return localStorage.getItem('nasa_key') || 'DEMO_KEY'; },
+  set key(v){ localStorage.setItem('nasa_key', v || 'DEMO_KEY'); }
+};
+
+/* ===== NASA APOD ===== */
+async function loadAPOD(date){
+  const key = store.key;
+  const base = 'https://api.nasa.gov/planetary/apod';
+  const url = new URL(base);
+  url.searchParams.set('api_key', key);
+  if(date) url.searchParams.set('date', date);
+  url.searchParams.set('thumbs','true');
+
+  $('#apodMedia').innerHTML = `<span class="small">Chargement…</span>`;
+  $('#apodMeta').textContent = '';
+  $('#apodDesc').textContent = '';
+
+  try{
+    const res = await fetch(url);
+    if(!res.ok) throw new Error(res.status+' '+res.statusText);
+    const j = await res.json();
+
+    const isVideo = j.media_type === 'video';
+    const mediaHTML = isVideo
+      ? `<iframe src="${j.url}" title="${j.title}" allowfullscreen style="width:100%;height:100%;border:0"></iframe>`
+      : `<img src="${j.hdurl || j.url}" alt="${j.title}">`;
+
+    $('#apodMedia').innerHTML = mediaHTML;
+    $('#apodMeta').textContent = `${j.title || 'APOD'} — ${j.date}`;
+    $('#apodDesc').textContent = j.explanation || '';
+
+    // régler le champ date si vide
+    if($('#apodDate') && !$('#apodDate').value) $('#apodDate').value = j.date;
+  }catch(e){
+    $('#apodMedia').innerHTML = `<div class="small">Échec APOD (${e.message}). Essaie plus tard ou mets une clé API.</div>`;
+  }
+}
+
+/* APOD mini strip */
+async function loadAPODStrip(){
+  const key = store.key;
+  const url = `https://api.nasa.gov/planetary/apod?api_key=${key}&count=6&thumbs=true`;
+  const wrap = $('#apodStrip');
+  wrap.innerHTML = '';
+  try{
+    const res = await fetch(url);
+    const arr = await res.json();
+    arr.forEach(item=>{
+      const thumb = (item.media_type === 'video') ? (item.thumbnail_url || item.url) : (item.url);
+      const el = document.createElement('a');
+      el.href = item.hdurl || item.url;
+      el.target = '_blank';
+      el.rel = 'noopener';
+      el.style.border='1px solid #1f2937';
+      el.style.borderRadius='10px';
+      el.style.overflow='hidden';
+      el.style.display='block';
+      el.innerHTML = `<img src="${thumb}" alt="${item.title||'APOD'}">`;
+      wrap.appendChild(el);
+    });
+  }catch(e){
+    wrap.innerHTML = `<div class="small" style="padding:0 0 12px 0">Impossible de charger l’aperçu APOD (${e.message}).</div>`;
+  }
+}
+
+/* ===== Wikimedia Commons POTD =====
+   REST: https://commons.wikimedia.org/api/rest_v1/page/picture-of-the-day/YYYY/MM/DD
+*/
+async function loadPOTD(dStr){
+  const d = dStr ? new Date(dStr) : new Date();
+  const url = `https://commons.wikimedia.org/api/rest_v1/page/picture-of-the-day/${d.getFullYear()}/${pad2(d.getMonth()+1)}/${pad2(d.getDate())}`;
+
+  $('#potdMedia').innerHTML = `<span class="small">Chargement…</span>`;
+  $('#potdMeta').textContent = '';
+  $('#potdDesc').textContent = '';
+
+  try{
+    const res = await fetch(url);
+    if(!res.ok) throw new Error(res.status+' '+res.statusText);
+    const j = await res.json();
+    const img = j?.image?.source;
+    const title = j?.title || 'Picture of the Day';
+    const desc = j?.description?.text || '';
+    $('#potdMedia').innerHTML = img ? `<img src="${img}" alt="${title}">` : `<div class="small">Image non disponible</div>`;
+    $('#potdMeta').textContent = title;
+    $('#potdDesc').innerHTML = desc;
+  }catch(e){
+    $('#potdMedia').innerHTML = `<div class="small">Échec POTD (${e.message}).</div>`;
+  }
+}
+
+/* ===== SpaceX dernier lancement ===== */
+async function loadSpaceX(){
+  const url = 'https://api.spacexdata.com/v5/launches/latest';
+  $('#spxMeta').textContent = 'Chargement…';
+  $('#spxContent').textContent = '';
+  try{
+    const res = await fetch(url);
+    if(!res.ok) throw new Error(res.status);
+    const j = await res.json();
+    const name = j.name;
+    const date = new Date(j.date_utc);
+    const success = j.success === true ? '✅ Succès' : (j.success === false ? '⚠️ Échec' : '⏳ À confirmer');
+    $('#spxMeta').textContent = `${name} — ${date.toLocaleString()}`;
+    $('#spxContent').innerHTML = `
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin:6px 0">
+        <span class="badge">${success}</span>
+        <span class="badge">Vol ${j.flight_number}</span>
+      </div>
+      <div class="small">${j.details || 'Pas de détails.'}</div>
+      ${j.links?.webcast ? `<div style="margin-top:8px"><a class="btn" href="${j.links.webcast}" target="_blank" rel="noopener">Regarder le webcast</a></div>`:''}
+    `;
+  }catch(e){
+    $('#spxMeta').textContent = 'Impossible de charger SpaceX.';
+    $('#spxContent').innerHTML = `<div class="small">Erreur : ${e.message}</div>`;
+  }
+}
+
+/* ===== UI: réglages ===== */
+const settings = $('#settingsPanel');
+$('#openSettings').onclick = ()=>{ $('#nasaKey').value = store.key; settings.style.display='block'; };
+$('#closeSettings').onclick = ()=> settings.style.display='none';
+$('#saveKey').onclick = ()=>{
+  store.key = $('#nasaKey').value.trim() || 'DEMO_KEY';
+  settings.style.display='none';
+  // on recharge APOD
+  loadAPOD($('#apodDate').value || todayStr());
+  loadAPODStrip();
+};
+
+/* ===== Actions ===== */
+$('#refreshBtn').onclick = ()=>{
+  loadAPOD($('#apodDate').value || todayStr());
+  loadPOTD($('#apodDate').value || todayStr());
+  loadSpaceX();
+  loadAPODStrip();
+};
+$('#apodToday').onclick = ()=>{ $('#apodDate').value = todayStr(); loadAPOD($('#apodDate').value); loadPOTD($('#apodDate').value); };
+$('#apodPrev').onclick = ()=>{
+  const v = $('#apodDate').value || todayStr();
+  const d = new Date(v); d.setDate(d.getDate()-1);
+  const s = `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+  $('#apodDate').value = s; loadAPOD(s); loadPOTD(s);
+};
+$('#apodNext').onclick = ()=>{
+  const v = $('#apodDate').value || todayStr();
+  const d = new Date(v); d.setDate(d.getDate()+1);
+  const s = `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+  $('#apodDate').value = s; loadAPOD(s); loadPOTD(s);
+};
+$('#apodDate').onchange = e => { const s=e.target.value; if(s){ loadAPOD(s); loadPOTD(s); } };
+
+/* ===== Initial load ===== */
+document.addEventListener('DOMContentLoaded', ()=>{
+  $('#apodDate').value = todayStr();
+  loadAPOD(todayStr());
+  loadPOTD(todayStr());
+  loadSpaceX();
+  loadAPODStrip();
+});
+</script>
+</body>
+</html>
