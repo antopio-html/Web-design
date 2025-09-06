@@ -3,136 +3,172 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Vitrine — Deck minimal</title>
+<title>Vitrine — Deck fluide (4 encarts)</title>
 <style>
   :root{
-    --bg: #f7f8fa;
-    --ink:#0f1115;
-    --muted:#6b7280;
-    --card:#ffffff;
-    --ring:#e5e7eb;
-    --acc:#0ea5a5;
-    --radius:20px;
-    --shadow: 0 10px 30px rgba(0,0,0,.08);
-    --t: 300ms;
+    --bg:#f7f8fa; --ink:#0f1115; --muted:#6b7280; --card:#ffffff; --ring:#e5e7eb;
+    --acc:#0ea5a5; --radius:18px; --shadow:0 10px 30px rgba(0,0,0,.08);
   }
   @media (prefers-color-scheme: dark){
-    :root{ --bg:#0b0d11; --ink:#eef2f7; --muted:#9aa7b8; --card:#0f141b; --ring:#1f2937; --shadow:0 10px 30px rgba(0,0,0,.35)}
+    :root{ --bg:#0b0d11; --ink:#eef2f7; --muted:#9aa7b8; --card:#0f141b; --ring:#1f2937; --shadow:0 10px 30px rgba(0,0,0,.35) }
   }
-
   *{box-sizing:border-box}
-  html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);
-    font:16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Inter, "Noto Sans", sans-serif;
-    -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;}
-  body{overscroll-behavior:none; touch-action:manipulation}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
+    font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Inter,"Noto Sans",sans-serif}
+  body{overscroll-behavior:none}
 
-  /* Conteneur plein écran */
-  .app{position:fixed; inset:0; display:flex; flex-direction:column}
+  .app{min-height:100dvh; display:flex; flex-direction:column}
 
-  /* Barre top minimaliste */
+  /* Topbar compacte */
   .topbar{display:flex; align-items:center; justify-content:space-between; gap:12px;
-    padding:10px clamp(12px, 4vw, 28px); border-bottom:1px solid var(--ring); background:color-mix(in oklab, var(--card) 50%, transparent)}
-  .brand{font-weight:700; letter-spacing:.2px}
-  .kbd{font:12px/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color:var(--muted)}
+    padding:12px clamp(12px,4vw,28px); border-bottom:1px solid var(--ring);
+    background:color-mix(in oklab, var(--card) 60%, transparent)}
+  .brand{font-weight:700}
+  .kbd{font:12px/1.2 ui-monospace,Menlo,Consolas,monospace; color:var(--muted)}
 
-  /* Zone "deck" (slides horizontales) */
+  /* Carrousel horizontal fluide */
   .deck{
-    position:relative; flex:1; overflow:hidden; background:
-      radial-gradient(1000px 600px at 50% 10%, color-mix(in oklab, var(--card) 60%, transparent), transparent);
+    position:relative; flex:1; overflow-x:auto; overflow-y:hidden;
+    scroll-snap-type:x mandatory; scroll-behavior:smooth;
+    -webkit-overflow-scrolling:touch;  /* iOS */
+    background:radial-gradient(1000px 600px at 50% 8%, color-mix(in oklab, var(--card) 60%, transparent), transparent);
+    scrollbar-width:none;           /* Firefox */
+    -ms-overflow-style:none;        /* IE/Edge legacy */
   }
-  .rail{
-    height:100%; display:flex; will-change:transform;
-    transition:transform var(--t) cubic-bezier(.2,.8,.2,1);
-  }
-  @media (prefers-reduced-motion: reduce){ .rail{transition:none} }
+  .deck::-webkit-scrollbar{display:none} /* WebKit */
 
-  /* Slide carte plein écran */
+  .rail{display:flex; height:100%}
+
+  /* 4 encarts = 4 slides plein écran */
   .slide{
+    scroll-snap-align:center; scroll-snap-stop:always;
     flex:0 0 100%;
-    padding: clamp(16px, 4vw, 36px);
+    padding: clamp(14px, 4vw, 32px);
     display:grid; place-items:center;
   }
+
   .card{
     width:min(960px, 92vw);
     min-height:min(76vh, 680px);
     display:grid; grid-template-rows:auto 1fr auto; gap:18px;
-    background:var(--card); border:1px solid var(--ring);
-    border-radius:var(--radius); box-shadow:var(--shadow);
+    background:var(--card); border:1px solid var(--ring); border-radius:var(--radius); box-shadow:var(--shadow);
     padding: clamp(16px, 4vw, 32px);
+    transform: translateZ(0);   /* GPU hint */
+    transition: box-shadow .25s ease, transform .25s ease;
   }
   .card h1{margin:0; font-size:clamp(22px, 5vw, 40px); letter-spacing:-.02em}
   .card p{margin:0; color:var(--muted); font-size:clamp(14px, 2.6vw, 18px)}
 
-  .grid{display:grid; gap:12px; grid-template-columns: repeat(12, 1fr)}
+  .grid{display:grid; gap:12px; grid-template-columns:repeat(12,1fr)}
   .tile{
-    grid-column: span 6;
+    grid-column:span 6; min-height:110px;
     background:linear-gradient(180deg, color-mix(in oklab, var(--card) 85%, transparent), transparent);
-    border:1px solid var(--ring); border-radius:14px; padding:14px; min-height:110px;
+    border:1px solid var(--ring); border-radius:14px; padding:14px;
   }
   .tile small{color:var(--muted)}
   .tile h3{margin:6px 0 4px; font-size:clamp(16px, 2.4vw, 20px)}
   .tile p{margin:0; color:var(--muted); font-size:clamp(13px, 2.2vw, 16px)}
 
-  /* Mobile : 1 colonne lisible, boutons larges */
+  /* Mobile : 1 colonne lisible, contrôles “thumb-friendly” */
   @media (max-width: 860px){
-    .card{min-height: 72vh}
+    .card{min-height:72vh}
     .grid{grid-template-columns:1fr}
     .tile{grid-column:1/-1}
   }
 
   .actions{display:flex; flex-wrap:wrap; gap:10px}
   .btn{
-    appearance:none; cursor:pointer;
-    padding:10px 14px; border-radius:12px; border:1px solid var(--ring);
+    appearance:none; cursor:pointer; padding:10px 14px; border-radius:12px; border:1px solid var(--ring);
     background:transparent; color:var(--ink); transition:transform .12s ease;
   }
   .btn:active{transform:translateY(1px)}
   .btn.primary{background:var(--ink); color:var(--card); border-color:transparent}
 
-  /* Contrôles fixés, accessibles et “thumb-friendly” */
+  /* Contrôles fixes + pastilles */
   .controls{
-    position:absolute; inset:auto 12px 12px 12px; display:flex; align-items:center; gap:10px; justify-content:center;
-    pointer-events:none;
+    position:absolute; left:0; right:0; bottom:12px; display:flex; justify-content:center; pointer-events:none;
+    padding:0 clamp(12px, 4vw, 28px);
   }
-  .pill{pointer-events:auto; display:flex; gap:8px; align-items:center; background:color-mix(in oklab, var(--card) 70%, transparent);
+  .pill{pointer-events:auto; display:flex; gap:10px; align-items:center; background:color-mix(in oklab, var(--card) 70%, transparent);
     border:1px solid var(--ring); padding:8px 10px; border-radius:999px; box-shadow:var(--shadow)}
-  .navbtn{
-    width:40px; height:40px; border-radius:999px; border:1px solid var(--ring); background:var(--card); display:grid; place-items:center; cursor:pointer;
-  }
+  .navbtn{width:40px; height:40px; border-radius:999px; border:1px solid var(--ring); background:var(--card); display:grid; place-items:center; cursor:pointer}
   .dots{display:flex; gap:6px; padding:0 6px}
-  .dot{
-    width:8px; height:8px; border-radius:50%; background:var(--ring); cursor:pointer;
-  }
-  .dot.active{ background:var(--acc); box-shadow:0 0 0 6px color-mix(in oklab, var(--acc) 25%, transparent)}
+  .dot{width:8px; height:8px; border-radius:50%; background:var(--ring); cursor:pointer}
+  .dot.active{background:var(--acc); box-shadow:0 0 0 6px color-mix(in oklab, var(--acc) 25%, transparent)}
 
-  /* Petite barre haute de progression */
+  /* Barre de progression */
   .progress{position:absolute; left:0; right:0; top:0; height:3px; background:var(--ring)}
   .bar{height:100%; width:0%; background:linear-gradient(90deg, var(--acc), color-mix(in oklab, var(--acc) 30%, transparent))}
 
-  /* Aide tactile */
-  .hint{
-    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
-    color:var(--muted); font-size:13px; background:color-mix(in oklab, var(--card) 70%, transparent);
-    border:1px dashed var(--ring); padding:8px 10px; border-radius:10px; user-select:none;
-  }
-  @media (pointer:fine){ .hint{display:none} }
+  /* Micro-effet fluide pendant le scroll */
+  .slide.is-near .card{ box-shadow:0 16px 48px rgba(0,0,0,.10); transform: translateY(-2px) }
 </style>
 </head>
 <body>
 <div class="app" aria-live="polite">
   <div class="topbar">
     <div class="brand">Vitrine</div>
-    <div class="kbd">Astuce : ← → ou swipe</div>
+    <div class="kbd">Astuce : molette (verticale) → navigation horizontale • swipe mobile</div>
   </div>
 
   <div class="deck" id="deck" aria-roledescription="carrousel">
     <div class="progress"><div class="bar" id="bar"></div></div>
     <div class="rail" id="rail">
-      <!-- Slides injectés en JS -->
+      <!-- 4 ENCARTS UNIQUEMENT -->
+      <section class="slide" aria-label="01 Accueil">
+        <div class="card">
+          <header><h1>Accueil — cap sur l’essentiel</h1><p>4 encarts pour test. Navigation douce & responsive.</p></header>
+          <main class="grid">
+            <div class="tile"><small>Manifeste</small><h3>Clarté, espace, lisibilité</h3><p>Sans gimmick, sans surcharge.</p></div>
+            <div class="tile"><small>Interaction</small><h3>Molette ↔ / Swipe</h3><p>Simple et fiable, partout.</p></div>
+            <div class="tile"><small>Design</small><h3>Grille bento</h3><p>Cartes stables, focus central.</p></div>
+            <div class="tile"><small>Perf</small><h3>Vanilla, GPU 2D</h3><p>Transferts légers.</p></div>
+          </main>
+          <footer class="actions"><button class="btn primary">Découvrir</button><button class="btn">Contact</button></footer>
+        </div>
+      </section>
+
+      <section class="slide" aria-label="02 À propos">
+        <div class="card">
+          <header><h1>À propos — approche</h1><p>Moins mais mieux : utile, durable, élégant.</p></header>
+          <main class="grid">
+            <div class="tile"><small>Sobriété</small><h3>Aller à l’essentiel</h3><p>Respiration visuelle.</p></div>
+            <div class="tile"><small>Qualité</small><h3>Micro-interactions</h3><p>Sans artifice gratuit.</p></div>
+            <div class="tile"><small>Durabilité</small><h3>Code frugal</h3><p>Maintenable.</p></div>
+            <div class="tile"><small>Accessibilité</small><h3>Clavier / ARIA</h3><p>Tailles fluides.</p></div>
+          </main>
+          <footer class="actions"><button class="btn primary">Notre méthode</button></footer>
+        </div>
+      </section>
+
+      <section class="slide" aria-label="03 Technologie">
+        <div class="card">
+          <header><h1>Technologie — front léger</h1><p>HTML sémantique, CSS variables, JS minimal.</p></header>
+          <main class="grid">
+            <div class="tile"><small>Composabilité</small><h3>Modules clairs</h3><p>Testables.</p></div>
+            <div class="tile"><small>Intégrations</small><h3>APIs sobres</h3><p>Analytics éthiques.</p></div>
+            <div class="tile"><small>Performance</small><h3>60fps visés</h3><p>Lazy data.</p></div>
+            <div class="tile"><small>Handoff</small><h3>Guidelines</h3><p>Tokens & assets.</p></div>
+          </main>
+          <footer class="actions"><button class="btn primary">Voir un proto</button><button class="btn">Specs</button></footer>
+        </div>
+      </section>
+
+      <section class="slide" aria-label="04 Contact">
+        <div class="card">
+          <header><h1>Contact — parlons</h1><p>Une idée, une refonte ? On écoute.</p></header>
+          <main class="grid">
+            <div class="tile"><small>Email</small><h3>hello@vitrine.example</h3><p>Réponse rapide.</p></div>
+            <div class="tile"><small>RDV</small><h3>30 minutes</h3><p>Cadrage besoin.</p></div>
+            <div class="tile"><small>Livrables</small><h3>Prototype + guide</h3><p>Handoff clair.</p></div>
+            <div class="tile"><small>Engagement</small><h3>Clarté & exigence</h3><p>Sans blabla.</p></div>
+          </main>
+          <footer class="actions"><button class="btn primary">Écrire</button><button class="btn">Prendre RDV</button></footer>
+        </div>
+      </section>
     </div>
 
-    <div class="hint">Glisse latéralement</div>
-
+    <!-- Contrôles -->
     <div class="controls">
       <div class="pill">
         <button class="navbtn" id="prev" aria-label="Précédent">◄</button>
@@ -144,199 +180,84 @@
 </div>
 
 <script>
-/* ——— Données de contenu (modifie ici) ——— */
-const SLIDES = [
-  {
-    title:"Accueil — cap sur l’essentiel",
-    subtitle:"Une vitrine minimaliste et différente : navigation horizontale, cartes focalisées.",
-    tiles:[
-      {k:"Manifeste", v:"Clarté, espace, lisibilité sans surcharge."},
-      {k:"Interaction", v:"Swipe sur mobile, flèches ou clics sur desktop."},
-      {k:"Design", v:"Grille bento, composants sobres, dark-mode natif."},
-      {k:"Perf", v:"Zéro framework, animations GPU 2D, légèreté."},
-    ],
-    cta:["Découvrir","Contact"]
-  },
-  {
-    title:"À propos — notre approche",
-    subtitle:"Créer moins mais mieux : utile, durable, élégant.",
-    tiles:[
-      {k:"Sobriété", v:"Aller à l’essentiel, supprimer le bruit visuel."},
-      {k:"Qualité", v:"Micro-interactions douces, pas d’artifice gratuit."},
-      {k:"Durabilité", v:"Code simple, maintenable, frugal."},
-      {k:"Accessibilité", v:"Clavier, ARIA, tailles fluides."},
-    ],
-    cta:["Notre méthode"]
-  },
-  {
-    title:"Technologie — front léger",
-    subtitle:"Vanilla JS, HTML sémantique, CSS variables.",
-    tiles:[
-      {k:"Composabilité", v:"Modules petits, clairs, testables."},
-      {k:"Intégrations", v:"APIs sobres, analytics éthiques."},
-      {k:"Performance", v:"60fps visés, lazy data."},
-      {k:"Handoff", v:"Guidelines, tokens design, assets."},
-    ],
-    cta:["Voir un proto","Specs"]
-  },
-  {
-    title:"Travaux — sélection",
-    subtitle:"Exemples concrets et résultats.",
-    tiles:[
-      {k:"Produit A", v:"Pilotage simple, vues claires."},
-      {k:"Produit B", v:"Cartes minimalistes, data utile."},
-      {k:"Impact", v:"NPS +18, erreurs -24%."},
-      {k:"Adoption", v:"+31% d’usage hebdo."},
-    ],
-    cta:["Études de cas"]
-  },
-  {
-    title:"Contact — parlons",
-    subtitle:"Un besoin, une idée, une refonte ?",
-    tiles:[
-      {k:"Email", v:"hello@vitrine.example"},
-      {k:"RDV", v:"30 minutes pour cadrer."},
-      {k:"Livrables", v:"Prototype + guideline."},
-      {k:"Engagement", v:"Clarté et exigence."},
-    ],
-    cta:["Écrire","Prendre RDV"]
-  }
-];
-
-/* ——— Elements ——— */
-const rail  = document.getElementById('rail');
-const dots  = document.getElementById('dots');
-const bar   = document.getElementById('bar');
-const prevB = document.getElementById('prev');
-const nextB = document.getElementById('next');
-
+const deck = document.getElementById('deck');
+const rail = document.getElementById('rail');
+const dots = document.getElementById('dots');
+const bar  = document.getElementById('bar');
+const slides = [...rail.children];
 let idx = 0;
 
-/* ——— Render ——— */
-function renderSlides(){
-  rail.innerHTML = "";
-  SLIDES.forEach((s,i)=>{
-    const slide = document.createElement('section');
-    slide.className = 'slide';
-    slide.setAttribute('aria-label', s.title);
-
-    slide.innerHTML = `
-      <div class="card">
-        <header>
-          <h1>${s.title}</h1>
-          <p>${s.subtitle}</p>
-        </header>
-        <main class="grid">
-          ${s.tiles.map(t => `
-            <div class="tile">
-              <small>${t.k}</small>
-              <h3>${t.v}</h3>
-              <p></p>
-            </div>
-          `).join('')}
-        </main>
-        <footer class="actions">
-          ${(s.cta||[]).map((c,j)=> `<button class="btn ${j===0?'primary':''}">${c}</button>`).join('')}
-        </footer>
-      </div>
-    `;
-    rail.appendChild(slide);
-  });
-
+/* Pastilles */
+function renderDots(){
   dots.innerHTML = "";
-  SLIDES.forEach((_,i)=>{
-    const d = document.createElement('button');
-    d.className = 'dot' + (i===idx?' active':'' );
-    d.setAttribute('aria-label', `Aller à la diapositive ${i+1}`);
-    d.addEventListener('click', ()=> go(i));
-    dots.appendChild(d);
+  slides.forEach((_,i)=>{
+    const b = document.createElement('button');
+    b.className = 'dot' + (i===idx?' active':'');
+    b.addEventListener('click', ()=> go(i));
+    dots.appendChild(b);
   });
-
-  update();
 }
 
-/* ——— Navigation ——— */
+/* Aller à une slide (smooth + snap) */
 function go(i){
-  idx = (i + SLIDES.length) % SLIDES.length;
-  rail.style.transform = `translateX(-${idx*100}%)`;
-  update();
+  idx = (i + slides.length) % slides.length;
+  const x = idx * deck.clientWidth;
+  deck.scrollTo({ left: x, behavior: 'smooth' });
+  updateUI();
 }
 
-function update(){
-  // dots & barre de progression
-  [...dots.children].forEach((d,k)=> d.classList.toggle('active', k===idx));
-  bar.style.width = ((idx+1)/SLIDES.length*100)+'%';
-  // focus accessible
-  const currentSlide = rail.children[idx];
-  if(currentSlide){ currentSlide.setAttribute('tabindex','-1'); currentSlide.focus({preventScroll:true}); }
-  // états boutons
-  prevB.disabled = (SLIDES.length<=1);
-  nextB.disabled = (SLIDES.length<=1);
-}
+/* Wheel vertical => scroll horizontal fluide (+ debounce) */
+let wheelLock = false;
+deck.addEventListener('wheel', (e)=>{
+  // on accepte aussi la molette verticale (deltaY)
+  const delta = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+  if(Math.abs(delta) < 8) return;
+  e.preventDefault();   // pour éviter les “sursauts” sur certaines configs
+  if(wheelLock) return;
+  wheelLock = true;
+  delta > 0 ? go(idx+1) : go(idx-1);
+  setTimeout(()=> wheelLock=false, 280);
+},{passive:false});
 
-/* ——— Gestes (mobile) ——— */
-let startX=0, startY=0, isTouch=false, moved=false;
-rail.addEventListener('touchstart', e=>{
-  isTouch=true; moved=false;
-  const t=e.touches[0]; startX=t.clientX; startY=t.clientY;
-},{passive:true});
-
-rail.addEventListener('touchmove', e=>{
-  if(!isTouch) return;
-  const t=e.touches[0]; const dx=t.clientX-startX; const dy=t.clientY-startY;
-  if(Math.abs(dx)>Math.abs(dy) && Math.abs(dx)>20){
-    moved=true;
-    // slide en direct, mais borné pour ne pas “décrocher”
-    rail.style.transition='none';
-    rail.style.transform=`translateX(calc(${-idx*100}% + ${dx}px))`;
-  }
-},{passive:true});
-
-function endSwipe(e){
-  if(!isTouch) return;
-  rail.offsetHeight; // reflow
-  rail.style.transition='';
-  if(moved){
-    const t = (e.changedTouches?e.changedTouches[0]:e).clientX;
-    const dx = t - startX;
-    if(Math.abs(dx)>40){ dx<0 ? go(idx+1) : go(idx-1) }
-    else { go(idx) }
-  }
-  isTouch=false;
-}
-rail.addEventListener('touchend', endSwipe, {passive:true});
-rail.addEventListener('touchcancel', endSwipe, {passive:true});
-
-/* ——— Clavier & boutons ——— */
+/* Clavier */
 window.addEventListener('keydown', e=>{
   if(e.key==='ArrowRight') go(idx+1);
   else if(e.key==='ArrowLeft') go(idx-1);
 });
-prevB.addEventListener('click', ()=> go(idx-1));
-nextB.addEventListener('click', ()=> go(idx+1));
 
-/* ——— Wheel horizontal (trackpads) ——— */
-let wheelLock=false;
-window.addEventListener('wheel', e=>{
-  // autorise trackpads horizontaux, ignore scroll vertical pour éviter la “bagarre”
-  if(wheelLock) return;
-  if(Math.abs(e.deltaX) > Math.abs(e.deltaY)){
-    wheelLock=true;
-    (e.deltaX>0) ? go(idx+1) : go(idx-1);
-    setTimeout(()=> wheelLock=false, 300);
-  }
-},{passive:true});
+/* Boutons */
+document.getElementById('prev').addEventListener('click', ()=> go(idx-1));
+document.getElementById('next').addEventListener('click', ()=> go(idx+1));
 
-/* ——— Init ——— */
-renderSlides();
-go(0);
-
-/* ——— Ajuste la hauteur (iOS safe-area) ——— */
-function resizeVH(){
-  document.documentElement.style.setProperty('--vh', window.innerHeight*0.01 + 'px');
+/* Mise à jour barre & pastilles selon la position de scroll */
+function updateUI(){
+  [...dots.children].forEach((d,k)=> d.classList.toggle('active', k===idx));
+  bar.style.width = ((idx+1)/slides.length*100) + '%';
 }
-window.addEventListener('resize', resizeVH);
-resizeVH();
+
+/* Effet fluide pendant le scroll (mise en avant de la carte proche) */
+function onScroll(){
+  const w = deck.clientWidth;
+  const left = deck.scrollLeft;
+  const center = left + w/2;
+  slides.forEach((s, i)=>{
+    const rect = s.getBoundingClientRect();
+    const slideCenter = rect.left + rect.width/2;
+    const dist = Math.abs(slideCenter - window.innerWidth/2);
+    s.classList.toggle('is-near', dist < w*0.35);
+  });
+  // index approximatif en direct
+  idx = Math.round(left / w);
+  updateUI();
+}
+deck.addEventListener('scroll', onScroll, {passive:true});
+
+/* Resize = recalcule l’ancrage */
+window.addEventListener('resize', ()=> go(idx));
+
+/* Init */
+renderDots();
+go(0);
 </script>
 </body>
 </html>
