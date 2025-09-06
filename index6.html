@@ -3,78 +3,52 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Flux publics — Dashboard Bento</title>
+<title>Dashboard Bento — Flux publics</title>
 <style>
 :root{
-  --bg1:#0b1021; --bg2:#0a1427; --card:rgba(17,24,39,.85);
+  --bg1:#0b1021; --bg2:#0a1427; --card:rgba(17,24,39,.9);
   --ink:#f1f5f9; --muted:#94a3b8;
   --accent:#22d3ee; --accent2:#10b981; --gold:#d4a65a;
-  --radius:18px;
-  --ring:1px solid rgba(255,255,255,.08);
-  --shadow1:0 6px 18px rgba(0,0,0,.35);
-  --shadow2:0 16px 32px rgba(0,0,0,.45);
+  --radius:18px; --ring:1px solid rgba(255,255,255,.08);
+  --shadow1:0 6px 18px rgba(0,0,0,.35); --shadow2:0 16px 32px rgba(0,0,0,.45);
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{
-  font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Arial;
-  background:linear-gradient(180deg,var(--bg1),var(--bg2));
-  color:var(--ink);
-}
+body{font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Arial;
+     background:linear-gradient(180deg,var(--bg1),var(--bg2));color:var(--ink);}
 img{max-width:100%;display:block}
 a{color:var(--accent);text-decoration:none}
 .container{width:min(1200px,92vw);margin:auto}
-header{
-  position:sticky;top:0;z-index:50;
-  background:rgba(10,18,39,.85);
-  backdrop-filter:blur(10px) saturate(140%);
-  border-bottom:var(--ring);
-}
+
+header{position:sticky;top:0;z-index:50;background:rgba(10,18,39,.85);
+       backdrop-filter:blur(10px) saturate(140%);border-bottom:var(--ring)}
 .bar{display:flex;align-items:center;justify-content:space-between;padding:14px 0}
 h1{font-size:clamp(22px,3.2vw,32px)}
-.actions{display:flex;gap:10px}
-.btn{
-  padding:8px 14px;border-radius:12px;
-  background:#1e293b;color:#e2e8f0;border:var(--ring);
-}
+.btn{padding:8px 14px;border-radius:12px;background:#1e293b;color:#e2e8f0;border:var(--ring)}
 .btn:hover{background:#334155}
-.btn.primary{
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-  color:#062227;border:0;font-weight:700;
-}
-.badge{padding:4px 8px;border-radius:999px;background:rgba(255,255,255,.1);font-size:.8rem}
 
-/* Grille Bento */
-.grid{
-  display:grid;
-  grid-template-columns:repeat(12,1fr);
-  gap:18px;
-  margin:24px 0;
-}
+/* Grille bento */
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px;margin:24px 0}
 @media(max-width:1100px){.grid{grid-template-columns:repeat(6,1fr)}}
-@media(max-width:700px){.grid{grid-template-columns:repeat(1,1fr)}}
+@media(max-width:700px){.grid{grid-template-columns:1fr}}
 
-.card{
-  background:var(--card);border:var(--ring);
-  border-radius:var(--radius);box-shadow:var(--shadow1);
-  overflow:hidden;display:flex;flex-direction:column;
-  animation:rise .8s ease both;
-}
+.card{background:var(--card);border:var(--ring);border-radius:var(--radius);
+      box-shadow:var(--shadow1);overflow:hidden;display:flex;flex-direction:column;
+      animation:rise .7s ease both}
 .card:hover{transform:translateY(-3px);box-shadow:var(--shadow2)}
-.card .p{padding:16px}
-.card h2{font-size:clamp(18px,2.6vw,22px);margin:.2rem 0 .5rem}
+.media{aspect-ratio:16/9;overflow:hidden;background:#111;display:grid;place-items:center}
+.media img,.media iframe{width:100%;height:100%;object-fit:cover}
+.p{padding:16px}
+.card h2{font-size:20px;margin:0 0 .4rem}
 .meta{color:var(--muted);font-size:.9rem;margin-bottom:.4rem}
-.media{aspect-ratio:16/9;overflow:hidden;background:#111}
-.media img,.media iframe,.media video{width:100%;height:100%;object-fit:cover}
+.small{font-size:.85rem;color:var(--muted)}
 
-.span12{grid-column:span 12}
-.span8{grid-column:span 8}
-.span6{grid-column:span 6}
-.span4{grid-column:span 4}
+/* Spans */
+.span12{grid-column:span 12}.span8{grid-column:span 8}
+.span6{grid-column:span 6}.span4{grid-column:span 4}
 
 /* Animations */
 @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 
-/* Footer */
 footer{border-top:var(--ring);margin-top:30px}
 .foot{display:flex;justify-content:space-between;align-items:center;padding:16px 0;color:var(--muted);font-size:.9rem}
 </style>
@@ -82,89 +56,60 @@ footer{border-top:var(--ring);margin-top:30px}
 <body>
 <header>
   <div class="container bar">
-    <h1>🌍 Flux publics — Dashboard</h1>
-    <div class="actions">
-      <button class="btn" id="refreshBtn">↻ Rafraîchir</button>
-    </div>
+    <h1>🌍 Dashboard — Flux publics</h1>
+    <button class="btn" id="refreshBtn">↻ Rafraîchir</button>
   </div>
 </header>
 
 <main class="container grid">
-  <!-- NASA APOD -->
   <article class="card span8" id="apodCard">
     <div class="media" id="apodMedia"><span class="p">Chargement NASA APOD…</span></div>
-    <div class="p">
-      <h2>NASA APOD</h2>
-      <div class="meta" id="apodMeta"></div>
-      <p id="apodDesc"></p>
-    </div>
+    <div class="p"><h2>NASA APOD</h2><div class="meta" id="apodMeta"></div><p id="apodDesc"></p></div>
   </article>
 
-  <!-- Wikimedia POTD -->
   <article class="card span4" id="potdCard">
     <div class="media" id="potdMedia"><span class="p">Chargement POTD…</span></div>
-    <div class="p">
-      <h2>Wikimedia Picture of the Day</h2>
-      <div class="meta" id="potdMeta"></div>
-      <p id="potdDesc"></p>
-    </div>
+    <div class="p"><h2>Wikimedia POTD</h2><div class="meta" id="potdMeta"></div><p id="potdDesc"></p></div>
   </article>
 
-  <!-- ESA -->
   <article class="card span6" id="esaCard">
     <div class="media" id="esaMedia"><span class="p">Chargement ESA…</span></div>
-    <div class="p">
-      <h2>ESA — Image of the Week</h2>
-      <div class="meta" id="esaMeta"></div>
-    </div>
+    <div class="p"><h2>ESA Image of the Week</h2><div class="meta" id="esaMeta"></div></div>
   </article>
 
-  <!-- AFP -->
   <article class="card span6" id="afpCard">
-    <div class="p">
-      <h2>AFP — Dernières dépêches</h2>
-      <ul id="afpList" style="list-style:none;display:grid;gap:6px;margin:0;padding:0"></ul>
+    <div class="p"><h2>AFP — Dernières dépêches</h2>
+      <ul id="afpList" style="list-style:none;display:grid;gap:6px;padding:0;margin:0"></ul>
     </div>
   </article>
 
-  <!-- Met Museum -->
   <article class="card span6" id="metCard">
     <div class="media" id="metMedia"><span class="p">Chargement Met…</span></div>
-    <div class="p">
-      <h2>Metropolitan Museum of Art</h2>
-      <div class="meta" id="metMeta"></div>
-    </div>
+    <div class="p"><h2>Met Museum</h2><div class="meta" id="metMeta"></div></div>
   </article>
 
-  <!-- USGS Séismes -->
   <article class="card span6" id="eqCard">
-    <div class="p">
-      <h2>Séismes récents (USGS)</h2>
-      <ul id="eqList" style="list-style:none;display:grid;gap:6px;margin:0;padding:0"></ul>
+    <div class="p"><h2>Séismes récents (USGS)</h2>
+      <ul id="eqList" style="list-style:none;display:grid;gap:6px;padding:0;margin:0"></ul>
     </div>
   </article>
 
-  <!-- SpaceX -->
   <article class="card span6" id="spxCard">
-    <div class="p">
-      <h2>SpaceX — Dernier lancement</h2>
-      <div class="meta" id="spxMeta"></div>
-      <div id="spxContent"></div>
+    <div class="p"><h2>SpaceX — Dernier lancement</h2>
+      <div class="meta" id="spxMeta"></div><div id="spxContent"></div>
     </div>
   </article>
 
-  <!-- Open-Meteo -->
   <article class="card span6" id="wxCard">
-    <div class="p">
-      <h2>Météo extrêmes (Open-Meteo)</h2>
-      <ul id="wxList" style="list-style:none;display:grid;gap:6px;margin:0;padding:0"></ul>
+    <div class="p"><h2>Météo extrêmes</h2>
+      <ul id="wxList" style="list-style:none;display:grid;gap:6px;padding:0;margin:0"></ul>
     </div>
   </article>
 </main>
 
 <footer>
   <div class="container foot">
-    <div>© Dashboard flux publics — NASA, ESA, AFP, Met, USGS, Open-Meteo, SpaceX, Wikimedia</div>
+    <div>© Flux publics — NASA, ESA, AFP, Met, USGS, SpaceX, Open-Meteo</div>
     <div>Made with ♥</div>
   </div>
 </footer>
@@ -175,25 +120,25 @@ const $=s=>document.querySelector(s);
 /* NASA APOD */
 async function loadAPOD(){
   try{
-    const url=`https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY&thumbs=true`;
-    const j=await (await fetch(url)).json();
-    $('#apodMedia').innerHTML = j.media_type==="video"
+    const j=await (await fetch("https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY&thumbs=true")).json();
+    $('#apodMedia').innerHTML=j.media_type==="video"
       ? `<iframe src="${j.url}" frameborder="0" allowfullscreen></iframe>`
       : `<img src="${j.hdurl||j.url}" alt="${j.title}">`;
     $('#apodMeta').textContent=`${j.title} — ${j.date}`;
-    $('#apodDesc').textContent=j.explanation;
+    $('#apodDesc').textContent=j.explanation||"";
   }catch(e){$('#apodMedia').innerHTML="<div class='p'>Échec NASA APOD</div>";}
 }
 
 /* Wikimedia POTD */
 async function loadPOTD(){
-  const d=new Date(), y=d.getFullYear(), m=(d.getMonth()+1).toString().padStart(2,"0"), day=d.getDate().toString().padStart(2,"0");
-  const url=`https://commons.wikimedia.org/api/rest_v1/page/picture-of-the-day/${y}/${m}/${day}`;
+  const d=new Date();
+  const url=`https://commons.wikimedia.org/api/rest_v1/feed/featured/${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,"0")}/${String(d.getDate()).padStart(2,"0")}`;
   try{
     const j=await (await fetch(url)).json();
-    $('#potdMedia').innerHTML=`<img src="${j.image.source}" alt="${j.title}">`;
-    $('#potdMeta').textContent=j.title;
-    $('#potdDesc').textContent=j.description.text||"";
+    const pic=j?.image?.image?.source||j?.tfa?.thumbnail?.source;
+    $('#potdMedia').innerHTML=pic?`<img src="${pic}" alt="POTD">`:"";
+    $('#potdMeta').textContent=j?.tfa?.title||"";
+    $('#potdDesc').textContent=j?.tfa?.extract||"";
   }catch(e){$('#potdMedia').innerHTML="<div class='p'>Échec Wikimedia</div>";}
 }
 
@@ -204,9 +149,8 @@ async function loadESA(){
     const doc=new DOMParser().parseFromString(txt,"application/xml");
     const item=doc.querySelector("item");
     const title=item.querySelector("title").textContent;
-    const desc=item.querySelector("description").textContent;
-    const img=desc.match(/<img.*?src="(.*?)"/i);
-    $('#esaMedia').innerHTML=img?`<img src="${img[1]}" alt="${title}">`:"";
+    const link=item.querySelector("link").textContent;
+    $('#esaMedia').innerHTML=`<a href="${link}" target="_blank" class="p small">Voir sur ESA</a>`;
     $('#esaMeta').textContent=title;
   }catch(e){$('#esaMedia').innerHTML="<div class='p'>Échec ESA</div>";}
 }
@@ -239,7 +183,7 @@ async function loadEQ(){
     const top=j.features.sort((a,b)=>b.properties.mag-a.properties.mag).slice(0,5);
     $('#eqList').innerHTML=top.map(f=>{
       const d=new Date(f.properties.time);
-      return `<li>${f.properties.mag.toFixed(1)} — ${f.properties.place} <span class="meta">(${d.toLocaleString()})</span></li>`;
+      return `<li>${f.properties.mag.toFixed(1)} — ${f.properties.place} <span class="small">(${d.toLocaleString()})</span></li>`;
     }).join("");
   }catch(e){$('#eqList').innerHTML="<li>Échec USGS</li>";}
 }
@@ -249,27 +193,45 @@ async function loadSPX(){
   try{
     const j=await (await fetch("https://api.spacexdata.com/v5/launches/latest")).json();
     $('#spxMeta').textContent=`${j.name} — ${new Date(j.date_utc).toLocaleString()}`;
-    $('#spxContent').innerHTML=`${j.details||"Pas de détails."} <br><a href="${j.links.webcast}" target="_blank">Webcast</a>`;
+    $('#spxContent').innerHTML=j.details||"Pas de détails.";
   }catch(e){$('#spxMeta').textContent="Échec SpaceX";}
 }
 
 /* Open-Meteo extrêmes */
+const cities=[
+  {name:"Riyad, Arabie Saoudite",lat:24.7,lon:46.7},
+  {name:"Koweït City, Koweït",lat:29.3,lon:47.5},
+  {name:"Dubaï, EAU",lat:25.2,lon:55.3},
+  {name:"New Delhi, Inde",lat:28.6,lon:77.2},
+  {name:"Le Caire, Égypte",lat:30.0,lon:31.2},
+  {name:"Moscou, Russie",lat:55.7,lon:37.6},
+  {name:"Oulan-Bator, Mongolie",lat:47.9,lon:106.9},
+  {name:"Montréal, Canada",lat:45.5,lon:-73.6},
+  {name:"Anchorage, USA",lat:61.2,lon:-149.9},
+  {name:"Sydney, Australie",lat:-33.9,lon:151.2},
+  {name:"Santiago, Chili",lat:-33.4,lon:-70.6},
+  {name:"Casablanca, Maroc",lat:33.6,lon:-7.6}
+];
 async function loadWX(){
-  try{
-    const url="https://api.open-meteo.com/v1/forecast?latitude=35&longitude=0&daily=temperature_2m_max,temperature_2m_min,windspeed_10m_max&forecast_days=1&timezone=auto";
-    const j=await (await fetch(url)).json();
-    const d=j.daily;
-    $('#wxList').innerHTML=`
-      <li>Température max : ${d.temperature_2m_max[0]}°C</li>
-      <li>Température min : ${d.temperature_2m_min[0]}°C</li>
-      <li>Vent max : ${d.windspeed_10m_max[0]} km/h</li>
-    `;
-  }catch(e){$('#wxList').innerHTML="<li>Échec Open-Meteo</li>";}
+  $('#wxList').innerHTML="Chargement météo…";
+  let maxT=-999,minT=999,hot={},cold={};
+  for(const c of cities){
+    try{
+      const url=`https://api.open-meteo.com/v1/forecast?latitude=${c.lat}&longitude=${c.lon}&daily=temperature_2m_max,temperature_2m_min&forecast_days=1&timezone=auto`;
+      const j=await (await fetch(url)).json();
+      const tmax=j.daily.temperature_2m_max[0];
+      const tmin=j.daily.temperature_2m_min[0];
+      if(tmax>maxT){maxT=tmax;hot={city:c.name,temp:tmax};}
+      if(tmin<minT){minT=tmin;cold={city:c.name,temp:tmin};}
+    }catch(e){}
+  }
+  $('#wxList').innerHTML=`
+    <li>🌡️ Plus chaud : ${hot.temp}°C à ${hot.city}</li>
+    <li>❄️ Plus froid : ${cold.temp}°C à ${cold.city}</li>`;
 }
 
-function refreshAll(){
-  loadAPOD();loadPOTD();loadESA();loadAFP();loadMet();loadEQ();loadSPX();loadWX();
-}
+/* Refresh all */
+function refreshAll(){loadAPOD();loadPOTD();loadESA();loadAFP();loadMet();loadEQ();loadSPX();loadWX();}
 $('#refreshBtn').onclick=refreshAll;
 refreshAll();
 </script>
