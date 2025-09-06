@@ -3,679 +3,347 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Portfolio Démo — Hyper Futuriste</title>
-<meta name="description" content="Portfolio rouge & noir ultra-futuriste : starfield 3D, néon grid, matrix rain, auroras, particles trail, 3D tilt, WAAPI.">
+<title>Tunnel 3D Scroll — Zoom In/Out</title>
+<meta name="description" content="Scroll = avance caméra : éléments arrivent du fond vers le premier plan puis sortent du cadre.">
 <style>
   :root{
-    --bg:#08080a;
-    --panel:#0e0e12;
+    --bg:#0a0b0f;
     --ink:#ececf1;
-    --muted:#a7a7b3;
-    --primary:#ff1f43; /* rouge neon */
-    --primary-2:#ff4d6a;
-    --accent:#19fff0;  /* cyan holo pour reflets */
-    --line:#1b1b22;
+    --muted:#a7a7b5;
+    --primary:#ff1f43;
+    --panel:#111219;
     --radius:14px;
-    --speed:.45s cubic-bezier(.2,.8,.2,1);
   }
   *{box-sizing:border-box}
-  html,body{height:100%}
+  html,body{height:100%; margin:0}
   body{
-    margin:0; color:var(--ink);
-    background: var(--bg);
-    font:15px/1.6 Inter, system-ui, Segoe UI, Roboto, Ubuntu, Arial, sans-serif;
+    background:
+      radial-gradient(900px 400px at 80% -10%, rgba(255,31,67,.12), transparent),
+      radial-gradient(800px 400px at 10% 30%, rgba(255,31,67,.08), transparent),
+      var(--bg);
+    color:var(--ink); font:15px/1.6 Inter, system-ui, Segoe UI, Roboto, Ubuntu, Arial, sans-serif;
     overflow-x:hidden;
   }
   a{color:inherit; text-decoration:none}
-  img{max-width:100%; display:block}
 
-  /* ================= GLOBAL FX LAYERS ================= */
-  /* Scroll progress */
-  .scrollbar{
-    position:fixed; inset:0 0 auto 0; height:3px; z-index:2000; background:linear-gradient(90deg,var(--primary),#ffabb9);
-    transform-origin:0 0; transform:scaleX(0);
-    box-shadow:0 0 18px rgba(255,31,67,.6);
+  /* Viewport fixé : on “épingle” l’affichage */
+  .viewport{
+    position:fixed; inset:0; overflow:hidden;
+    perspective: 1200px; perspective-origin: 50% 50%;
+    /* pour un effet plus "zoom", baisse la perspective (900px, 700px…) */
   }
 
-  /* Multi-layer background stack (behind everything) */
-  .fx-stack{ position:fixed; inset:0; z-index:-5; pointer-events:none; overflow:hidden }
-  /* Starfield canvas */
-  #starfield{ position:absolute; inset:0; filter:saturate(1.1) brightness(1.1); }
-  /* Neon grid floor */
-  .neon-grid{
-    position:absolute; inset:auto -30vw -35vh -30vw; height:70vh;
-    background:
-      repeating-linear-gradient(90deg, rgba(255,31,67,.18) 0 2px, rgba(255,31,67,0) 2px 90px),
-      repeating-linear-gradient(0deg, rgba(255,31,67,.16) 0 2px, rgba(255,31,67,0) 2px 90px);
-    transform:perspective(900px) rotateX(68deg) translateZ(0);
-    box-shadow:0 -40px 120px rgba(255,31,67,.18) inset;
-    opacity:.55;
-    animation:grid-glow 6s ease-in-out infinite alternate;
+  /* Scène 3D : on déplace la caméra le long de Z (en fait on translate la scène) */
+  .scene{
+    position:absolute; inset:0;
+    transform-style:preserve-3d;
+    will-change: transform;
   }
-  @keyframes grid-glow { to { filter:drop-shadow(0 0 14px rgba(255,31,67,.45)) } }
 
-  /* Aurora layers */
-  .aurora, .aurora2{
-    position:absolute; inset:-20% -30% auto -30%; height:80%;
-    background:
-      radial-gradient(50% 60% at 20% 60%, rgba(255,31,67,.20), transparent 60%),
-      conic-gradient(from 120deg, rgba(25,255,240,.18), rgba(255,31,67,.12), rgba(25,255,240,.12), rgba(255,31,67,.18));
-    mix-blend-mode:screen; filter:blur(18px) saturate(1.2);
-    animation:aurora 16s ease-in-out infinite;
-    opacity:.65;
+  /* HUD / overlay fixe */
+  header{
+    position:fixed; top:0; left:0; right:0; z-index:10;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 16px;
+    background:linear-gradient(to bottom, rgba(10,11,15,.6), rgba(10,11,15,0));
+    border-bottom:1px solid rgba(255,255,255,.05);
+    backdrop-filter: blur(8px) saturate(1.1);
   }
-  .aurora2{ inset:auto -15% -10% -15%; height:70%; animation-duration:22s; animation-direction:reverse; opacity:.5 }
-  @keyframes aurora { 50%{ transform:translateY(-2%) skewX(2deg) rotate(2deg)} }
+  .brand{display:flex; gap:10px; align-items:center; font-weight:800; letter-spacing:.5px}
+  .dot{width:12px; height:12px; border-radius:50%;
+    background:radial-gradient(circle at 30% 30%, #fff, #fff0 30%),
+               linear-gradient(180deg, var(--primary), #b3122b);
+    box-shadow:0 0 18px rgba(255,31,67,.55);
+  }
+  .hud{
+    display:flex; align-items:center; gap:10px; color:#d4d4de; font-size:13px;
+  }
+  .bar{
+    width:160px; height:6px; border-radius:999px; background:#1a1b24; overflow:hidden; border:1px solid #23232f;
+  }
+  .bar>i{display:block; height:100%; width:0%; background:linear-gradient(90deg,var(--primary),#ff94a7)}
 
-  /* Noise + scanlines */
+  /* Cartes/éléments 3D */
+  .layer{
+    position:absolute; top:50%; left:50%;
+    transform-style:preserve-3d;
+    transform: translate(-50%,-50%) translateZ(var(--z, 0px)) scale(var(--s,1)) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));
+    opacity:var(--o,1);
+    filter: blur(var(--blur, 0px)) saturate(1.05);
+    transition: filter .1s linear;
+    will-change: transform, opacity, filter;
+  }
+
+  .card{
+    min-width: min(520px, 86vw);
+    padding:18px;
+    border-radius:var(--radius);
+    background:linear-gradient(180deg, #161823, #0f1118);
+    border:1px solid #222436;
+    box-shadow:
+      0 24px 60px rgba(0,0,0,.5),
+      inset 0 0 40px rgba(255,255,255,.04);
+  }
+  .card h2{margin:.2rem 0 .4rem; font-size:22px}
+  .card p{color:var(--muted); margin:.2rem 0}
+
+  /* Vignettes / puces */
+  .chip{display:inline-block; padding:4px 8px; border-radius:999px; font-size:12px;
+        background:#1a0d11; color:#ffb2bf; border:1px solid #2a1419; margin-right:6px}
+
+  /* Astuces UI */
+  .hint{
+    position:fixed; left:50%; bottom:16px; transform:translateX(-50%); z-index:10;
+    color:#c8c8d5; font-size:13px; opacity:.85; user-select:none;
+    backdrop-filter: blur(6px); background:rgba(10,11,15,.35); border:1px solid rgba(255,255,255,.06);
+    padding:8px 10px; border-radius:999px;
+  }
+
+  /* Grand espace de scroll “virtuel” pour piloter la caméra */
+  .scrollspace{ height: 8000px } /* ajuste la longueur du voyage */
+
+  /* Discret grain + halo pour futurisme */
   .grain{
-    position:fixed; inset:-40px; z-index:-1; opacity:.06; mix-blend-mode:soft-light; pointer-events:none;
+    position:fixed; inset:-40px; z-index:0; opacity:.06; pointer-events:none; mix-blend-mode:soft-light;
     background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="140" height="140"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2"/></filter><rect width="100%" height="100%" filter="url(%23n)"/></svg>');
     animation:grain 6s steps(2) infinite;
   }
-  @keyframes grain{ to{ transform:translate(50px,0) } }
+  @keyframes grain{to{transform:translate(50px,0)}}
 
-  .scanlines{
-    position:fixed; inset:0; pointer-events:none; z-index:-1; opacity:.07;
-    background:repeating-linear-gradient(180deg, rgba(255,255,255,.25) 0 1px, transparent 1px 3px);
+  /* Responsive tweaks */
+  @media (max-width:560px){
+    .card{min-width: 92vw}
   }
-
-  /* ================= NAV ================= */
-  header{
-    position:sticky; top:0; z-index:100; backdrop-filter:blur(10px) saturate(1.3);
-    background:linear-gradient(to bottom, rgba(8,8,10,.85), rgba(8,8,10,.25) 60%, transparent);
-    border-bottom:1px solid rgba(255,255,255,.06);
-  }
-  .nav{ max-width:1200px; margin:auto; padding:14px clamp(14px,3vw,26px); display:flex; align-items:center; justify-content:space-between; gap:12px }
-  .brand{ display:flex; align-items:center; gap:12px; font-weight:800; letter-spacing:.6px }
-  .logo{
-    width:34px; aspect-ratio:1; border-radius:12px; position:relative; overflow:hidden;
-    background:linear-gradient(135deg, var(--primary), #b3122b 60%);
-    box-shadow:0 10px 22px rgba(255,31,67,.35), inset 0 0 26px rgba(255,255,255,.12);
-  }
-  .logo::after{
-    content:""; position:absolute; inset:-1px; border-radius:12px;
-    background:conic-gradient(from 180deg, rgba(255,255,255,.16), rgba(255,255,255,0) 40% 90%, rgba(255,255,255,.16));
-    animation:spin 6s linear infinite;
-  }
-  @keyframes spin{to{transform:rotate(1turn)}}
-
-  .nav a{
-    padding:10px 14px; border-radius:10px; color:#c7c7d2; position:relative; overflow:hidden;
-    transition:color var(--speed), background var(--speed), transform .25s;
-  }
-  .nav a:hover{ color:#fff; background:#14141a }
-  .nav a::after{
-    content:""; position:absolute; inset:auto 0 0 0; height:2px; background:linear-gradient(90deg, var(--primary), var(--accent));
-    transform:translateY(4px) scaleX(0); transform-origin:0 0; transition:transform .35s cubic-bezier(.2,.8,.2,1);
-  }
-  .nav a:hover::after{ transform:translateY(0) scaleX(1) }
-  .cta{
-    position:relative; padding:11px 16px; border-radius:999px; font-weight:800; letter-spacing:.5px;
-    background:linear-gradient(180deg, var(--primary), #b3122b); color:white;
-    box-shadow:0 12px 30px rgba(255,31,67,.45);
-    transition:transform .2s; transform-style:preserve-3d;
-  }
-  .cta:hover{ transform:translateY(-1px) }
-  .cta.magnet{ --mx:0; --my:0; transform:translate(var(--mx),var(--my)) perspective(700px) rotateX(calc(var(--my)*-0.25)) rotateY(calc(var(--mx)*0.35)) }
-
-  main{ isolation:isolate }
-  .container{ max-width:1200px; margin:auto; padding:0 clamp(16px,3vw,24px) }
-
-  /* ================= HERO ================= */
-  .hero{
-    display:grid; grid-template-columns:1.1fr .9fr; gap:34px; align-items:center; padding:90px 0 64px;
-  }
-  @media (max-width:960px){ .hero{ grid-template-columns:1fr; padding:64px 0 40px } }
-  .tag{ display:inline-flex; gap:8px; align-items:center; padding:6px 10px; color:#ffccd5; background:#221116; border:1px solid #2a161b; border-radius:999px; font-size:12px; letter-spacing:.4px }
-  .glitch{
-    font-size:clamp(32px, 6.5vw, 70px); font-weight:900; line-height:1.05; margin:14px 0; position:relative; display:inline-block;
-    text-shadow:-2px 0 rgba(255,31,67,.55), 2px 0 rgba(255,255,255,.08);
-    filter:drop-shadow(0 8px 26px rgba(255,31,67,.28));
-  }
-  .glitch::before,.glitch::after{
-    content:attr(data-text); position:absolute; inset:0; pointer-events:none; mix-blend-mode:screen;
-  }
-  .glitch::before{ transform:translate3d(-2px,0,0); color:#ff4d6a; clip-path:inset(0 0 55% 0); animation:gl1 3s infinite }
-  .glitch::after{ transform:translate3d(2px,0,0);  color:#fefefe;  clip-path:inset(45% 0 0 0); animation:gl2 3.4s infinite }
-  @keyframes gl1{ 0%,100%{clip-path:inset(0 0 40% 0)} 50%{clip-path:inset(0 0 70% 0)} }
-  @keyframes gl2{ 0%,100%{clip-path:inset(60% 0 0 0)} 50%{clip-path:inset(30% 0 0 0)} }
-  .lead{ font-size:clamp(16px,2.2vw,20px); color:var(--muted); max-width:62ch }
-  .hero-actions{ display:flex; gap:12px; align-items:center; margin-top:18px; flex-wrap:wrap }
-
-  .holo{
-    aspect-ratio:1; width:min(540px, 78vw); margin-inline:auto; border-radius:26px; position:relative; overflow:hidden;
-    background:linear-gradient(180deg,#16161b,#0f0f14);
-    border:1px solid #2a2a36; box-shadow:0 30px 120px rgba(255,31,67,.25), inset 0 0 50px rgba(255,255,255,.06);
-    transform:perspective(900px) rotateX(8deg);
-  }
-  .holo::before{
-    content:""; position:absolute; inset:-20% -20% -20% -20%;
-    background:
-      conic-gradient(from 180deg, rgba(255,31,67,.22), rgba(25,255,240,.14), rgba(255,31,67,.20), rgba(25,255,240,.16));
-    animation:morph 16s ease-in-out infinite;
-    mix-blend-mode:screen; filter:blur(14px);
-  }
-  @keyframes morph{ 50%{ transform:rotate(180deg) scale(1.02) } }
-
-  /* ================= SECTION / TITLES ================= */
-  section{ padding:74px 0; position:relative }
-  .title{ font-size:clamp(18px,2.2vw,22px); letter-spacing:.6px; text-transform:uppercase; color:#ff97a8; display:flex; align-items:center; gap:12px; margin-bottom:18px; }
-  .title::before{ content:""; width:36px; height:2px; background:linear-gradient(90deg, var(--primary), transparent); border-radius:2px; opacity:.7; }
-
-  .grid{ display:grid; gap:16px; grid-template-columns:repeat(12,1fr) }
-
-  /* ================= PROJECT CARDS ================= */
-  .deck{ perspective:1200px; transform-style:preserve-3d }
-  .card{
-    grid-column:span 4; min-height:220px; background:linear-gradient(180deg,#141418,#0f0f14);
-    border:1px solid #1a1a22; border-radius:var(--radius); padding:18px; position:relative; overflow:hidden;
-    box-shadow:0 20px 40px rgba(0,0,0,.45); transition:transform .2s ease, border-color var(--speed), filter .2s ease;
-    transform-style:preserve-3d;
-  }
-  @media (max-width:1100px){ .card{ grid-column:span 6 } }
-  @media (max-width:720px){  .card{ grid-column:span 12 } }
-  .card:hover{ border-color:#2a2a36; filter:drop-shadow(0 12px 22px rgba(255,31,67,.25)) }
-  .card .meta{ display:flex; align-items:center; justify-content:space-between; color:var(--muted); font-size:12px }
-  .card h3{ margin:.2rem 0 .4rem; font-size:18px }
-  .chip{ padding:4px 8px; border-radius:999px; background:#1a0d11; color:#ffb2bf; border:1px solid #2a1419; font-size:12px }
-  .thumb{
-    --glow: rgba(255,31,67,.28);
-    margin-top:10px; border-radius:12px; height:140px; position:relative; overflow:hidden;
-    background:
-      radial-gradient(120% 80% at 80% 0%, var(--glow), transparent 40%),
-      linear-gradient(180deg, #1a1a22, #141419);
-    border:1px solid #1f1f28;
-  }
-  .thumb::after{
-    content:""; position:absolute; inset:-30% -10% auto -10%; height:200%;
-    background:repeating-linear-gradient( 120deg, rgba(255,255,255,.06) 0 2px, transparent 2px 6px);
-    transform:skewY(-10deg) translateY(-20%); opacity:.35; filter:blur(.4px); animation:scan 4s linear infinite;
-  }
-  @keyframes scan{ to{ transform:skewY(-10deg) translateY(-60%) } }
-
-  /* Deck fan-out on hover */
-  .deck:hover .card{ transform:translateZ(0) rotateY(0) }
-  .deck:hover .card:nth-child(1){ transform:translateX(-8px) rotateY(-6deg) }
-  .deck:hover .card:nth-child(2){ transform:translateY(-6px) }
-  .deck:hover .card:nth-child(3){ transform:translateX(8px)  rotateY(6deg) }
-
-  /* ================= SKILLS RINGS ================= */
-  .skills{ grid-template-columns:repeat(4,1fr) }
-  @media (max-width:900px){ .skills{ grid-template-columns:repeat(2,1fr) } }
-  @media (max-width:540px){ .skills{ grid-template-columns:1fr } }
-  .ring{
-    background:linear-gradient(180deg,#141418,#0f0f14); border:1px solid #1a1a22; border-radius:var(--radius);
-    padding:18px; display:flex; align-items:center; gap:18px; box-shadow:0 16px 34px rgba(0,0,0,.45);
-    position:relative; overflow:hidden;
-  }
-  .ring::after{
-    content:""; position:absolute; inset:-1px; border-radius:inherit; pointer-events:none;
-    background:linear-gradient(120deg, rgba(255,31,67,.2), transparent, rgba(25,255,240,.18));
-    mix-blend-mode:screen; opacity:.35;
-  }
-  .ring svg{ width:86px; height:86px; rotate:-90deg; filter:drop-shadow(0 6px 14px rgba(255,31,67,.3)) }
-  .ring .cap{ font-weight:800; letter-spacing:.4px }
-  .ring .desc{ color:var(--muted); font-size:13px }
-
-  /* ================= TIMELINE ================= */
-  .timeline{ position:relative; padding-left:22px; border-left:2px dashed #2a2a33; margin-top:10px }
-  .timeline .item{
-    position:relative; padding:14px 14px 14px 10px; margin:8px 0; background:#111116; border:1px solid #1b1b24; border-radius:12px;
-    transition:transform var(--speed), background var(--speed), border-color var(--speed);
-    clip-path:polygon(0 0, 100% 0, 100% 90%, 98% 100%, 0 100%);
-  }
-  .timeline .item::before{
-    content:""; position:absolute; left:-29px; top:18px; width:12px; height:12px; border-radius:50%;
-    background:radial-gradient(circle at 30% 30%, #fff, #fff0 30%), linear-gradient(180deg,var(--primary),#b3122b);
-    box-shadow:0 0 0 4px #1b0f12, 0 0 0 8px #12080c;
-  }
-  .timeline .item:hover{ transform:translateX(4px); border-color:#292936; background:#101016 }
-
-  /* ================= CONTACT ================= */
-  form{
-    display:grid; gap:12px; grid-template-columns: repeat(2,1fr);
-    background:linear-gradient(180deg,#131317,#0e0e12); border:1px solid #1a1a22; border-radius:var(--radius);
-    padding:18px; box-shadow:0 16px 34px rgba(0,0,0,.45);
-    position:relative; overflow:hidden;
-  }
-  form .full{ grid-column:1/-1 }
-  label{ font-size:12px; color:#ff97a8 }
-  input,textarea{
-    width:100%; padding:12px 12px; border-radius:10px; border:1px solid #22222c; background:#0d0d11; color:var(--ink);
-    outline:none; transition:border var(--speed), background var(--speed), transform .12s;
-  }
-  input:focus,textarea:focus{ border-color:#2b2b38; background:#0f0f14; transform:translateY(-1px) }
-  textarea{ min-height:120px; resize:vertical }
-
-  footer{
-    margin-top:72px; padding:32px 0; color:#9b9baa; border-top:1px solid #17171f; text-align:center;
-    background:linear-gradient(180deg, transparent, #0a0a0c);
-  }
-
-  /* ================= REVEAL ================= */
-  .reveal{ opacity:0; transform:translateY(22px) scale(.98); filter:blur(6px); will-change:transform }
-  .reveal.show{ opacity:1; transform:none; filter:none; transition:opacity .7s var(--speed), transform .7s var(--speed), filter .7s var(--speed) }
-
-  /* ================= CURSOR ================= */
-  .cursor{
-    position:fixed; width:26px; height:26px; border-radius:50%; border:1px solid rgba(255,255,255,.5);
-    pointer-events:none; z-index:3000; mix-blend-mode:difference;
-    transform:translate(-50%,-50%); transition:width .2s,height .2s,border .2s, background .2s, transform .06s linear;
-  }
-  .cursor.active{ width:42px; height:42px; border-color:rgba(255,31,67,.8); background:rgba(255,31,67,.2) }
-  .cursor.hide{ opacity:0 }
-
-  /* ================= UTILITIES ================= */
-  .split{ display:flex; align-items:center; gap:12px; flex-wrap:wrap }
-  .muted{ color:var(--muted) }
-  .spacer{ height:14px }
-
-  /* Section wipes (entrées style “rideau”) */
-  .wipe{
-    position:absolute; inset:0; background:linear-gradient(90deg, rgba(255,31,67,.25), transparent 30% 70%, rgba(25,255,240,.2));
-    transform:translateX(-102%); z-index:-1; pointer-events:none;
-  }
-  .wipe.show{ transition:transform 900ms cubic-bezier(.2,.8,.2,1); transform:translateX(0) }
 </style>
 </head>
 <body>
-<!-- FX layers -->
-<div class="scrollbar" id="scrollbar"></div>
-<div class="fx-stack">
-  <canvas id="starfield" aria-hidden="true"></canvas>
-  <div class="aurora" aria-hidden="true"></div>
-  <div class="aurora2" aria-hidden="true"></div>
-  <div class="neon-grid" aria-hidden="true"></div>
-</div>
-<div class="grain" aria-hidden="true"></div>
-<div class="scanlines" aria-hidden="true"></div>
-<div class="cursor" id="cursor"></div>
-
 <header>
-  <nav class="nav">
-    <div class="brand">
-      <div class="logo" aria-hidden="true"></div>
-      <span>Red&Black FuturX</span>
-    </div>
-    <div class="split" role="navigation" aria-label="Sections">
-      <a href="#projets">Projets</a>
-      <a href="#skills">Compétences</a>
-      <a href="#timeline">Parcours</a>
-      <a href="#contact" class="cta magnet">Me contacter</a>
-    </div>
-  </nav>
+  <div class="brand"><span class="dot" aria-hidden="true"></span> Tunnel 3D — Démo</div>
+  <div class="hud">
+    <span>Profondeur</span>
+    <div class="bar" aria-label="Progression de profondeur"><i id="prog"></i></div>
+    <span id="depthVal">Z: 0m</span>
+  </div>
 </header>
 
-<main class="container">
-  <!-- HERO -->
-  <section class="hero">
-    <div class="left reveal">
-      <span class="tag"><span>⚡</span> Démo hyper-futuriste • Web Vanilla</span>
-      <h1 class="glitch" data-text="Neon Motion. Holograms. Impact.">Neon Motion. Holograms. Impact.</h1>
-      <p class="lead">
-        Showroom <strong>rouge & noir</strong> boosté : Starfield 3D, Grille néon, Auroras,
-        “Matrix rain”, traînée de particules, *parallax/tilt* 3D, micro-interactions WAAPI,
-        transitions en *wipes* et <b>Turbo Mode</b> (<kbd>T</kbd>).
-      </p>
-      <div class="hero-actions">
-        <a class="cta magnet" href="#projets">Voir les projets</a>
-        <a class="navbtn" href="#skills" style="border:1px solid #262631; padding:11px 14px; border-radius:999px; color:#c6c6d1;">Explorer les skills →</a>
-      </div>
-      <div class="spacer"></div>
-      <p class="muted">Raccourcis : <kbd>T</kbd> Turbo • <kbd>M</kbd> Matrix • <kbd>G</kbd> Particles++ • <kbd>X</kbd> X-Ray grid</p>
-    </div>
-    <div class="right reveal">
-      <div class="holo" aria-hidden="true"></div>
-    </div>
-  </section>
-
-  <!-- PROJECTS -->
-  <section id="projets">
-    <div class="wipe" id="wipe1" aria-hidden="true"></div>
-    <h2 class="title">Projets en vitrine</h2>
-    <div class="grid deck">
-      <article class="card reveal tilt" tabindex="0" aria-label="Projet A — Canvas Particles">
-        <div class="meta"><span class="chip">Canvas</span><span>2025</span></div>
-        <h3>FX Particles</h3>
-        <p class="muted">Particules, liens, attracteurs, réactivité pointeur.</p>
-        <div class="thumb"></div>
-      </article>
-      <article class="card reveal tilt" tabindex="0" aria-label="Projet B — Web Animations API">
-        <div class="meta"><span class="chip">WAAPI</span><span>2025</span></div>
-        <h3>Micro-interactions</h3>
-        <p class="muted">Timelines fluides, hover & scroll orchestrés.</p>
-        <div class="thumb"></div>
-      </article>
-      <article class="card reveal tilt" tabindex="0" aria-label="Projet C — IntersectionObserver">
-        <div class="meta"><span class="chip">IO</span><span>2025</span></div>
-        <h3>Scroll-reveal</h3>
-        <p class="muted">Révélations progressives, performantes et accessibles.</p>
-        <div class="thumb"></div>
-      </article>
-    </div>
-  </section>
-
-  <!-- SKILLS RINGS -->
-  <section id="skills">
-    <div class="wipe" id="wipe2" aria-hidden="true"></div>
-    <h2 class="title">Compétences clés</h2>
-    <div class="grid skills">
-      <div class="ring reveal">
-        <svg viewBox="0 0 100 100" aria-hidden="true">
-          <circle cx="50" cy="50" r="42" stroke="#1e1e28" stroke-width="10" fill="none"/>
-          <circle class="meter" data-val="94" cx="50" cy="50" r="42" stroke="url(#g1)" stroke-width="10" fill="none" stroke-linecap="round" />
-          <defs><linearGradient id="g1" x1="0" x2="1"><stop offset="0" stop-color="#ff1f43"/><stop offset="1" stop-color="#ff8599"/></linearGradient></defs>
-        </svg>
-        <div><div class="cap">HTML/CSS</div><div class="desc">Grilles, animations complexes, A11y.</div></div>
-      </div>
-      <div class="ring reveal">
-        <svg viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r="42" stroke="#1e1e28" stroke-width="10" fill="none"/>
-          <circle class="meter" data-val="90" cx="50" cy="50" r="42" stroke="url(#g2)" stroke-width="10" fill="none" stroke-linecap="round" />
-          <defs><linearGradient id="g2" x1="0" x2="1"><stop offset="0" stop-color="#ff1f43"/><stop offset="1" stop-color="#ff8599"/></linearGradient></defs>
-        </svg>
-        <div><div class="cap">JavaScript</div><div class="desc">Canvas, WAAPI, IO, Patterns.</div></div>
-      </div>
-      <div class="ring reveal">
-        <svg viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r="42" stroke="#1e1e28" stroke-width="10" fill="none"/>
-          <circle class="meter" data-val="84" cx="50" cy="50" r="42" stroke="url(#g3)" stroke-width="10" fill="none" stroke-linecap="round" />
-          <defs><linearGradient id="g3" x1="0" x2="1"><stop offset="0" stop-color="#ff1f43"/><stop offset="1" stop-color="#ff8599"/></linearGradient></defs>
-        </svg>
-        <div><div class="cap">Perf</div><div class="desc">60 FPS, lazy, throttles.</div></div>
-      </div>
-      <div class="ring reveal">
-        <svg viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r="42" stroke="#1e1e28" stroke-width="10" fill="none"/>
-          <circle class="meter" data-val="88" cx="50" cy="50" r="42" stroke="url(#g4)" stroke-width="10" fill="none" stroke-linecap="round" />
-          <defs><linearGradient id="g4" x1="0" x2="1"><stop offset="0" stop-color="#ff1f43"/><stop offset="1" stop-color="#ff8599"/></linearGradient></defs>
-        </svg>
-        <div><div class="cap">Motion</div><div class="desc">Parallax, tilt, wipes, chroma FX.</div></div>
+<!-- Viewport fixe et scène 3D -->
+<div class="viewport" aria-hidden="false" aria-label="Scène 3D">
+  <div class="scene" id="scene">
+    <!-- LAYERS — data-z = position initiale le long de Z (négative = loin, positive = vers l'avant) -->
+    <!-- On répartit les couches tous les ~800px en Z -->
+    <div class="layer" data-z="-4000">
+      <div class="card">
+        <span class="chip">Intro</span>
+        <h2>Bienvenue dans le tunnel 3D</h2>
+        <p>Scrollez pour “avancer” : les cartes viennent du fond vers vous, deviennent nettes et repartent.</p>
       </div>
     </div>
-  </section>
 
-  <!-- TIMELINE -->
-  <section id="timeline">
-    <div class="wipe" id="wipe3" aria-hidden="true"></div>
-    <h2 class="title">Parcours sélectif</h2>
-    <div class="timeline">
-      <div class="item reveal"><strong>2025</strong> — Moteur starfield+matrix en Canvas, contrôlé au clavier.</div>
-      <div class="item reveal"><strong>2024</strong> — Lib WAAPI interne pour micro-interactions.</div>
-      <div class="item reveal"><strong>2023</strong> — Design system sombre “Neon Noir”.</div>
-      <div class="item reveal"><strong>2022</strong> — Toolkit A11y : skip links, focus guards.</div>
+    <div class="layer" data-z="-3200">
+      <div class="card">
+        <span class="chip">Concept</span>
+        <h2>Caméra → Z</h2>
+        <p>La caméra progresse en profondeur. Perspective CSS, <code>translateZ</code>, et échelle ≈ distance.</p>
+      </div>
     </div>
-  </section>
 
-  <!-- CONTACT -->
-  <section id="contact">
-    <div class="wipe" id="wipe4" aria-hidden="true"></div>
-    <h2 class="title">Contact</h2>
-    <form novalidate>
-      <div>
-        <label for="nom">Nom</label>
-        <input id="nom" name="nom" required placeholder="Votre nom" autocomplete="name" />
+    <div class="layer" data-z="-2400">
+      <div class="card">
+        <span class="chip">FX</span>
+        <h2>Netteté & Opacité</h2>
+        <p>Plus un élément est loin, plus il est petit, flou et transparent. Quand il passe au plan 0, il est net.</p>
       </div>
-      <div>
-        <label for="mail">Email</label>
-        <input id="mail" name="mail" type="email" required placeholder="vous@domaine.com" autocomplete="email" />
-      </div>
-      <div class="full">
-        <label for="msg">Message</label>
-        <textarea id="msg" name="msg" required placeholder="Votre message…"></textarea>
-      </div>
-      <div class="full split">
-        <button type="submit" class="cta magnet">Envoyer</button>
-        <span class="muted">Démo locale — aucune donnée envoyée.</span>
-      </div>
-    </form>
-  </section>
-</main>
+    </div>
 
-<footer>
-  <div class="container">
-    © 2025 • FuturX — Appuyez sur <kbd>T</kbd> Turbo • <kbd>M</kbd> Matrix • <kbd>G</kbd> Particles++ • <kbd>X</kbd> X-Ray.
+    <div class="layer" data-z="-1600">
+      <div class="card">
+        <span class="chip">Timing</span>
+        <h2>Fenêtre unique, scènes qui “entrent”</h2>
+        <p>Le viewport est fixé. Les anciens éléments sortent du cadre en arrière-plan.</p>
+      </div>
+    </div>
+
+    <div class="layer" data-z="-800">
+      <div class="card">
+        <span class="chip">Motion</span>
+        <h2>Léger Tilt Parallaxe</h2>
+        <p>Inclinaison subtile au pointeur pour apporter du relief, sans gêner la lisibilité.</p>
+      </div>
+    </div>
+
+    <div class="layer" data-z="0">
+      <div class="card">
+        <span class="chip">Focus</span>
+        <h2>Plan Z = 0</h2>
+        <p>Ici, l’élément est “au premier plan” : taille 1, netteté max, opacité 1.</p>
+      </div>
+    </div>
+
+    <div class="layer" data-z="800">
+      <div class="card">
+        <span class="chip">Suite</span>
+        <h2>Sortie progressive</h2>
+        <p>En poursuivant, la carte passe devant vous et s’éloigne (rétrécit, redevient floue).</p>
+      </div>
+    </div>
+
+    <div class="layer" data-z="1600">
+      <div class="card">
+        <span class="chip">Custom</span>
+        <h2>Ajoutez vos scènes</h2>
+        <p>Dupliquez une <code>.layer</code> et réglez <code>data-z</code> par pas de 700~900 pour rythmer le voyage.</p>
+      </div>
+    </div>
+
+    <div class="layer" data-z="2400">
+      <div class="card">
+        <span class="chip">Fin</span>
+        <h2>Atterrissage</h2>
+        <p>On arrive au bout. Haut/Bas = +/- profondeur. PgUp/PgDn sautent d’une scène.</p>
+      </div>
+    </div>
   </div>
-</footer>
+</div>
 
-<!-- Matrix rain canvas -->
-<canvas id="matrix" aria-hidden="true" style="position:fixed; inset:0; z-index:-3; opacity:.0; pointer-events:none;"></canvas>
+<!-- Espace de scroll virtuel pour piloter la profondeur -->
+<div class="scrollspace" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<div class="hint">🖱️ Scrollez • ⌨️ ↑/↓ • PgUp/PgDn • (mobile : glissez)</div>
 
 <script>
-/* ========== Helpers ========== */
-const lerp = (a,b,t)=>a+(b-a)*t;
-
-/* ========== Scroll progress bar ========== */
+/*
+  Principe :
+  - Le viewport est FIXE (position:fixed).
+  - On mappe le scroll (page “fantôme”) à une profondeur caméra (cameraZ).
+  - Chaque .layer a un data-z (sa position “monde”).
+  - On calcule depth = layerZ - cameraZ, puis :
+      scale ≈ clamp( 1 / (1 + depth/1000) , 0.25..2 )
+      opacity, blur en fonction de |depth|
+      translateZ = depth (pour la perspective)
+*/
 (function(){
-  const bar = document.getElementById('scrollbar');
-  const onscroll = ()=>{
-    const h = document.documentElement;
-    const p = h.scrollTop / (h.scrollHeight - h.clientHeight || 1);
-    bar.style.transform = `scaleX(${p})`;
+  const scene = document.getElementById('scene');
+  const layers = Array.from(document.querySelectorAll('.layer'));
+  const prog = document.getElementById('prog');
+  const depthText = document.getElementById('depthVal');
+
+  // Réglages “physiques”
+  const config = {
+    // Profondeur totale pilotée par la hauteur de scrollspace (voir CSS)
+    // On mappe 0..scrollMax -> cameraZ range.
+    zMin: -4500,     // départ loin
+    zMax:  3000,     // arrivée devant
+    blurMax: 12,     // px
+    visibilityZ: 2600, // au-delà de cette distance, fade out
+    tiltMax: 6,      // deg (tilt pointeur)
+    scaleClampMin: .28,
+    scaleClampMax: 2.4
   };
-  addEventListener('scroll', onscroll, {passive:true}); onscroll();
-})();
 
-/* ========== Fancy cursor with particle trail ========== */
-(function(){
-  const c = document.getElementById('cursor');
-  let x=0,y=0, tx=0, ty=0;
-  const loop=()=>{ tx=lerp(tx,x,0.18); ty=lerp(ty,y,0.18); c.style.transform=`translate(${tx-13}px,${ty-13}px)`; requestAnimationFrame(loop) };
-  addEventListener('pointermove',e=>{x=e.clientX; y=e.clientY; c.classList.remove('hide')});
-  addEventListener('pointerdown',()=>c.classList.add('active'));
-  addEventListener('pointerup',()=>c.classList.remove('active'));
-  addEventListener('mouseleave',()=>c.classList.add('hide'));
-  loop();
+  let targetCamZ = config.zMin;
+  let camZ = targetCamZ;
 
-  // Little DOM sparkle trail
-  const pool = [];
-  function sparkle(px,py){
-    const s = document.createElement('span');
-    s.style.position='fixed'; s.style.left=px+'px'; s.style.top=py+'px';
-    s.style.width='6px'; s.style.height='6px'; s.style.borderRadius='50%';
-    s.style.pointerEvents='none'; s.style.zIndex=2500;
-    s.style.background='radial-gradient(circle, rgba(255,31,67,1), rgba(255,31,67,.0) 60%)';
-    document.body.appendChild(s);
-    s.animate([{transform:'translate(-50%,-50%) scale(1)', opacity:.9},{transform:'translate(-50%,-80%) scale(0)', opacity:0}],{duration:450, easing:'ease-out'}).onfinish=()=>s.remove();
-  }
-  addEventListener('pointermove', e=>{ if(Math.random()<.25) sparkle(e.clientX, e.clientY); }, {passive:true});
-})();
-
-/* ========== Magnet buttons ========== */
-document.querySelectorAll('.magnet').forEach(btn=>{
-  const bounds = ()=>btn.getBoundingClientRect();
-  btn.addEventListener('pointermove', e=>{
-    const b=bounds(), mx=(e.clientX - (b.left+b.width/2))/10, my=(e.clientY - (b.top+b.height/2))/10;
-    btn.style.setProperty('--mx', mx+'px'); btn.style.setProperty('--my', my+'px');
-  });
-  btn.addEventListener('pointerleave', ()=>{ btn.style.setProperty('--mx','0px'); btn.style.setProperty('--my','0px'); });
-});
-
-/* ========== IntersectionObserver reveal + wipes ========== */
-const io = new IntersectionObserver((entries)=>{
-  entries.forEach(el=>{
-    if(el.isIntersecting){ el.target.classList.add('show'); io.unobserve(el.target); }
-  });
-},{threshold:.16});
-document.querySelectorAll('.reveal').forEach(e=>io.observe(e));
-
-['wipe1','wipe2','wipe3','wipe4'].forEach(id=>{
-  const el = document.getElementById(id); if(!el) return;
-  const obs = new IntersectionObserver(es=>{
-    es.forEach(en=>{ if(en.isIntersecting){ el.classList.add('show'); obs.disconnect(); } });
-  },{threshold:.2});
-  obs.observe(el.parentElement);
-});
-
-/* ========== Tilt on cards ========== */
-document.querySelectorAll('.tilt').forEach(card=>{
-  const max=10; const set=(rx,ry)=>card.style.transform=`rotateX(${rx}deg) rotateY(${ry}deg)`;
-  card.addEventListener('pointermove', e=>{
-    const r = card.getBoundingClientRect();
-    const px = (e.clientX - r.left)/r.width, py=(e.clientY - r.top)/r.height;
-    const ry = lerp(-max, max, px), rx = lerp(max,-max, py);
-    set(rx,ry);
-  });
-  card.addEventListener('pointerenter', ()=>{ card.style.transition='transform .05s' });
-  card.addEventListener('pointerleave', ()=>{ card.style.transition='transform .25s ease'; set(0,0) });
-  card.addEventListener('blur', ()=>{ set(0,0) });
-});
-
-/* ========== SVG rings animate ========= */
-document.querySelectorAll('.meter').forEach(c=>{
-  const r = +c.getAttribute('r'), C = 2*Math.PI*r;
-  c.style.strokeDasharray = C; c.style.strokeDashoffset = C;
-  const val = Math.min(100, Math.max(0, +c.dataset.val));
-  const run = ()=> c.animate([{strokeDashoffset:C},{strokeDashoffset:C*(1 - val/100)}], {duration:1200, easing:'cubic-bezier(.2,.8,.2,1)', fill:'forwards'});
-  const parent = c.closest('.ring');
-  const obs = new IntersectionObserver(es=>{es.forEach(en=>{ if(en.isIntersecting){ run(); obs.disconnect(); } })},{threshold:.4});
-  obs.observe(parent);
-});
-
-/* ========== Form demo (no backend) ========= */
-document.querySelector('form')?.addEventListener('submit', e=>{
-  e.preventDefault();
-  const data = Object.fromEntries(new FormData(e.currentTarget).entries());
-  const ok = data.nom && data.mail && data.msg && /\S+@\S+\.\S+/.test(data.mail);
-  const btn = e.currentTarget.querySelector('button[type="submit"]');
-  btn.disabled = true;
-  btn.animate([{transform:'scale(1)'},{transform:'scale(1.04)'}],{duration:150,fill:'forwards'});
-  setTimeout(()=>{
-    alert(ok ? '✅ Message émulé ! (aucune donnée envoyée — démo locale)' : '⚠️ Merci de compléter les champs requis avec un email valide.');
-    btn.disabled = false;
-  }, 450);
-});
-
-/* ========== Smooth anchor ========= */
-document.querySelectorAll('a[href^="#"]').forEach(a=>{
-  a.addEventListener('click', e=>{
-    const id = a.getAttribute('href').slice(1), target = document.getElementById(id);
-    if(target){ e.preventDefault(); target.scrollIntoView({behavior:'smooth', block:'start'}); }
-  });
-});
-
-/* ========== STARFIELD (Canvas) ========= */
-(function(){
-  const cv = document.getElementById('starfield'), ctx = cv.getContext('2d');
-  let W,H,dpr, stars=[];
-  let turbo=false, xray=false;
-
-  function resize(){
-    dpr = Math.min(2, devicePixelRatio||1);
-    W = cv.width = innerWidth * dpr; H = cv.height = innerHeight * dpr;
-    cv.style.width=innerWidth+'px'; cv.style.height=innerHeight+'px';
-    ctx.setTransform(dpr,0,0,dpr,0,0);
-    build();
-  }
-  addEventListener('resize', resize); resize();
-
-  function build(){
-    const n = turbo? 700: 380;
-    stars = Array.from({length:n}, ()=>({
-      x: Math.random()*innerWidth,
-      y: Math.random()*innerHeight,
-      z: Math.random()*1 + .2,
-      s: Math.random()*1.6 + .2
-    }));
+  function scrollToZ(){
+    const h = document.documentElement;
+    const p = (h.scrollTop) / ((h.scrollHeight - h.clientHeight) || 1);
+    // Lissage “smooth” : easeInOut
+    targetCamZ = config.zMin + (config.zMax - config.zMin)*p;
   }
 
-  let mx=-9999,my=-9999;
-  addEventListener('pointermove', e=>{mx=e.clientX; my=e.clientY}, {passive:true});
-  addEventListener('pointerleave', ()=>{mx=-9999; my=-9999});
-
-  function step(){
-    ctx.clearRect(0,0,innerWidth,innerHeight);
-    for(const p of stars){
-      const dx = (p.x - mx)*.0006, dy = (p.y - my)*.0006;
-      p.x += dx * p.z * (turbo? 16: 8);
-      p.y += dy * p.z * (turbo? 16: 8);
-
-      if(p.x< -50 || p.x> innerWidth+50 || p.y< -50 || p.y> innerHeight+50){
-        p.x = Math.random()*innerWidth; p.y = Math.random()*innerHeight;
-      }
-
-      const glow = turbo? 1 : .6;
-      ctx.beginPath();
-      ctx.fillStyle = xray ? `rgba(25,255,240,${.25 + .6*Math.random()})` : `rgba(255,31,67,${.25 + .6*Math.random()})`;
-      ctx.arc(p.x, p.y, p.s, 0, Math.PI*2); ctx.fill();
-
-      // subtle cross flare
-      ctx.fillStyle = xray ? 'rgba(25,255,240,.09)' : 'rgba(255,31,67,.09)';
-      ctx.fillRect(p.x-4, p.y-0.5, 8, 1); ctx.fillRect(p.x-0.5, p.y-4, 1, 8);
-    }
-    requestAnimationFrame(step);
+  function updateHUD(){
+    const h = document.documentElement;
+    const p = (h.scrollTop) / ((h.scrollHeight - h.clientHeight) || 1);
+    prog.style.width = (p*100).toFixed(2)+'%';
+    depthText.textContent = `Z: ${Math.round(camZ)}m`;
   }
-  step();
 
-  // Expose toggles
-  addEventListener('keydown', (e)=>{
-    const k=e.key.toLowerCase();
-    if(k==='t'){ turbo=!turbo; build(); document.body.style.setProperty('--turbo', turbo? 1: 0) }
-    if(k==='x'){ xray=!xray; document.querySelector('.neon-grid').style.opacity = xray? .15 : .55; }
-  });
-})();
+  addEventListener('scroll', scrollToZ, {passive:true});
+  scrollToZ();
 
-/* ========== MATRIX RAIN (Canvas) ========= */
-(function(){
-  const cv = document.getElementById('matrix'), ctx = cv.getContext('2d');
-  let W,H,dpr, cols, drops, active=false;
-  function resize(){
-    dpr=Math.min(2, devicePixelRatio||1);
-    W=cv.width=innerWidth*dpr; H=cv.height=innerHeight*dpr;
-    cv.style.width=innerWidth+'px'; cv.style.height=innerHeight+'px';
-    ctx.setTransform(dpr,0,0,dpr,0,0);
-    cols = Math.floor(innerWidth/16);
-    drops = Array(cols).fill(0);
-  }
-  addEventListener('resize', resize); resize();
-
-  function step(){
-    if(!active){ requestAnimationFrame(step); return; }
-    ctx.fillStyle='rgba(8,8,10,0.08)'; ctx.fillRect(0,0,innerWidth,innerHeight);
-    ctx.fillStyle='rgba(255,31,67,0.9)';
-    ctx.font='14px monospace';
-    drops.forEach((y,i)=>{
-      const ch = String.fromCharCode(0x30A0 + Math.random()*96);
-      const x = i*16;
-      ctx.fillText(ch, x, y);
-      drops[i] = y > innerHeight + Math.random()*200 ? 0 : y + (12 + Math.random()*14);
-    });
-    requestAnimationFrame(step);
-  }
-  step();
-
-  addEventListener('keydown', e=>{
-    if(e.key.toLowerCase()==='m'){ active=!active; cv.style.opacity = active? .22 : 0; }
-  });
-})();
-
-/* ========== Section parallax on scroll (subtle) ========== */
-(function(){
-  const aur1 = document.querySelector('.aurora');
-  const aur2 = document.querySelector('.aurora2');
-  const grid = document.querySelector('.neon-grid');
-  addEventListener('scroll', ()=>{
-    const y = scrollY || document.documentElement.scrollTop;
-    aur1.style.transform = `translateY(${y*-.02}px)`;
-    aur2.style.transform = `translateY(${y*-.03}px)`;
-    grid.style.transform = `perspective(900px) rotateX(68deg) translateY(${y*.02}px)`;
+  // Tilt parallax au pointeur
+  let tiltX=0, tiltY=0, ttx=0, tty=0;
+  addEventListener('pointermove', (e)=>{
+    const cx = innerWidth/2, cy = innerHeight/2;
+    const nx = (e.clientX - cx)/cx; // -1..1
+    const ny = (e.clientY - cy)/cy;
+    tiltY = nx * config.tiltMax;
+    tiltX = -ny * config.tiltMax;
   }, {passive:true});
-})();
 
-/* ========== Keys for particles++ (legacy G kept) ========== */
-addEventListener('keydown', (e)=>{
-  if(e.key.toLowerCase()==='g'){
-    // Just flare neon grid + aurora briefly
-    document.body.animate([{filter:'saturate(1)'},{filter:'saturate(1.4)'}],{duration:600});
+  // Touch scrolling inertiel (mobile)
+  let touching=false, lastY=0, vY=0;
+  addEventListener('touchstart', e=>{ touching=true; lastY=e.touches[0].clientY; vY=0 }, {passive:true});
+  addEventListener('touchmove', e=>{
+    if(!touching) return;
+    const y = e.touches[0].clientY;
+    const dy = lastY - y;
+    lastY = y;
+    window.scrollBy(0, dy);
+    vY = dy;
+  }, {passive:false});
+  addEventListener('touchend', ()=>{ touching=false; });
+
+  // Contrôles clavier
+  addEventListener('keydown', e=>{
+    const k = e.key.toLowerCase();
+    if(k==='arrowdown') window.scrollBy({top: 200, behavior:'smooth'});
+    if(k==='arrowup') window.scrollBy({top: -200, behavior:'smooth'});
+    if(k==='pageDown'.toLowerCase()) window.scrollBy({top: innerHeight*.8, behavior:'smooth'});
+    if(k==='pageUp'.toLowerCase()) window.scrollBy({top: -innerHeight*.8, behavior:'smooth'});
+  });
+
+  function clamp(v,min,max){ return Math.max(min, Math.min(max,v)); }
+
+  function render(){
+    // Easing caméra
+    camZ += (targetCamZ - camZ)*0.08;
+
+    // Easing tilt
+    ttx += (tiltX - ttx)*0.12;
+    tty += (tiltY - tty)*0.12;
+
+    // Applique tilt à la scène entière (léger)
+    scene.style.transform = `rotateX(${ttx}deg) rotateY(${tty}deg)`;
+
+    // Met à jour chaque couche
+    for(const L of layers){
+      const z0 = parseFloat(L.dataset.z)||0;
+      const depth = z0 - camZ; // distance relative à la caméra (0 = plan focal)
+      // Échelle basée sur la profondeur (plus proche => plus grand)
+      const scale = clamp( 1 / (1 + (depth/1200)), config.scaleClampMin, config.scaleClampMax );
+      // Opacité et flou : fade quand trop loin
+      const ad = Math.abs(depth);
+      const o = clamp(1 - (ad/config.visibilityZ), 0, 1);
+      const blur = (1 - Math.max(0, 1 - ad/900)) * config.blurMax; // 0 près, max loin
+
+      // Décalage vertical subtil quand on “passe” le plan
+      const yOffset = (depth/40); // donne une sensation de passage
+
+      L.style.setProperty('--z', `${depth.toFixed(2)}px`);
+      L.style.setProperty('--s', scale.toFixed(3));
+      L.style.setProperty('--o', o.toFixed(3));
+      L.style.setProperty('--blur', blur.toFixed(2)+'px');
+      L.style.setProperty('--rx', (ttx*0.35).toFixed(2)+'deg');
+      L.style.setProperty('--ry', (tty*0.35).toFixed(2)+'deg');
+
+      L.style.transform =
+        `translate(-50%,-50%) translateZ(${depth}px) translateY(${yOffset}px) `+
+        `scale(${scale}) rotateX(${ttx*0.35}deg) rotateY(${tty*0.35}deg)`;
+
+      // Accessibilité: aria-hidden si trop loin
+      if(o < 0.05) {
+        L.setAttribute('aria-hidden','true');
+      } else {
+        L.removeAttribute('aria-hidden');
+      }
+    }
+
+    updateHUD();
+    requestAnimationFrame(render);
   }
-});
-
-/* ========== Hologram WAAPI idle shimmer ========== */
-document.querySelector('.holo')?.animate(
-  [{boxShadow:'0 30px 120px rgba(255,31,67,.25)'},{boxShadow:'0 40px 160px rgba(25,255,240,.24)'}],
-  {duration:4000, direction:'alternate', iterations:Infinity, easing:'ease-in-out'}
-);
+  render();
+})();
 </script>
 </body>
 </html>
