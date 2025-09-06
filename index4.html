@@ -3,73 +3,111 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Vitrine — Deck fluide (4 encarts)</title>
+<title>Vitrine — Deck Futuriste (4 encarts)</title>
 <style>
   :root{
-    --bg:#f7f8fa; --ink:#0f1115; --muted:#6b7280; --card:#ffffff; --ring:#e5e7eb;
-    --acc:#0ea5a5; --radius:18px; --shadow:0 10px 30px rgba(0,0,0,.08);
+    --bg:#f6faf9; --ink:#0e1116; --muted:#6b7a86;
+    --card:#ffffff; --ring:#e6edf0; --acc:#10b3b3;
+    --radius:18px; --shadow:0 18px 60px rgba(15,17,22,.10);
   }
   @media (prefers-color-scheme: dark){
-    :root{ --bg:#0b0d11; --ink:#eef2f7; --muted:#9aa7b8; --card:#0f141b; --ring:#1f2937; --shadow:0 10px 30px rgba(0,0,0,.35) }
+    :root{ --bg:#0b1013; --ink:#eef3f6; --muted:#9fb0ba; --card:#0f151a; --ring:#1f2a33; --shadow:0 18px 60px rgba(0,0,0,.35)}
   }
   *{box-sizing:border-box}
   html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
-    font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Inter,"Noto Sans",sans-serif}
+    font:16px/1.55 system-ui,-apple-system,Segoe UI,Inter,Roboto,"Noto Sans",sans-serif}
   body{overscroll-behavior:none}
+
+  /* Arrière-plan vivant (halo & grains subtils) */
+  .bg{
+    position:fixed; inset:-10% -10% -10% -10%; pointer-events:none; z-index:-1;
+    background:
+      radial-gradient(60vmax 40vmax at 50% 8%, color-mix(in oklab, #e8fffb 35%, transparent), transparent 70%),
+      radial-gradient(40vmax 30vmax at 20% 85%, color-mix(in oklab, #f5f0ff 28%, transparent), transparent 70%),
+      radial-gradient(35vmax 30vmax at 80% 70%, color-mix(in oklab, #eaf6ff 28%, transparent), transparent 70%),
+      var(--bg);
+    filter: saturate(110%) contrast(102%);
+    animation: bgfloat 24s ease-in-out infinite alternate;
+  }
+  @keyframes bgfloat{
+    0%{ transform: translateY(0) }
+    100%{ transform: translateY(-1.2%) }
+  }
 
   .app{min-height:100dvh; display:flex; flex-direction:column}
 
-  /* Topbar compacte */
-  .topbar{display:flex; align-items:center; justify-content:space-between; gap:12px;
-    padding:12px clamp(12px,4vw,28px); border-bottom:1px solid var(--ring);
-    background:color-mix(in oklab, var(--card) 60%, transparent)}
-  .brand{font-weight:700}
+  /* Topbar translucide */
+  .topbar{
+    position:sticky; top:0; z-index:3;
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:10px clamp(12px,4vw,28px);
+    backdrop-filter: saturate(140%) blur(8px);
+    border-bottom:1px solid color-mix(in oklab, var(--ring) 70%, transparent);
+    background: color-mix(in oklab, var(--card) 35%, transparent);
+  }
+  .brand{font-weight:700; letter-spacing:.2px}
   .kbd{font:12px/1.2 ui-monospace,Menlo,Consolas,monospace; color:var(--muted)}
 
-  /* Carrousel horizontal fluide */
+  /* Carrousel horizontal avec snaps */
   .deck{
     position:relative; flex:1; overflow-x:auto; overflow-y:hidden;
-    scroll-snap-type:x mandatory; scroll-behavior:smooth;
-    -webkit-overflow-scrolling:touch;  /* iOS */
-    background:radial-gradient(1000px 600px at 50% 8%, color-mix(in oklab, var(--card) 60%, transparent), transparent);
-    scrollbar-width:none;           /* Firefox */
-    -ms-overflow-style:none;        /* IE/Edge legacy */
-  }
-  .deck::-webkit-scrollbar{display:none} /* WebKit */
+    scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch;
+    scrollbar-width:none; } .deck::-webkit-scrollbar{display:none}
 
   .rail{display:flex; height:100%}
 
-  /* 4 encarts = 4 slides plein écran */
   .slide{
     scroll-snap-align:center; scroll-snap-stop:always;
     flex:0 0 100%;
     padding: clamp(14px, 4vw, 32px);
     display:grid; place-items:center;
+    opacity:.0; transform: translateY(6px) scale(.995);
+    transition: opacity .5s ease, transform .5s ease;
+  }
+  .slide.is-near{
+    opacity:1; transform: translateY(0) scale(1);
   }
 
+  /* Carte futuriste (verre, lumière douce) */
   .card{
     width:min(960px, 92vw);
     min-height:min(76vh, 680px);
     display:grid; grid-template-rows:auto 1fr auto; gap:18px;
-    background:var(--card); border:1px solid var(--ring); border-radius:var(--radius); box-shadow:var(--shadow);
-    padding: clamp(16px, 4vw, 32px);
-    transform: translateZ(0);   /* GPU hint */
-    transition: box-shadow .25s ease, transform .25s ease;
+    background: linear-gradient(180deg,
+      color-mix(in oklab, var(--card) 92%, transparent),
+      color-mix(in oklab, var(--card) 80%, transparent));
+    border:1px solid var(--ring); border-radius:var(--radius); box-shadow:var(--shadow);
+    padding: clamp(18px, 4vw, 32px);
+    backdrop-filter: blur(10px) saturate(130%);
+    position:relative; overflow:hidden;
+    isolation:isolate;
   }
-  .card h1{margin:0; font-size:clamp(22px, 5vw, 40px); letter-spacing:-.02em}
+  .card::after{
+    content:""; position:absolute; inset:0; pointer-events:none;
+    background:
+      radial-gradient(40vmin 18vmin at 20% 0%, color-mix(in oklab, #ffffff 50%, transparent), transparent 60%),
+      radial-gradient(36vmin 20vmin at 90% 0%, color-mix(in oklab, #b3fff7 18%, transparent), transparent 70%);
+    mix-blend-mode: screen; opacity:.7;
+  }
+  .card h1{margin:0; font-size:clamp(24px, 5.4vw, 42px); letter-spacing:-.02em}
   .card p{margin:0; color:var(--muted); font-size:clamp(14px, 2.6vw, 18px)}
 
   .grid{display:grid; gap:12px; grid-template-columns:repeat(12,1fr)}
   .tile{
     grid-column:span 6; min-height:110px;
-    background:linear-gradient(180deg, color-mix(in oklab, var(--card) 85%, transparent), transparent);
+    background: linear-gradient(180deg,
+      color-mix(in oklab, var(--card) 88%, transparent),
+      color-mix(in oklab, var(--card) 70%, transparent));
     border:1px solid var(--ring); border-radius:14px; padding:14px;
+    opacity:0; transform: translateY(8px); transition:opacity .45s ease, transform .45s ease;
   }
-  .tile small{color:var(--muted)}
-  .tile h3{margin:6px 0 4px; font-size:clamp(16px, 2.4vw, 20px)}
-  .tile p{margin:0; color:var(--muted); font-size:clamp(13px, 2.2vw, 16px)}
+  .slide.is-near .tile{ opacity:1; transform: translateY(0) }
+  .slide.is-near .tile:nth-child(1){ transition-delay:.04s }
+  .slide.is-near .tile:nth-child(2){ transition-delay:.10s }
+  .slide.is-near .tile:nth-child(3){ transition-delay:.16s }
+  .slide.is-near .tile:nth-child(4){ transition-delay:.22s }
 
-  /* Mobile : 1 colonne lisible, contrôles “thumb-friendly” */
+  /* Mobile */
   @media (max-width: 860px){
     .card{min-height:72vh}
     .grid{grid-template-columns:1fr}
@@ -79,32 +117,63 @@
   .actions{display:flex; flex-wrap:wrap; gap:10px}
   .btn{
     appearance:none; cursor:pointer; padding:10px 14px; border-radius:12px; border:1px solid var(--ring);
-    background:transparent; color:var(--ink); transition:transform .12s ease;
+    background:linear-gradient(180deg, color-mix(in oklab, var(--card) 92%, transparent), color-mix(in oklab, var(--card) 80%, transparent));
+    color:var(--ink); transition: transform .18s ease, box-shadow .18s ease, background .3s ease;
   }
   .btn:active{transform:translateY(1px)}
-  .btn.primary{background:var(--ink); color:var(--card); border-color:transparent}
+  .btn.primary{background: linear-gradient(180deg, #fff, color-mix(in oklab, var(--acc) 10%, #fff));
+    box-shadow:0 8px 28px color-mix(in oklab, var(--acc) 24%, transparent) }
 
-  /* Contrôles fixes + pastilles */
+  /* Contrôles & pastilles translucides */
   .controls{
     position:absolute; left:0; right:0; bottom:12px; display:flex; justify-content:center; pointer-events:none;
-    padding:0 clamp(12px, 4vw, 28px);
+    padding:0 clamp(12px, 4vw, 28px); z-index:2;
   }
-  .pill{pointer-events:auto; display:flex; gap:10px; align-items:center; background:color-mix(in oklab, var(--card) 70%, transparent);
-    border:1px solid var(--ring); padding:8px 10px; border-radius:999px; box-shadow:var(--shadow)}
-  .navbtn{width:40px; height:40px; border-radius:999px; border:1px solid var(--ring); background:var(--card); display:grid; place-items:center; cursor:pointer}
+  .pill{
+    pointer-events:auto; display:flex; gap:10px; align-items:center;
+    background: color-mix(in oklab, var(--card) 65%, transparent);
+    border:1px solid var(--ring); padding:8px 10px; border-radius:999px; box-shadow:var(--shadow);
+    backdrop-filter: blur(6px) saturate(130%);
+  }
+  .navbtn{
+    width:42px; height:42px; border-radius:999px; border:1px solid var(--ring);
+    background:linear-gradient(180deg, color-mix(in oklab, var(--card) 88%, transparent), color-mix(in oklab, var(--card) 70%, transparent));
+    display:grid; place-items:center; cursor:pointer; transition: transform .18s ease;
+  }
+  .navbtn:active{ transform:translateY(1px) }
   .dots{display:flex; gap:6px; padding:0 6px}
-  .dot{width:8px; height:8px; border-radius:50%; background:var(--ring); cursor:pointer}
-  .dot.active{background:var(--acc); box-shadow:0 0 0 6px color-mix(in oklab, var(--acc) 25%, transparent)}
+  .dot{
+    width:10px; height:10px; border-radius:50%; background:color-mix(in oklab, var(--ring) 90%, transparent);
+    box-shadow:0 0 0 8px color-mix(in oklab, var(--ring) 22%, transparent);
+    cursor:pointer; transition: transform .25s ease, background .25s ease, box-shadow .25s ease, opacity .3s ease;
+    opacity:.7;
+  }
+  .dot.active{
+    background:var(--acc);
+    box-shadow:0 0 0 10px color-mix(in oklab, var(--acc) 26%, transparent);
+    transform:scale(1.12); opacity:1;
+  }
 
-  /* Barre de progression */
-  .progress{position:absolute; left:0; right:0; top:0; height:3px; background:var(--ring)}
-  .bar{height:100%; width:0%; background:linear-gradient(90deg, var(--acc), color-mix(in oklab, var(--acc) 30%, transparent))}
+  /* Progression douce */
+  .progress{position:absolute; left:0; right:0; top:0; height:3px; background:var(--ring); opacity:.7}
+  .bar{height:100%; width:0%; background:linear-gradient(90deg, var(--acc), color-mix(in oklab, var(--acc) 40%, transparent))}
 
-  /* Micro-effet fluide pendant le scroll */
-  .slide.is-near .card{ box-shadow:0 16px 48px rgba(0,0,0,.10); transform: translateY(-2px) }
+  /* Hint tactile */
+  .hint{
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    color:var(--muted); font-size:13px;
+    background: color-mix(in oklab, var(--card) 70%, transparent);
+    border:1px dashed var(--ring); padding:8px 10px; border-radius:10px; user-select:none;
+    animation: hintfade 4s ease-out forwards;
+    backdrop-filter: blur(6px);
+  }
+  @keyframes hintfade{ 0%{opacity:1} 60%{opacity:.9} 100%{opacity:0; visibility:hidden} }
+  @media (pointer:fine){ .hint{display:none} }
 </style>
 </head>
 <body>
+<div class="bg" aria-hidden="true"></div>
+
 <div class="app" aria-live="polite">
   <div class="topbar">
     <div class="brand">Vitrine</div>
@@ -114,15 +183,15 @@
   <div class="deck" id="deck" aria-roledescription="carrousel">
     <div class="progress"><div class="bar" id="bar"></div></div>
     <div class="rail" id="rail">
-      <!-- 4 ENCARTS UNIQUEMENT -->
+      <!-- 4 ENCARTS -->
       <section class="slide" aria-label="01 Accueil">
         <div class="card">
-          <header><h1>Accueil — cap sur l’essentiel</h1><p>4 encarts pour test. Navigation douce & responsive.</p></header>
+          <header><h1>Accueil — cap sur l’essentiel</h1><p>4 encarts test. Fondus doux, freinage en fin de transition.</p></header>
           <main class="grid">
-            <div class="tile"><small>Manifeste</small><h3>Clarté, espace, lisibilité</h3><p>Sans gimmick, sans surcharge.</p></div>
-            <div class="tile"><small>Interaction</small><h3>Molette ↔ / Swipe</h3><p>Simple et fiable, partout.</p></div>
-            <div class="tile"><small>Design</small><h3>Grille bento</h3><p>Cartes stables, focus central.</p></div>
-            <div class="tile"><small>Perf</small><h3>Vanilla, GPU 2D</h3><p>Transferts légers.</p></div>
+            <div class="tile"><small>Manifeste</small><h3>Clarté & espace</h3><p>Sans surcharge.</p></div>
+            <div class="tile"><small>Interaction</small><h3>Molette ↔ / Swipe</h3><p>Naturel & fiable.</p></div>
+            <div class="tile"><small>Design</small><h3>Verre dépoli</h3><p>Halo lumineux subtil.</p></div>
+            <div class="tile"><small>Perf</small><h3>Vanilla</h3><p>Transitions GPU 2D.</p></div>
           </main>
           <footer class="actions"><button class="btn primary">Découvrir</button><button class="btn">Contact</button></footer>
         </div>
@@ -130,10 +199,10 @@
 
       <section class="slide" aria-label="02 À propos">
         <div class="card">
-          <header><h1>À propos — approche</h1><p>Moins mais mieux : utile, durable, élégant.</p></header>
+          <header><h1>À propos — approche</h1><p>Utile, durable, élégant.</p></header>
           <main class="grid">
             <div class="tile"><small>Sobriété</small><h3>Aller à l’essentiel</h3><p>Respiration visuelle.</p></div>
-            <div class="tile"><small>Qualité</small><h3>Micro-interactions</h3><p>Sans artifice gratuit.</p></div>
+            <div class="tile"><small>Qualité</small><h3>Micro-interactions</h3><p>Sans artifice.</p></div>
             <div class="tile"><small>Durabilité</small><h3>Code frugal</h3><p>Maintenable.</p></div>
             <div class="tile"><small>Accessibilité</small><h3>Clavier / ARIA</h3><p>Tailles fluides.</p></div>
           </main>
@@ -168,6 +237,8 @@
       </section>
     </div>
 
+    <div class="hint">Glisse latéralement</div>
+
     <!-- Contrôles -->
     <div class="controls">
       <div class="pill">
@@ -180,84 +251,127 @@
 </div>
 
 <script>
+/* ---------- Sélection DOM ---------- */
 const deck = document.getElementById('deck');
 const rail = document.getElementById('rail');
 const dots = document.getElementById('dots');
 const bar  = document.getElementById('bar');
 const slides = [...rail.children];
+const prevB = document.getElementById('prev');
+const nextB = document.getElementById('next');
+
 let idx = 0;
 
-/* Pastilles */
+/* ---------- EASING (freinage en fin) ---------- */
+const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
+
+/* Scroll animé avec easing custom (pour clic, molette, flèches) */
+function scrollToIndex(i, dur=520){
+  idx = (i + slides.length) % slides.length;
+  const start = deck.scrollLeft;
+  const target = idx * deck.clientWidth;
+  const delta = target - start;
+  const t0 = performance.now();
+
+  function frame(now){
+    const k = Math.min(1, (now - t0) / dur);
+    const e = easeOutCubic(k);
+    deck.scrollLeft = start + delta * e;
+    if(k < 1) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+  updateUI(); // sync UI
+}
+
+/* ---------- Pastilles ---------- */
 function renderDots(){
   dots.innerHTML = "";
   slides.forEach((_,i)=>{
     const b = document.createElement('button');
     b.className = 'dot' + (i===idx?' active':'');
-    b.addEventListener('click', ()=> go(i));
+    b.addEventListener('click', ()=> scrollToIndex(i,480));
     dots.appendChild(b);
   });
 }
 
-/* Aller à une slide (smooth + snap) */
-function go(i){
-  idx = (i + slides.length) % slides.length;
-  const x = idx * deck.clientWidth;
-  deck.scrollTo({ left: x, behavior: 'smooth' });
-  updateUI();
-}
-
-/* Wheel vertical => scroll horizontal fluide (+ debounce) */
+/* ---------- Wheel vertical → navigation horizontale ---------- */
 let wheelLock = false;
 deck.addEventListener('wheel', (e)=>{
-  // on accepte aussi la molette verticale (deltaY)
   const delta = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
-  if(Math.abs(delta) < 8) return;
-  e.preventDefault();   // pour éviter les “sursauts” sur certaines configs
+  if(Math.abs(delta) < 6) return;
+  e.preventDefault();
   if(wheelLock) return;
   wheelLock = true;
-  delta > 0 ? go(idx+1) : go(idx-1);
-  setTimeout(()=> wheelLock=false, 280);
+  delta > 0 ? scrollToIndex(idx+1,520) : scrollToIndex(idx-1,520);
+  setTimeout(()=> wheelLock=false, 360);
 },{passive:false});
 
-/* Clavier */
+/* ---------- Clavier & boutons ---------- */
 window.addEventListener('keydown', e=>{
-  if(e.key==='ArrowRight') go(idx+1);
-  else if(e.key==='ArrowLeft') go(idx-1);
+  if(e.key==='ArrowRight') scrollToIndex(idx+1,520);
+  else if(e.key==='ArrowLeft') scrollToIndex(idx-1,520);
 });
+prevB.addEventListener('click', ()=> scrollToIndex(idx-1,520));
+nextB.addEventListener('click', ()=> scrollToIndex(idx+1,520));
 
-/* Boutons */
-document.getElementById('prev').addEventListener('click', ()=> go(idx-1));
-document.getElementById('next').addEventListener('click', ()=> go(idx+1));
+/* ---------- Swipe mobile (avec easing final) ---------- */
+let startX=0, startY=0, isTouch=false, moved=false;
+deck.addEventListener('touchstart', e=>{
+  isTouch=true; moved=false;
+  const t=e.touches[0]; startX=t.clientX; startY=t.clientY;
+},{passive:true});
 
-/* Mise à jour barre & pastilles selon la position de scroll */
-function updateUI(){
-  [...dots.children].forEach((d,k)=> d.classList.toggle('active', k===idx));
-  bar.style.width = ((idx+1)/slides.length*100) + '%';
+deck.addEventListener('touchmove', e=>{
+  if(!isTouch) return;
+  const t=e.touches[0]; const dx=t.clientX-startX; const dy=t.clientY-startY;
+  if(Math.abs(dx)>Math.abs(dy) && Math.abs(dx)>10){
+    moved=true;
+    deck.scrollLeft = idx*deck.clientWidth - dx; // suivi direct du pouce
+  }
+},{passive:true});
+
+function endSwipe(e){
+  if(!isTouch) return; isTouch=false;
+  const t = (e.changedTouches?e.changedTouches[0]:e);
+  const dx = t.clientX - startX;
+  if(Math.abs(dx)>40){ dx<0 ? scrollToIndex(idx+1,420) : scrollToIndex(idx-1,420) }
+  else { scrollToIndex(idx,380) }
 }
+deck.addEventListener('touchend', endSwipe, {passive:true});
+deck.addEventListener('touchcancel', endSwipe, {passive:true});
 
-/* Effet fluide pendant le scroll (mise en avant de la carte proche) */
+/* ---------- Mise en avant (fondus + “near”) ---------- */
 function onScroll(){
   const w = deck.clientWidth;
   const left = deck.scrollLeft;
   const center = left + w/2;
-  slides.forEach((s, i)=>{
+  slides.forEach((s)=>{
     const rect = s.getBoundingClientRect();
     const slideCenter = rect.left + rect.width/2;
     const dist = Math.abs(slideCenter - window.innerWidth/2);
-    s.classList.toggle('is-near', dist < w*0.35);
+    const near = dist < w*0.42;
+    s.classList.toggle('is-near', near);
   });
-  // index approximatif en direct
   idx = Math.round(left / w);
   updateUI();
 }
 deck.addEventListener('scroll', onScroll, {passive:true});
 
-/* Resize = recalcule l’ancrage */
-window.addEventListener('resize', ()=> go(idx));
+/* ---------- UI sync ---------- */
+function updateUI(){
+  [...dots.children].forEach((d,k)=> d.classList.toggle('active', k===idx));
+  bar.style.width = ((idx+1)/slides.length*100) + '%';
+}
 
-/* Init */
+/* ---------- Resize ---------- */
+window.addEventListener('resize', ()=> scrollToIndex(idx,0));
+
+/* ---------- Init ---------- */
 renderDots();
-go(0);
+scrollToIndex(0,0);
+setTimeout(()=> { // déclenche le fondu “near” au load
+  onScroll();
+}, 30);
 </script>
 </body>
 </html>
