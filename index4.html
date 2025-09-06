@@ -3,401 +3,340 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Vitrine Web — Navigation Orbitale</title>
+<title>Vitrine — Deck minimal</title>
 <style>
   :root{
     --bg: #f7f8fa;
-    --ink: #0f1115;
+    --ink:#0f1115;
     --muted:#6b7280;
-    --acc: #0ea5a5;      /* accent discret */
-    --acc-2:#7c3aed;     /* accent secondaire pour états */
-    --ring:#e5e7eb;
     --card:#ffffff;
+    --ring:#e5e7eb;
+    --acc:#0ea5a5;
+    --radius:20px;
     --shadow: 0 10px 30px rgba(0,0,0,.08);
-    --r: 44vmin;         /* rayon de l’orbite */
-    --t: 560ms;          /* durée des transitions */
+    --t: 300ms;
   }
   @media (prefers-color-scheme: dark){
-    :root{
-      --bg:#0b0d11; --ink:#eef2f7; --muted:#94a3b8; --ring:#1f2937; --card:#0f141b; 
-      --shadow: 0 10px 30px rgba(0,0,0,.35);
-    }
+    :root{ --bg:#0b0d11; --ink:#eef2f7; --muted:#9aa7b8; --card:#0f141b; --ring:#1f2937; --shadow:0 10px 30px rgba(0,0,0,.35)}
   }
+
   *{box-sizing:border-box}
-  html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, "Noto Sans", sans-serif;}
-  .app{position:fixed;inset:0;display:grid;place-items:center;overflow:hidden}
-  
-  /* Anneau orbital */
-  .ring{
-    position:relative;width:calc(var(--r)*2 + 40vmin);height:calc(var(--r)*2 + 40vmin);
-    border-radius:50%;
-    display:grid;place-items:center;
-    transition:filter var(--t) ease;
-  }
-  .ring::before{
-    content:""; position:absolute; inset:10vmin; border-radius:50%;
-    border:1px dashed var(--ring);
-    filter:blur(.2px);
-  }
+  html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Inter, "Noto Sans", sans-serif;
+    -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;}
+  body{overscroll-behavior:none; touch-action:manipulation}
 
-  /* Pastilles de navigation (points cardinaux + stations intermédiaires) */
-  .nav-dots{position:absolute; inset:0; pointer-events:none}
-  .dot{
-    position:absolute;width:10px;height:10px;border-radius:50%; background:var(--ring); 
-    box-shadow: 0 0 0 6px color-mix(in oklab, var(--ring) 40%, transparent);
-    transform:translate(-50%,-50%); pointer-events:auto; cursor:pointer; transition:all 200ms ease;
-  }
-  .dot.active{ background:var(--acc); box-shadow:0 0 0 8px color-mix(in oklab, var(--acc) 20%, transparent); }
+  /* Conteneur plein écran */
+  .app{position:fixed; inset:0; display:flex; flex-direction:column}
 
-  /* Carte centrale (station active) */
-  .stage{
-    position:relative; width:min(860px, 90vw); height:min(520px, 70vh); 
-    border-radius:22px; background:var(--card); box-shadow:var(--shadow);
-    padding: clamp(18px, 4vw, 36px);
+  /* Barre top minimaliste */
+  .topbar{display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:10px clamp(12px, 4vw, 28px); border-bottom:1px solid var(--ring); background:color-mix(in oklab, var(--card) 50%, transparent)}
+  .brand{font-weight:700; letter-spacing:.2px}
+  .kbd{font:12px/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color:var(--muted)}
+
+  /* Zone "deck" (slides horizontales) */
+  .deck{
+    position:relative; flex:1; overflow:hidden; background:
+      radial-gradient(1000px 600px at 50% 10%, color-mix(in oklab, var(--card) 60%, transparent), transparent);
+  }
+  .rail{
+    height:100%; display:flex; will-change:transform;
+    transition:transform var(--t) cubic-bezier(.2,.8,.2,1);
+  }
+  @media (prefers-reduced-motion: reduce){ .rail{transition:none} }
+
+  /* Slide carte plein écran */
+  .slide{
+    flex:0 0 100%;
+    padding: clamp(16px, 4vw, 36px);
+    display:grid; place-items:center;
+  }
+  .card{
+    width:min(960px, 92vw);
+    min-height:min(76vh, 680px);
     display:grid; grid-template-rows:auto 1fr auto; gap:18px;
-    backdrop-filter:saturate(140%) blur(6px);
-    transition: transform var(--t) ease, filter var(--t) ease, background var(--t) ease;
+    background:var(--card); border:1px solid var(--ring);
+    border-radius:var(--radius); box-shadow:var(--shadow);
+    padding: clamp(16px, 4vw, 32px);
   }
-  .stage h1{margin:0; font-size: clamp(22px, 4.2vw, 38px); letter-spacing:-.02em}
-  .stage p{margin:0; color:var(--muted); font-size:clamp(14px, 2.2vw, 18px)}
-  .actions{display:flex; gap:12px; align-items:center; flex-wrap:wrap}
-  .btn{
-    appearance:none; border:1px solid var(--ring); background:transparent; color:var(--ink);
-    padding:10px 14px; border-radius:12px; cursor:pointer; transition:all 160ms ease;
-  }
-  .btn:focus-visible{outline:2px solid var(--acc)}
-  .btn.primary{ background:var(--ink); color:var(--card); border-color:transparent}
-  .btn:hover{ transform:translateY(-1px)}
-  .meta{display:flex; align-items:center; gap:10px; color:var(--muted); font-size:13px}
+  .card h1{margin:0; font-size:clamp(22px, 5vw, 40px); letter-spacing:-.02em}
+  .card p{margin:0; color:var(--muted); font-size:clamp(14px, 2.6vw, 18px)}
 
-  /* Tuiles “bento” à l’intérieur de la station */
-  .grid{display:grid; grid-template-columns:repeat(12, 1fr); gap:12px}
+  .grid{display:grid; gap:12px; grid-template-columns: repeat(12, 1fr)}
   .tile{
-    grid-column: span 6; background:linear-gradient(180deg, color-mix(in oklab, var(--card) 90%, transparent), color-mix(in oklab, var(--card) 70%, transparent));
-    border:1px solid var(--ring); border-radius:16px; padding:16px; min-height:120px; position:relative; overflow:hidden;
+    grid-column: span 6;
+    background:linear-gradient(180deg, color-mix(in oklab, var(--card) 85%, transparent), transparent);
+    border:1px solid var(--ring); border-radius:14px; padding:14px; min-height:110px;
   }
   .tile small{color:var(--muted)}
-  .badge{
-    position:absolute; right:10px; top:10px; font-size:11px; padding:6px 10px; border-radius:999px; 
-    color:var(--card); background:var(--acc-2);
-  }
-  .tile h3{margin:8px 0 6px 0; font-size: clamp(16px, 2vw, 20px)}
-  .tile p{margin:0; font-size: clamp(13px, 1.6vw, 16px); color:var(--muted)}
-  .tile .line{position:absolute; inset:auto 0 0 0; height:2px; background:linear-gradient(90deg, var(--acc), transparent)}
+  .tile h3{margin:6px 0 4px; font-size:clamp(16px, 2.4vw, 20px)}
+  .tile p{margin:0; color:var(--muted); font-size:clamp(13px, 2.2vw, 16px)}
 
-  /* Responsif */
+  /* Mobile : 1 colonne lisible, boutons larges */
   @media (max-width: 860px){
-    .stage{height:auto; min-height:72vh}
+    .card{min-height: 72vh}
     .grid{grid-template-columns:1fr}
     .tile{grid-column:1/-1}
   }
 
-  /* Barre inférieure de statut / navigation */
-  .footer{
-    display:flex; align-items:center; justify-content:space-between; gap:12px; padding-top:8px; border-top:1px solid var(--ring);
+  .actions{display:flex; flex-wrap:wrap; gap:10px}
+  .btn{
+    appearance:none; cursor:pointer;
+    padding:10px 14px; border-radius:12px; border:1px solid var(--ring);
+    background:transparent; color:var(--ink); transition:transform .12s ease;
   }
-  .progress{position:relative; flex:1; height:6px; background:var(--ring); border-radius:999px; overflow:hidden}
-  .bar{position:absolute; inset:0; width:0%; background:linear-gradient(90deg, var(--acc), color-mix(in oklab, var(--acc) 30%, transparent));}
+  .btn:active{transform:translateY(1px)}
+  .btn.primary{background:var(--ink); color:var(--card); border-color:transparent}
 
-  /* Panneau palette (barre d’espace) */
-  .palette{
-    position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(120%);
-    background:var(--card); border:1px solid var(--ring); border-radius:14px; box-shadow:var(--shadow);
-    width:min(860px, 92vw); padding:10px; display:flex; gap:8px; transition:transform 240ms ease;
+  /* Contrôles fixés, accessibles et “thumb-friendly” */
+  .controls{
+    position:absolute; inset:auto 12px 12px 12px; display:flex; align-items:center; gap:10px; justify-content:center;
+    pointer-events:none;
   }
-  .palette.show{ transform:translateX(-50%) translateY(0)}
-  .chip{padding:8px 12px; border-radius:999px; border:1px solid var(--ring); cursor:pointer; user-select:none}
-  .chip.active{ background:var(--ink); color:var(--card); border-color:transparent}
+  .pill{pointer-events:auto; display:flex; gap:8px; align-items:center; background:color-mix(in oklab, var(--card) 70%, transparent);
+    border:1px solid var(--ring); padding:8px 10px; border-radius:999px; box-shadow:var(--shadow)}
+  .navbtn{
+    width:40px; height:40px; border-radius:999px; border:1px solid var(--ring); background:var(--card); display:grid; place-items:center; cursor:pointer;
+  }
+  .dots{display:flex; gap:6px; padding:0 6px}
+  .dot{
+    width:8px; height:8px; border-radius:50%; background:var(--ring); cursor:pointer;
+  }
+  .dot.active{ background:var(--acc); box-shadow:0 0 0 6px color-mix(in oklab, var(--acc) 25%, transparent)}
 
-  /* Curseur magnétique (desktop) */
-  @media (pointer:fine){
-    .magnet{ position:fixed; width:18px; height:18px; border:2px solid color-mix(in oklab, var(--ink) 40%, transparent); border-radius:50%; left:-100px; top:-100px; pointer-events:none; mix-blend-mode:multiply; transition: transform 70ms linear;}
+  /* Petite barre haute de progression */
+  .progress{position:absolute; left:0; right:0; top:0; height:3px; background:var(--ring)}
+  .bar{height:100%; width:0%; background:linear-gradient(90deg, var(--acc), color-mix(in oklab, var(--acc) 30%, transparent))}
+
+  /* Aide tactile */
+  .hint{
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    color:var(--muted); font-size:13px; background:color-mix(in oklab, var(--card) 70%, transparent);
+    border:1px dashed var(--ring); padding:8px 10px; border-radius:10px; user-select:none;
   }
+  @media (pointer:fine){ .hint{display:none} }
 </style>
 </head>
 <body>
-<div class="app" id="app" aria-live="polite">
-  <div class="ring" id="ring" aria-hidden="true">
-    <!-- pastilles positionnées en JS -->
-    <div class="nav-dots" id="dots"></div>
-    <section class="stage" id="stage" role="group" aria-roledescription="station orbitale">
-      <header>
-        <h1 id="title">Accueil — L’expérience orbitale</h1>
-        <p id="subtitle">Une vitrine web minimaliste, non-linéaire, centrée, où chaque section “tourne” en avant-scène.</p>
-      </header>
+<div class="app" aria-live="polite">
+  <div class="topbar">
+    <div class="brand">Vitrine</div>
+    <div class="kbd">Astuce : ← → ou swipe</div>
+  </div>
 
-      <main class="grid" id="grid">
-        <!-- tuiles injectées en JS -->
-      </main>
+  <div class="deck" id="deck" aria-roledescription="carrousel">
+    <div class="progress"><div class="bar" id="bar"></div></div>
+    <div class="rail" id="rail">
+      <!-- Slides injectés en JS -->
+    </div>
 
-      <div class="footer">
-        <div class="meta" id="meta">Utilise la molette, ←/→, swipe, ou clique une pastille.</div>
-        <button class="btn" id="prev" aria-label="Précédent">◄</button>
-        <div class="progress" aria-hidden="true"><div class="bar" id="bar"></div></div>
-        <button class="btn" id="next" aria-label="Suivant">►</button>
+    <div class="hint">Glisse latéralement</div>
+
+    <div class="controls">
+      <div class="pill">
+        <button class="navbtn" id="prev" aria-label="Précédent">◄</button>
+        <div class="dots" id="dots"></div>
+        <button class="navbtn" id="next" aria-label="Suivant">►</button>
       </div>
-    </section>
+    </div>
   </div>
 </div>
 
-<!-- Palette -->
-<div class="palette" id="palette" aria-label="Palette de navigation">
-  <!-- chips injectées -->
-</div>
-
-<div class="magnet" id="magnet" aria-hidden="true"></div>
-
 <script>
-/* ---------- Données des “stations” (sections de la vitrine) ---------- */
-const STATIONS = [
+/* ——— Données de contenu (modifie ici) ——— */
+const SLIDES = [
   {
-    id:"home",
-    title:"Accueil — L’expérience orbitale",
-    subtitle:"Une vitrine minimaliste, non-linéaire, où le contenu vient à toi.",
+    title:"Accueil — cap sur l’essentiel",
+    subtitle:"Une vitrine minimaliste et différente : navigation horizontale, cartes focalisées.",
     tiles:[
-      {k:"Manifeste", v:"Design clair, beaucoup d’espace, interactions douces. Zéro scroll vertical imposé.", badge:"minimal"},
-      {k:"Interaction", v:"Molette, flèches, swipe, clic — choisis ton chemin.", badge:"input"},
-      {k:"Différence", v:"Structure radiale : la scène active se présente au centre, net et focalisé.", badge:"radial"},
-      {k:"Accessibilité", v:"ARIA, contrastes, responsive natif. Petite latence = grand confort.", badge:"a11y"},
+      {k:"Manifeste", v:"Clarté, espace, lisibilité sans surcharge."},
+      {k:"Interaction", v:"Swipe sur mobile, flèches ou clics sur desktop."},
+      {k:"Design", v:"Grille bento, composants sobres, dark-mode natif."},
+      {k:"Perf", v:"Zéro framework, animations GPU 2D, légèreté."},
     ],
-    cta:[{label:"Découvrir", kind:"primary"}, {label:"Contact"}]
+    cta:["Découvrir","Contact"]
   },
   {
-    id:"about",
-    title:"À propos — Vision & principes",
-    subtitle:"Nous créons des expériences utiles, sobres et vivantes.",
+    title:"À propos — notre approche",
+    subtitle:"Créer moins mais mieux : utile, durable, élégant.",
     tiles:[
-      {k:"Sobriété", v:"Aller à l’essentiel. Supprimer le bruit. Valoriser la respiration visuelle.", badge:"design"},
-      {k:"Qualité", v:"Typo lisible, layout stable, micro-interactions sans gimmick.", badge:"craft"},
-      {k:"Durabilité", v:"Code léger, sans dépendance. Dark-mode natif. Respect du CPU.", badge:"eco"},
-      {k:"Méthode", v:"Prototype → feedback → raffinement. Toujours proche de l’usage.", badge:"loop"},
+      {k:"Sobriété", v:"Aller à l’essentiel, supprimer le bruit visuel."},
+      {k:"Qualité", v:"Micro-interactions douces, pas d’artifice gratuit."},
+      {k:"Durabilité", v:"Code simple, maintenable, frugal."},
+      {k:"Accessibilité", v:"Clavier, ARIA, tailles fluides."},
     ],
-    cta:[{label:"Notre méthode", kind:"primary"}]
+    cta:["Notre méthode"]
   },
   {
-    id:"tech",
-    title:"Technologie — Front léger, back pragmatique",
-    subtitle:"Vanilla JS, Web Components si besoin, APIs sobres, intégrations mesurées.",
+    title:"Technologie — front léger",
+    subtitle:"Vanilla JS, HTML sémantique, CSS variables.",
     tiles:[
-      {k:"Front", v:"HTML sémantique, CSS variables, JS composable. Pas de framework par défaut.", badge:"web"},
-      {k:"Perf", v:"Lazy data, animations GPU 2D (pas de 3D ici), 60fps visés.", badge:"perf"},
-      {k:"Accessibilité", v:"Navigation clavier, ARIA, tailles fluides. Testé mobile first.", badge:"a11y"},
-      {k:"Intégrations", v:"Email, form, analytics éthiques. SSO si nécessaire.", badge:"api"},
+      {k:"Composabilité", v:"Modules petits, clairs, testables."},
+      {k:"Intégrations", v:"APIs sobres, analytics éthiques."},
+      {k:"Performance", v:"60fps visés, lazy data."},
+      {k:"Handoff", v:"Guidelines, tokens design, assets."},
     ],
-    cta:[{label:"Voir un proto", kind:"primary"}, {label:"Specs"}]
+    cta:["Voir un proto","Specs"]
   },
   {
-    id:"work",
-    title:"Travaux — Sélection épurée",
-    subtitle:"Des pièces choisies pour illustrer notre approche.",
+    title:"Travaux — sélection",
+    subtitle:"Exemples concrets et résultats.",
     tiles:[
-      {k:"Produit A", v:"Interface de pilotage, vues d’ensemble, focus par étapes.", badge:"case"},
-      {k:"Produit B", v:"Cartes minimalistes, geste unique, data claire.", badge:"case"},
-      {k:"Expérience", v:"Transitions ‘vers soi’ sans scroll, flux contrôlé.", badge:"ux"},
-      {k:"Impact", v:"Taux d’erreur -24%, NPS +18, adoption +31%.", badge:"résultats"},
+      {k:"Produit A", v:"Pilotage simple, vues claires."},
+      {k:"Produit B", v:"Cartes minimalistes, data utile."},
+      {k:"Impact", v:"NPS +18, erreurs -24%."},
+      {k:"Adoption", v:"+31% d’usage hebdo."},
     ],
-    cta:[{label:"Études de cas", kind:"primary"}]
+    cta:["Études de cas"]
   },
   {
-    id:"contact",
-    title:"Contact — Parlons concret",
-    subtitle:"Une idée, un produit à dépoussiérer, une vitrine à réinventer ?",
+    title:"Contact — parlons",
+    subtitle:"Un besoin, une idée, une refonte ?",
     tiles:[
-      {k:"Email", v:"hello@vitrine.example", badge:"@"},
-      {k:"Calendrier", v:"30 minutes pour cadrer vos besoins.", badge:"meet"},
-      {k:"Livrables", v:"Prototype, guideline, handoff clair.", badge:"deliver"},
-      {k:"Engagement", v:"Clarté, honnêteté, exigence.", badge:"ethos"},
+      {k:"Email", v:"hello@vitrine.example"},
+      {k:"RDV", v:"30 minutes pour cadrer."},
+      {k:"Livrables", v:"Prototype + guideline."},
+      {k:"Engagement", v:"Clarté et exigence."},
     ],
-    cta:[{label:"Écrire", kind:"primary"}, {label:"Prendre RDV"}]
+    cta:["Écrire","Prendre RDV"]
   }
 ];
 
-/* ---------- État & éléments ---------- */
-const ring   = document.getElementById('ring');
-const stage  = document.getElementById('stage');
-const dotsEl = document.getElementById('dots');
-const bar    = document.getElementById('bar');
-const title  = document.getElementById('title');
-const subtitle = document.getElementById('subtitle');
-const grid   = document.getElementById('grid');
-const meta   = document.getElementById('meta');
-const palette= document.getElementById('palette');
-const magnet = document.getElementById('magnet');
-const prevBtn= document.getElementById('prev');
-const nextBtn= document.getElementById('next');
+/* ——— Elements ——— */
+const rail  = document.getElementById('rail');
+const dots  = document.getElementById('dots');
+const bar   = document.getElementById('bar');
+const prevB = document.getElementById('prev');
+const nextB = document.getElementById('next');
 
-let index = 0;
-let lockWheel = false;
+let idx = 0;
 
-/* ---------- Helpers UI ---------- */
-function lerp(a,b,t){ return a + (b-a)*t }
-function clamp(v,min,max){ return Math.min(max, Math.max(min, v)) }
+/* ——— Render ——— */
+function renderSlides(){
+  rail.innerHTML = "";
+  SLIDES.forEach((s,i)=>{
+    const slide = document.createElement('section');
+    slide.className = 'slide';
+    slide.setAttribute('aria-label', s.title);
 
-/* Positionne les pastilles autour de l’orbite */
-function layoutDots(){
-  dotsEl.innerHTML = "";
-  STATIONS.forEach((s, i)=>{
-    const t = (i / STATIONS.length) * Math.PI*2 - Math.PI/2; // démarre en haut
-    const x = 50 + Math.cos(t) * 50;
-    const y = 50 + Math.sin(t) * 50;
-    const d = document.createElement('button');
-    d.className = 'dot' + (i===index ? ' active':'');
-    d.style.left = x + '%';
-    d.style.top  = y + '%';
-    d.title = s.title;
-    d.setAttribute('aria-label', s.title);
-    d.addEventListener('click', ()=> goto(i));
-    dotsEl.appendChild(d);
-  });
-}
-
-/* Remplit la “station” centrale */
-function renderStation(i){
-  const s = STATIONS[i];
-  title.textContent = s.title;
-  subtitle.textContent = s.subtitle;
-  grid.innerHTML = "";
-  s.tiles.forEach((t, k)=>{
-    const el = document.createElement('div');
-    el.className = 'tile';
-    el.innerHTML = `
-      <span class="badge">${t.badge}</span>
-      <small>${t.k}</small>
-      <h3>${t.v.split(' — ')[0]}</h3>
-      <p>${t.v.split(' — ')[1] || ""}</p>
-      <div class="line"></div>
+    slide.innerHTML = `
+      <div class="card">
+        <header>
+          <h1>${s.title}</h1>
+          <p>${s.subtitle}</p>
+        </header>
+        <main class="grid">
+          ${s.tiles.map(t => `
+            <div class="tile">
+              <small>${t.k}</small>
+              <h3>${t.v}</h3>
+              <p></p>
+            </div>
+          `).join('')}
+        </main>
+        <footer class="actions">
+          ${(s.cta||[]).map((c,j)=> `<button class="btn ${j===0?'primary':''}">${c}</button>`).join('')}
+        </footer>
+      </div>
     `;
-    grid.appendChild(el);
+    rail.appendChild(slide);
   });
-  const actions = document.createElement('div');
-  actions.className = 'actions';
-  (s.cta || []).forEach(c=>{
-    const b = document.createElement('button');
-    b.className = 'btn' + (c.kind==='primary' ? ' primary':'');
-    b.textContent = c.label;
-    actions.appendChild(b);
+
+  dots.innerHTML = "";
+  SLIDES.forEach((_,i)=>{
+    const d = document.createElement('button');
+    d.className = 'dot' + (i===idx?' active':'' );
+    d.setAttribute('aria-label', `Aller à la diapositive ${i+1}`);
+    d.addEventListener('click', ()=> go(i));
+    dots.appendChild(d);
   });
-  grid.appendChild(actions);
 
-  /* petite animation d’entrée */
-  stage.animate([
-    { transform: 'scale(.985) translateY(6px)', filter:'blur(4px)' },
-    { transform: 'scale(1) translateY(0)', filter:'blur(0px)' }
-  ], { duration: 420, easing: 'cubic-bezier(.2,.8,.2,1)'});
-
-  /* barre de progression */
-  const p = ((i+1)/STATIONS.length)*100;
-  bar.style.width = p + '%';
-
-  /* pastilles actives */
-  [...dotsEl.children].forEach((d, k)=> d.classList.toggle('active', k===i));
-
-  /* meta */
-  meta.textContent = `${i+1} / ${STATIONS.length} — ${s.id}`;
+  update();
 }
 
-/* Rotation douce de l’anneau (effet orbitale) */
-let currentRot = 0;
-function rotateRing(toIdx){
-  const step = (Math.PI*2)/STATIONS.length;
-  const targetRot = -step * toIdx;
-  const start = currentRot;
-  const t0 = performance.now(), D = 540; // ms
-  (function anim(now){
-    const dt = now - t0;
-    const k = clamp(dt / D, 0, 1);
-    const e = (k<.5) ? 4*k*k*k : 1 - Math.pow(-2*k+2, 3)/2; // easeInOutCubic
-    const r = lerp(start, targetRot, e);
-    ring.style.transform = `rotate(${r}rad)`;
-    if(k<1){ requestAnimationFrame(anim) } else { currentRot = targetRot }
-  })(performance.now());
+/* ——— Navigation ——— */
+function go(i){
+  idx = (i + SLIDES.length) % SLIDES.length;
+  rail.style.transform = `translateX(-${idx*100}%)`;
+  update();
 }
 
-/* Aller à l’index demandé */
-function goto(i){
-  index = (i + STATIONS.length) % STATIONS.length;
-  rotateRing(index);
-  renderStation(index);
+function update(){
+  // dots & barre de progression
+  [...dots.children].forEach((d,k)=> d.classList.toggle('active', k===idx));
+  bar.style.width = ((idx+1)/SLIDES.length*100)+'%';
+  // focus accessible
+  const currentSlide = rail.children[idx];
+  if(currentSlide){ currentSlide.setAttribute('tabindex','-1'); currentSlide.focus({preventScroll:true}); }
+  // états boutons
+  prevB.disabled = (SLIDES.length<=1);
+  nextB.disabled = (SLIDES.length<=1);
 }
 
-/* Wheel / swipe / keyboard */
-function onWheel(e){
-  if(lockWheel) return;
-  lockWheel = true;
-  (e.deltaY > 0 || e.deltaX > 0) ? goto(index+1) : goto(index-1);
-  setTimeout(()=> lockWheel = false, 420);
-}
-let touchX=0, touchY=0;
-function onTouchStart(e){ const t = e.touches[0]; touchX=t.clientX; touchY=t.clientY }
-function onTouchMove(e){
-  if(!touchX) return;
-  const t = e.touches[0];
-  const dx = t.clientX - touchX;
-  const dy = t.clientY - touchY;
-  if(Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)){
-    if(dx < 0) goto(index+1); else goto(index-1);
-    touchX=0; touchY=0;
+/* ——— Gestes (mobile) ——— */
+let startX=0, startY=0, isTouch=false, moved=false;
+rail.addEventListener('touchstart', e=>{
+  isTouch=true; moved=false;
+  const t=e.touches[0]; startX=t.clientX; startY=t.clientY;
+},{passive:true});
+
+rail.addEventListener('touchmove', e=>{
+  if(!isTouch) return;
+  const t=e.touches[0]; const dx=t.clientX-startX; const dy=t.clientY-startY;
+  if(Math.abs(dx)>Math.abs(dy) && Math.abs(dx)>20){
+    moved=true;
+    // slide en direct, mais borné pour ne pas “décrocher”
+    rail.style.transition='none';
+    rail.style.transform=`translateX(calc(${-idx*100}% + ${dx}px))`;
   }
-}
-function onKey(e){
-  if(e.key==='ArrowRight') goto(index+1);
-  else if(e.key==='ArrowLeft') goto(index-1);
-  else if(e.key===' ') { e.preventDefault(); palette.classList.toggle('show') }
-}
+},{passive:true});
 
-/* Palette (chips = sauts directs) */
-function buildPalette(){
-  palette.innerHTML = "";
-  STATIONS.forEach((s,i)=>{
-    const chip = document.createElement('div');
-    chip.className = 'chip' + (i===index?' active':'');
-    chip.textContent = s.id;
-    chip.addEventListener('click', ()=> { goto(i); palette.classList.remove('show') });
-    palette.appendChild(chip);
-  });
+function endSwipe(e){
+  if(!isTouch) return;
+  rail.offsetHeight; // reflow
+  rail.style.transition='';
+  if(moved){
+    const t = (e.changedTouches?e.changedTouches[0]:e).clientX;
+    const dx = t - startX;
+    if(Math.abs(dx)>40){ dx<0 ? go(idx+1) : go(idx-1) }
+    else { go(idx) }
+  }
+  isTouch=false;
 }
-function updatePaletteActive(){
-  [...palette.children].forEach((c,k)=> c.classList.toggle('active', k===index));
-}
+rail.addEventListener('touchend', endSwipe, {passive:true});
+rail.addEventListener('touchcancel', endSwipe, {passive:true});
 
-/* Curseur magnétique (desktop) */
-document.addEventListener('mousemove', e=>{
-  const {clientX:x, clientY:y} = e;
-  magnet.style.transform = `translate(${x-9}px, ${y-9}px)`;
+/* ——— Clavier & boutons ——— */
+window.addEventListener('keydown', e=>{
+  if(e.key==='ArrowRight') go(idx+1);
+  else if(e.key==='ArrowLeft') go(idx-1);
 });
+prevB.addEventListener('click', ()=> go(idx-1));
+nextB.addEventListener('click', ()=> go(idx+1));
 
-/* Boutons prev/next */
-prevBtn.addEventListener('click', ()=> goto(index-1));
-nextBtn.addEventListener('click', ()=> goto(index+1));
+/* ——— Wheel horizontal (trackpads) ——— */
+let wheelLock=false;
+window.addEventListener('wheel', e=>{
+  // autorise trackpads horizontaux, ignore scroll vertical pour éviter la “bagarre”
+  if(wheelLock) return;
+  if(Math.abs(e.deltaX) > Math.abs(e.deltaY)){
+    wheelLock=true;
+    (e.deltaX>0) ? go(idx+1) : go(idx-1);
+    setTimeout(()=> wheelLock=false, 300);
+  }
+},{passive:true});
 
-/* Listeners globaux */
-window.addEventListener('wheel', onWheel, {passive:true});
-window.addEventListener('touchstart', onTouchStart, {passive:true});
-window.addEventListener('touchmove', onTouchMove, {passive:true});
-window.addEventListener('keydown', onKey);
+/* ——— Init ——— */
+renderSlides();
+go(0);
 
-/* Init */
-layoutDots();
-buildPalette();
-renderStation(index);
-
-/* Observe index pour palette */
-const obs = new MutationObserver(updatePaletteActive);
-obs.observe(dotsEl, {childList:true, subtree:true});
-
-/* Accessibilité : annoncer changement de station */
-let liveTimer = null;
-const app = document.getElementById('app');
-function announce(txt){
-  clearTimeout(liveTimer);
-  const el = document.createElement('div');
-  el.className = 'sr'; el.setAttribute('aria-live','assertive');
-  el.style.position='absolute'; el.style.left='-9999px'; el.textContent = txt;
-  app.appendChild(el);
-  liveTimer = setTimeout(()=> el.remove(), 1500);
+/* ——— Ajuste la hauteur (iOS safe-area) ——— */
+function resizeVH(){
+  document.documentElement.style.setProperty('--vh', window.innerHeight*0.01 + 'px');
 }
-const _renderStation = renderStation;
-renderStation = function(i){ _renderStation(i); announce(STATIONS[i].title); updatePaletteActive(); }
+window.addEventListener('resize', resizeVH);
+resizeVH();
 </script>
 </body>
 </html>
