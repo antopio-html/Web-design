@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Bar à Chat — Kawaii × Japandi (Responsive)</title>
+<title>Bar à Chat — Kawaii × Japandi (Animations douces)</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
-<meta name="description" content="Bar à Chat : concept, chats, menu, engagements, informations pratiques et réservation. Ambiance kawaii japandi.">
+<meta name="description" content="Bar à Chat : concept, chats, menu, engagements, infos pratiques & réservation. Ambiance kawaii-japandi, animations calmes.">
 <style>
   :root{
     /* Palette cute + scandi */
@@ -18,6 +18,9 @@
     /* Rythmes */
     --pad: clamp(14px, 2.5vw, 22px);
     --gap: clamp(10px, 2vw, 16px);
+    --in-dur: .8s;     /* durée d'apparition par défaut */
+    --in-ease: cubic-bezier(.2,.7,.2,1);
+    --stagger: .08s;   /* décalage entre éléments */
   }
   *{box-sizing:border-box}
   html,body{margin:0;height:100%}
@@ -26,8 +29,8 @@
     color:var(--ink);
     font: clamp(15px, 1.2vw, 17px)/1.65 "Nunito", system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Arial, sans-serif;
     background:
-      radial-gradient(1200px 700px at 80% -10%, rgba(249,202,218,.25), transparent 60%),
-      radial-gradient(900px 600px at 10% 30%, rgba(203,237,227,.25), transparent 60%),
+      radial-gradient(1200px 700px at 80% -10%, rgba(249,202,218,.22), transparent 60%),
+      radial-gradient(900px 600px at 10% 30%, rgba(203,237,227,.22), transparent 60%),
       linear-gradient(180deg, var(--cream), #fff);
     -webkit-tap-highlight-color: transparent;
   }
@@ -38,13 +41,16 @@
     backdrop-filter: blur(8px) saturate(1.04);
     background:linear-gradient(to bottom, rgba(255,255,255,.95), rgba(255,255,255,.85));
     border-bottom:1px solid var(--line);
+    transition: box-shadow .4s var(--in-ease), background .4s var(--in-ease);
   }
+  .site.scrolled{ box-shadow:0 10px 26px rgba(78,54,35,.06) }
   .nav{
     max-width:1200px; margin:auto; padding:8px var(--pad);
     display:flex; align-items:center; justify-content:space-between; gap:var(--gap);
   }
   .brand{display:flex; align-items:center; gap:10px; font-weight:900; letter-spacing:.2px; font-size: clamp(16px,1.8vw,18px)}
-  .brand img{height:32px; width:auto; display:block}
+  .brand img{height:32px; width:auto; display:block; transition: transform .5s var(--in-ease)}
+  .brand:hover img{ transform:scale(1.03) }
 
   /* Desktop nav */
   nav[aria-label="Sections"]{ display:flex; align-items:center; gap:8px }
@@ -52,32 +58,37 @@
   .menu a{
     text-decoration:none; color:var(--ink); background:#fff; border:1px solid var(--line);
     padding:10px 12px; border-radius:999px; font-weight:800; font-size:13px; box-shadow:0 4px 10px rgba(78,54,35,.06);
-    white-space:nowrap;
+    white-space:nowrap; transition: transform .25s var(--in-ease), box-shadow .25s var(--in-ease);
   }
+  .menu a:hover{ transform: translateY(-1px); box-shadow:0 10px 20px rgba(78,54,35,.10) }
   .menu a.active{ outline:3px solid rgba(249,202,218,.45) }
 
   .cta-reserver{
     text-decoration:none; background:var(--marron); color:#fff; font-weight:900;
     padding:12px 16px; border-radius:999px; box-shadow:0 10px 24px rgba(164,117,81,.25);
-    min-height:44px; display:inline-flex; align-items:center;
+    min-height:44px; display:inline-flex; align-items:center; transition: transform .25s var(--in-ease), box-shadow .25s var(--in-ease);
   }
+  .cta-reserver:hover{ transform: translateY(-1px); box-shadow:0 14px 30px rgba(164,117,81,.3) }
 
   /* Burger (mobile) */
   .burger{
     display:none; width:44px; height:44px; border-radius:12px; border:1px solid var(--line); background:#fff;
     box-shadow:0 6px 16px rgba(78,54,35,.08); align-items:center; justify-content:center; font-size:20px;
+    transition: transform .25s var(--in-ease);
   }
+  .burger:active{ transform: scale(.98) }
   @media (max-width:860px){
     .burger{ display:inline-flex; }
-    .site .nav > nav, .site .nav .cta-reserver{ display:none } /* cache menu desktop et CTA à gauche sur mobile */
+    .site .nav > nav, .site .nav .cta-reserver{ display:none }
   }
   /* Drawer mobile */
   .drawer{
     display:none;
     position:fixed; inset:auto 0 0 0; top:64px; background:rgba(255,255,255,.98); border-top:1px solid var(--line);
     box-shadow:0 -10px 30px rgba(78,54,35,.08); padding:12px var(--pad);
+    transform: translateY(6px); opacity:0; transition: transform .35s var(--in-ease), opacity .35s var(--in-ease);
   }
-  .drawer.open{ display:block; }
+  .drawer.open{ display:block; transform: translateY(0); opacity:1 }
   .drawer .menu{ flex-wrap:wrap; justify-content:center }
 
   /* ===== HERO ===== */
@@ -87,9 +98,9 @@
     border-radius:26px; padding: clamp(22px,5vw,46px); box-shadow:var(--shadow-2); position:relative;
   }
   .logo-main{
-    max-width:280px; width:min(60%, 280px); height:auto; margin:0 auto 16px; display:block;
-    border-radius:16px;
+    max-width:280px; width:min(60%, 280px); height:auto; margin:0 auto 16px; display:block; border-radius:16px;
     box-shadow:0 10px 28px rgba(249,202,218,.35);
+    will-change: transform, opacity, filter;
   }
   h1{font-size: clamp(28px,6vw,56px); margin:.2rem 0 .35rem}
   .lead{color:var(--muted); font-size: clamp(15px,2.2vw,19px); margin:.4rem auto 1.1rem; max-width:62ch}
@@ -98,16 +109,18 @@
     display:inline-flex; align-items:center; justify-content:center; min-height:44px;
     padding:10px 14px; border-radius:999px; font-weight:800; text-decoration:none;
     border:1px solid var(--line); background:#fff; color:var(--ink); box-shadow:0 8px 18px rgba(78,54,35,.08);
+    transition: transform .25s var(--in-ease), box-shadow .25s var(--in-ease);
   }
+  .cta:hover{ transform: translateY(-1px); box-shadow:0 14px 30px rgba(78,54,35,.12) }
 
-  /* ===== Sections génériques ===== */
+  /* ===== Sections ===== */
   section{ scroll-margin-top: 90px; padding: clamp(28px, 5vw, 48px) var(--pad) }
   .container{ max-width:1200px; margin:auto }
   .section-head{ display:flex; align-items:end; justify-content:space-between; gap:12px; margin-bottom:12px }
   .section-head h2{ margin:0; font-size: clamp(22px,3.8vw,34px) }
   .desc{ color:var(--muted); font-size:14px }
 
-  /* ===== Grille responsive ===== */
+  /* ===== Grille ===== */
   .grid{ display:grid; gap:var(--gap); grid-template-columns: repeat(12, 1fr) }
   .col-4{ grid-column: span 4 } .col-6{ grid-column: span 6 } .col-8{ grid-column: span 8 } .col-12{ grid-column: span 12 }
   @media (max-width:1100px){ .col-8{grid-column: span 12} .col-6{grid-column: span 6} }
@@ -116,7 +129,7 @@
   /* ===== Cartes ===== */
   .card{
     position:relative; background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:var(--pad);
-    box-shadow:var(--shadow); transition: transform .25s ease, box-shadow .25s ease;
+    box-shadow:var(--shadow); transition: transform .35s var(--in-ease), box-shadow .35s var(--in-ease);
   }
   .card:hover{ transform: translateY(-2px); box-shadow:var(--shadow-2) }
   .card h3{ margin:.2rem 0 .35rem; font-size: clamp(18px,3.2vw,22px) }
@@ -126,8 +139,8 @@
   .badge.sauge{ border-color:#dfe8d8; color:#3c553a; background:linear-gradient(180deg,#fff,#eaf2e7) }
 
   .media{ margin-top:10px; border-radius:16px; overflow:hidden; border:1px solid var(--line); background:#fff }
-  .media img{ width:100%; height:auto; display:block; transition: transform .5s cubic-bezier(.2,.8,.2,1) }
-  .media:hover img{ transform: scale(1.04) } /* hover zoom (désactivé si prefers-reduced-motion) */
+  .media img{ width:100%; height:auto; display:block; transition: transform .6s var(--in-ease), filter .6s var(--in-ease) }
+  .media:hover img{ transform: scale(1.035) }
 
   /* ===== Timeline ===== */
   .timeline{ position:relative; padding-left:24px; margin-top:8px }
@@ -135,35 +148,51 @@
   .step{ position:relative; margin:14px 0; background:#fff; border:1px solid var(--line); border-radius:16px; padding:12px 14px; box-shadow:var(--shadow) }
   .step:before{ content:""; position:absolute; left:-18px; top:14px; width:14px; height:14px; background:var(--rose); border:2px solid #fff; border-radius:50%; box-shadow:0 0 0 2px var(--rose), 0 0 0 6px rgba(249,202,218,.25) }
 
-  /* ===== Infos pratiques / carte ===== */
+  /* ===== Infos / Carte ===== */
   .info{ display:grid; gap:var(--gap); grid-template-columns:1.2fr .8fr; align-items:start }
   @media (max-width:900px){ .info{ grid-template-columns:1fr } }
   .map{ border:1px solid var(--line); border-radius:16px; overflow:hidden; min-height:280px; background:#fff; box-shadow:var(--shadow) }
 
-  /* ===== Réservation ===== */
+  /* ===== RÉSERVATION ===== */
   .rez{
     margin:24px 0 8px; padding:var(--pad);
     background:linear-gradient(180deg, #D7ECFF, #ffffff);
     border:1px solid #dfe7f4; border-radius:18px; display:flex; align-items:center; gap:14px; justify-content:space-between; flex-wrap:wrap;
     box-shadow:var(--shadow);
   }
-  .rez a{ text-decoration:none; background:var(--marron); color:#fff; font-weight:900; padding:12px 16px; border-radius:999px; box-shadow:0 10px 24px rgba(164,117,81,.25); min-height:44px; display:inline-flex; align-items:center }
+  .rez a{ text-decoration:none; background:var(--marron); color:#fff; font-weight:900; padding:12px 16px; border-radius:999px; box-shadow:0 10px 24px rgba(164,117,81,.25); min-height:44px; display:inline-flex; align-items:center; transition: transform .25s var(--in-ease), box-shadow .25s var(--in-ease) }
+  .rez a:hover{ transform: translateY(-1px); box-shadow:0 14px 30px rgba(164,117,81,.32) }
 
-  /* ===== Reveal animé ===== */
-  .reveal{ opacity:0; transform:translateY(18px) scale(.98); filter:blur(8px) }
-  .reveal.in{ opacity:1; transform:none; filter:none; transition: all .6s cubic-bezier(.2,.8,.2,1) }
+  /* ====== ANIMATIONS CALMES (entrées) ======
+     On pose des états init puis la classe .in les révèle.
+     Variantes : fade-up, fade, fade-right, pop (très léger).
+  */
+  [data-anim]{ opacity:0; transform:translateY(12px) scale(.98); filter:blur(8px) }
+  [data-anim].in{ opacity:1; transform:none; filter:none; transition:
+      opacity var(--in-dur) var(--in-ease),
+      transform var(--in-dur) var(--in-ease),
+      filter var(--in-dur) var(--in-ease); }
 
-  /* Accessibilité anims */
+  /* Variantes douces */
+  [data-anim="fade"]{ transform:none; filter:blur(6px) }
+  [data-anim="fade-right"]{ transform:translateX(-14px) }
+  [data-anim="pop"]{ transform:scale(.985); filter:blur(6px) }
+
+  /* Stagger via custom property */
+  [data-anim][style*="--i"]{ transition-delay: calc(var(--i) * var(--stagger)) }
+
+  /* prefers-reduced-motion */
   @media (prefers-reduced-motion: reduce){
     *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important }
     .media:hover img{ transform:none }
+    [data-anim]{ opacity:1 !important; transform:none !important; filter:none !important }
   }
 </style>
 </head>
 <body>
 
 <!-- HEADER -->
-<header class="site" aria-label="Navigation principale">
+<header class="site" aria-label="Navigation principale" id="siteHeader">
   <div class="nav">
     <div class="brand">
       <img src="imagesBar/bar.png" alt="Logo du Bar à Chat">
@@ -181,7 +210,7 @@
       </ul>
     </nav>
 
-    <a class="cta-reserver" href="#reservation">Réserver</a>
+    <a class="cta-reserver" href="#reservation" data-anim="pop" style="--i:3">Réserver</a>
 
     <!-- Burger (mobile) -->
     <button class="burger" id="burger" aria-expanded="false" aria-controls="drawer" aria-label="Ouvrir le menu">☰</button>
@@ -202,13 +231,13 @@
 
 <!-- HERO (logo bar.png en grand) -->
 <section class="hero" id="home">
-  <div class="welcome reveal">
-    <img src="imagesBar/bar.png" alt="Logo principal du Bar à Chat" class="logo-main" width="560" height="560">
-    <h1>Bienvenue au Bar à Chat</h1>
-    <p class="lead">Kawaii & cocooning : douceurs, cafés, et rencontres avec nos pensionnaires — toujours dans le respect de leur rythme 🐾</p>
+  <div class="welcome" data-anim="pop">
+    <img src="imagesBar/bar.png" alt="Logo principal du Bar à Chat" class="logo-main" width="560" height="560" style="--i:0">
+    <h1 data-anim="fade" style="--i:1">Bienvenue au Bar à Chat</h1>
+    <p class="lead" data-anim style="--i:2">Kawaii & cocooning : douceurs, cafés, et rencontres avec nos pensionnaires — toujours dans le respect de leur rythme 🐾</p>
     <div class="ctaRow">
-      <a class="cta" href="#concept">Découvrir le concept</a>
-      <a class="cta" href="#reservation">Réserver</a>
+      <a class="cta" href="#concept" data-anim="fade-right" style="--i:3">Découvrir le concept</a>
+      <a class="cta" href="#reservation" data-anim="fade-right" style="--i:4">Réserver</a>
     </div>
   </div>
 </section>
@@ -217,12 +246,12 @@
 <section id="concept" aria-labelledby="h2-concept">
   <div class="container">
     <div class="section-head">
-      <h2 id="h2-concept">Concept</h2>
-      <p class="desc">Un café paisible, des chats adoptables, déco scandi-chaleureuse.</p>
+      <h2 id="h2-concept" data-anim>Concept</h2>
+      <p class="desc" data-anim="fade" style="--i:1">Un café paisible, des chats adoptables, déco scandi-chaleureuse.</p>
     </div>
 
     <div class="grid">
-      <article class="card col-8 reveal">
+      <article class="card col-8" data-anim style="--i:0">
         <span class="badge">Le lieu</span>
         <h3>Un cocon de calme</h3>
         <p>Bois clair, plantes et lumière douce. Ici, on savoure le temps… et les ronrons.</p>
@@ -231,7 +260,7 @@
         </div>
       </article>
 
-      <article class="card col-4 reveal">
+      <article class="card col-4" data-anim style="--i:1">
         <span class="badge sauge">Adoption</span>
         <h3>Rencontres responsables</h3>
         <p>Partenariats associatifs, conseils, suivi — chaque adoption est une histoire.</p>
@@ -242,10 +271,10 @@
     </div>
 
     <!-- Storytelling -->
-    <div class="timeline reveal" aria-label="Notre histoire">
-      <div class="step"><strong>Idée</strong> — Un lieu doux où humains & chats se rencontrent.</div>
-      <div class="step"><strong>Ouverture</strong> — Première équipe, premiers pensionnaires.</div>
-      <div class="step"><strong>Aujourd’hui</strong> — Café, ateliers, adoptions suivies, et beaucoup de ronrons.</div>
+    <div class="timeline" aria-label="Notre histoire">
+      <div class="step" data-anim style="--i:0"><strong>Idée</strong> — Un lieu doux où humains & chats se rencontrent.</div>
+      <div class="step" data-anim style="--i:1"><strong>Ouverture</strong> — Première équipe, premiers pensionnaires.</div>
+      <div class="step" data-anim style="--i:2"><strong>Aujourd’hui</strong> — Café, ateliers, adoptions suivies, et beaucoup de ronrons.</div>
     </div>
   </div>
 </section>
@@ -254,34 +283,28 @@
 <section id="chats" aria-labelledby="h2-chats">
   <div class="container">
     <div class="section-head">
-      <h2 id="h2-chats">Les chats</h2>
-      <p class="desc">Dis bonjour, mais laisse-les dormir si besoin ✨</p>
+      <h2 id="h2-chats" data-anim>Les chats</h2>
+      <p class="desc" data-anim="fade" style="--i:1">Dis bonjour, mais laisse-les dormir si besoin ✨</p>
     </div>
 
     <div class="grid">
-      <article class="card col-4 reveal">
+      <article class="card col-4" data-anim style="--i:0">
         <span class="badge">Luna</span>
         <h3>Reine des siestes</h3>
         <p>Rayons de soleil + plaid = bonheur.</p>
-        <div class="media">
-          <img src="imagesBar/imageBar3.png" alt="Chat Luna" loading="lazy" width="600" height="420">
-        </div>
+        <div class="media"><img src="imagesBar/imageBar3.png" alt="Chat Luna" loading="lazy" width="600" height="420"></div>
       </article>
-      <article class="card col-4 reveal">
+      <article class="card col-4" data-anim style="--i:1">
         <span class="badge sauge">Mochi</span>
         <h3>Grand joueur</h3>
         <p>Laser, plume, ficelle — il est partant !</p>
-        <div class="media">
-          <img src="imagesBar/imageBar4.png" alt="Chat Mochi" loading="lazy" width="600" height="420">
-        </div>
+        <div class="media"><img src="imagesBar/imageBar4.png" alt="Chat Mochi" loading="lazy" width="600" height="420"></div>
       </article>
-      <article class="card col-4 reveal">
+      <article class="card col-4" data-anim style="--i:2">
         <span class="badge">Tigrou</span>
         <h3>Explorateur zen</h3>
         <p>Sociable, curieux, mais sait se poser.</p>
-        <div class="media">
-          <img src="imagesBar/imageBar5.png" alt="Chat Tigrou" loading="lazy" width="600" height="420">
-        </div>
+        <div class="media"><img src="imagesBar/imageBar5.png" alt="Chat Tigrou" loading="lazy" width="600" height="420"></div>
       </article>
     </div>
   </div>
@@ -291,26 +314,22 @@
 <section id="menu" aria-labelledby="h2-menu">
   <div class="container">
     <div class="section-head">
-      <h2 id="h2-menu">Le menu</h2>
-      <p class="desc">Boissons & douceurs maison — options végétales.</p>
+      <h2 id="h2-menu" data-anim>Le menu</h2>
+      <p class="desc" data-anim="fade" style="--i:1">Boissons & douceurs maison — options végétales.</p>
     </div>
 
     <div class="grid">
-      <article class="card col-6 reveal">
+      <article class="card col-6" data-anim style="--i:0">
         <span class="badge">Boissons</span>
         <h3>Cappuccino, latte & thés</h3>
         <p>Grains locaux, laits végétaux, sirops maison. Essayez le “latte patte” 🐾</p>
-        <div class="media">
-          <img src="imagesBar/imageBar6.png" alt="Boissons du bar" loading="lazy" width="800" height="480">
-        </div>
+        <div class="media"><img src="imagesBar/imageBar6.png" alt="Boissons du bar" loading="lazy" width="800" height="480"></div>
       </article>
-      <article class="card col-6 reveal">
+      <article class="card col-6" data-anim style="--i:1">
         <span class="badge sauge">Douceurs</span>
         <h3>Pâtisseries</h3>
         <p>Cookies, carrot cake, brownie — sans gluten selon arrivage.</p>
-        <div class="media">
-          <img src="imagesBar/imageBar7.png" alt="Pâtisseries maison" loading="lazy" width="800" height="480">
-        </div>
+        <div class="media"><img src="imagesBar/imageBar7.png" alt="Pâtisseries maison" loading="lazy" width="800" height="480"></div>
       </article>
     </div>
   </div>
@@ -320,22 +339,22 @@
 <section id="engagements" aria-labelledby="h2-engagements">
   <div class="container">
     <div class="section-head">
-      <h2 id="h2-engagements">Nos engagements</h2>
-      <p class="desc">Bien-être animal, hygiène & transparence.</p>
+      <h2 id="h2-engagements" data-anim>Nos engagements</h2>
+      <p class="desc" data-anim="fade" style="--i:1">Bien-être animal, hygiène & transparence.</p>
     </div>
 
     <div class="grid">
-      <article class="card col-4 reveal">
+      <article class="card col-4" data-anim style="--i:0">
         <span class="badge sauge">Bien-être</span>
         <h3>Rythme félin</h3>
         <p>Repos garanti, zones calmes, interactions respectueuses.</p>
       </article>
-      <article class="card col-4 reveal">
+      <article class="card col-4" data-anim style="--i:1">
         <span class="badge">Hygiène</span>
         <h3>Normes strictes</h3>
         <p>Espaces séparés, nettoyage quotidien, traçabilité.</p>
       </article>
-      <article class="card col-4 reveal">
+      <article class="card col-4" data-anim style="--i:2">
         <span class="badge">Solidarité</span>
         <h3>Associations locales</h3>
         <p>Dons, parrainages, journées d’adoption responsables.</p>
@@ -347,7 +366,7 @@
 <!-- RÉSERVATION -->
 <section id="reservation" aria-labelledby="h2-rez">
   <div class="container">
-    <div class="rez reveal">
+    <div class="rez" data-anim>
       <div>
         <h2 id="h2-rez" style="margin:.2rem 0 .2rem">Réserver une table</h2>
         <p class="desc" style="margin:0">Choisissez votre créneau (places limitées pour le confort des chats).</p>
@@ -361,30 +380,35 @@
 <section id="nous-trouver" aria-labelledby="h2-nous">
   <div class="container">
     <div class="section-head">
-      <h2 id="h2-nous">Nous trouver</h2>
-      <p class="desc">Adresse, accès & horaires — venez sereinement.</p>
+      <h2 id="h2-nous" data-anim>Nous trouver</h2>
+      <p class="desc" data-anim="fade" style="--i:1">Adresse, accès & horaires — venez sereinement.</p>
     </div>
 
     <div class="info">
-      <div class="card reveal">
+      <div class="card" data-anim style="--i:0">
         <h3>Coordonnées</h3>
         <p><strong>Bar à Chat</strong><br>12 Rue des Ronrons, 00000 Ta Ville</p>
         <p><strong>Horaires</strong><br>Tous les jours 10:00–20:00</p>
         <p><strong>Contact</strong><br><a href="mailto:bonjour@barachat.example">bonjour@barachat.example</a></p>
         <p><strong>Tarifs</strong><br>Entrée 6€ (boisson incluse) • Étudiants 4€</p>
       </div>
-      <div class="map reveal" aria-label="Carte d'accès">
+      <div class="map" data-anim style="--i:1" aria-label="Carte d'accès">
         <img src="imagesBar/imageBar8.png" alt="Plan d'accès" loading="lazy" width="1000" height="600">
       </div>
     </div>
   </div>
 </section>
 
-<footer style="text-align:center; padding:40px var(--pad); color:var(--muted)">
+<footer style="text-align:center; padding:40px var(--pad); color:var(--muted)" data-anim="fade">
   © Bar à Chat — Cappuccinos & ronrons 🐱
 </footer>
 
 <script>
+/* Header ombre au scroll */
+const header = document.getElementById('siteHeader');
+const onScrollHeader = ()=>{ if(window.scrollY>6) header.classList.add('scrolled'); else header.classList.remove('scrolled'); };
+addEventListener('scroll', onScrollHeader, {passive:true}); onScrollHeader();
+
 /* Burger mobile */
 const burger = document.getElementById('burger');
 const drawer = document.getElementById('drawer');
@@ -397,11 +421,31 @@ drawer?.addEventListener('click', (e)=>{
   drawer.classList.remove('open'); burger.setAttribute('aria-expanded','false');
 });
 
-/* Reveal au scroll */
+/* IntersectionObserver : ajoute .in avec stagger doux */
 const io = new IntersectionObserver((ents)=>{
-  for(const e of ents){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } }
-},{threshold:.18});
-document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+  for(const e of ents){
+    if(!e.isIntersecting) continue;
+    const el = e.target;
+    // si l'élément contient des enfants marqués data-anim, on les révèle en cascade
+    const children = el.matches('[data-anim]') ? [el] : el.querySelectorAll(':scope > [data-anim]');
+    let i = 0;
+    children.forEach(child=>{
+      // si l'enfant a déjà une variable --i, on la garde (ex: grilles)
+      if(!child.style.getPropertyValue('--i')) child.style.setProperty('--i', i++);
+      child.classList.add('in');
+    });
+    // si l'élément lui-même est data-anim, in déjà posé ci-dessus.
+    if(el.matches('[data-anim]')) el.classList.add('in');
+    io.unobserve(el);
+  }
+},{
+  root:null,
+  threshold: .15,
+  rootMargin: "0px 0px -10% 0px" // déclenche un peu avant d'être 100% visible
+});
+
+/* Observer : sections, cartes, titres… (tout ce qui doit s'animer) */
+document.querySelectorAll('section, .card, [data-anim]').forEach(el=>io.observe(el));
 
 /* Scrollspy menu (desktop) */
 const sections = ['concept','chats','menu','engagements','nous-trouver'];
