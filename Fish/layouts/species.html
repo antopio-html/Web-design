@@ -1,1 +1,23 @@
+---
+layout: default
+---
 
+<article>
+  <h1>{{ page.name }}</h1>
+  <img src="{{ page.image | relative_url }}" alt="{{ page.name }}" style="max-width:300px"/>
+
+  <ul>
+    <li><strong>Famille :</strong> {{ page.family }}</li>
+    <li><strong>Taille :</strong> {{ page.size_cm }} cm</li>
+    <li><strong>Volume minimal :</strong> {{ page.min_tank_l }} L</li>
+    <li><strong>Température :</strong> {{ page.temp_c }} °C</li>
+    <li><strong>pH :</strong> {{ page.ph }}</li>
+  </ul>
+
+  <p>{{ page.summary }}</p>
+
+  <section>
+    <h2>Histoire</h2>
+    <p>{{ page.history }}</p>
+  </section>
+</article>
