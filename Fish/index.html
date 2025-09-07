@@ -1,24 +1,15 @@
-<!doctype html>
-<html lang="fr">
-<head>
-  {% include head.html %}
-  <title>{{ site.title }}</title>
-</head>
-<body>
-  <header>
-    <h1>{{ site.title }}</h1>
-    <p>{{ site.description }}</p>
-  </header>
+---
+layout: default
+title: Accueil
+---
 
-  <main>
-    <h2>Espèces disponibles</h2>
-    <ul>
-      {% for sp in site.species %}
-        <li>
-          <a href="{{ sp.url | relative_url }}">{{ sp.name }}</a> – {{ sp.summary }}
-        </li>
-      {% endfor %}
-    </ul>
-  </main>
-</body>
-</html>
+{% include head.html %}
+<h1>{{ site.title }}</h1>
+<p>{{ site.description }}</p>
+
+<h2>Espèces disponibles</h2>
+<ul>
+  {% for sp in site.species %}
+    <li>{{ sp.name }} – {{ sp.summary }}</li>
+  {% endfor %}
+</ul>
