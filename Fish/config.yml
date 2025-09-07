@@ -1,1 +1,16 @@
+title: "Annuaire d’aquariophilie"
+description: "Fiches d'espèces de poissons d’aquarium"
+theme: null
+markdown: kramdown
 
+collections:
+  species:
+    output: true
+    permalink: /especes/:name/
+
+defaults:
+  - scope:
+      path: ""
+      type: "species"
+    values:
+      layout: species
