@@ -1,208 +1,175 @@
-<!-- ============ 🎨 PALETTE DESIGNER — FULLSCREEN BENTO (MOBILE-FIRST) ============ -->
+<!-- ============ 🎨 PALETTE DESIGNER — WIZARD MOBILE (SCREENS + SNAP) ============ -->
 <style>
   :root{
-    --pd-bg: rgba(10,11,16,.92);
+    --pd-bg: rgba(10,11,16,.94);
     --pd-card: rgba(255,255,255,.06);
     --pd-ring: rgba(255,255,255,.14);
-    --pd-ink:#eef2ff; --pd-muted:#a9b2d1;
+    --pd-ink:#eef2ff; --pd-muted:#9fafcd;
     --pd-acc:#2bd9ff; --pd-acc2:#ff3cac;
   }
   @media (prefers-color-scheme: light){
-    :root{ --pd-bg: rgba(250,252,255,.96); --pd-card: rgba(0,0,0,.06); --pd-ring: rgba(0,0,0,.12); --pd-ink:#0f1116; --pd-muted:#596274 }
+    :root{ --pd-bg: rgba(250,252,255,.98); --pd-card: rgba(0,0,0,.06); --pd-ring: rgba(0,0,0,.12); --pd-ink:#0e1116; --pd-muted:#586274 }
   }
 
-  /* Overlay */
-  .pdfs{
-    position:fixed; inset:0; z-index:99999;
-    background:var(--pd-bg); backdrop-filter: blur(14px) saturate(140%);
-    color:var(--pd-ink);
-    display:grid; grid-template-rows:auto 1fr auto;
-    font: clamp(15px, 2.8vw, 17px)/1.5 Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-  }
+  .pdw{ position:fixed; inset:0; z-index:99999; background:var(--pd-bg);
+        color:var(--pd-ink); display:grid; grid-template-rows:auto 1fr auto;
+        font: clamp(16px,4.2vw,18px)/1.55 Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
   .pd-hidden{ display:none }
 
-  /* Topbar */
-  .pd-top{
-    display:flex; align-items:center; justify-content:space-between; gap:12px;
-    padding: clamp(12px, 3.5vw, 18px);
-    border-bottom:1px solid var(--pd-ring);
-  }
-  .pd-title{ display:flex; gap:.6em; align-items:center; font-weight:800; letter-spacing:.3px; font-size: clamp(16px, 4vw, 18px) }
-  .pd-actions{ display:flex; gap:10px; flex-wrap:wrap }
-  .pd-btn{
-    appearance:none; background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.04));
-    color:inherit; border:1px solid var(--pd-ring);
-    border-radius:14px; padding:12px 16px; cursor:pointer; font-weight:700;
-    min-height:44px; min-width:44px;
-  }
-  .pd-btn.primary{
-    background: linear-gradient(180deg, color-mix(in oklab, var(--pd-acc) 30%, transparent), transparent);
-    box-shadow: 0 8px 28px color-mix(in oklab, var(--pd-acc) 25%, transparent);
-  }
+  /* Header simple */
+  .pdw-top{ display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding: clamp(12px,4vw,18px); border-bottom:1px solid var(--pd-ring); background:var(--pd-card); }
+  .pdw-title{ font-weight:800; letter-spacing:.2px }
+  .pd-btn{ appearance:none; border:1px solid var(--pd-ring); background:linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.04));
+           color:inherit; border-radius:14px; padding:12px 16px; font-weight:700; min-height:44px; min-width:44px; }
+  .pd-btn.primary{ background:linear-gradient(180deg, color-mix(in oklab, var(--pd-acc) 26%, transparent), transparent);
+                    box-shadow:0 8px 28px color-mix(in oklab, var(--pd-acc) 22%, transparent) }
 
-  /* Bento grid */
-  .pd-body{
-    padding: clamp(12px, 3.5vw, 20px);
-    display:grid;
-    grid-template-columns: repeat(12, 1fr);
-    gap: clamp(10px, 2.5vw, 16px);
-    overflow:auto;
-  }
-  .pd-card{
-    background:var(--pd-card); border:1px solid var(--pd-ring); border-radius:16px;
-    padding: clamp(12px, 3vw, 16px);
-    display:grid; gap: clamp(10px, 2.5vw, 14px);
-    min-height: 120px;
-  }
-  .pd-card h3{ margin:0; font-weight:800; letter-spacing:.2px; font-size: clamp(16px, 4.2vw, 18px); color:var(--pd-ink) }
-  .pd-sub{ color:var(--pd-muted); font-size: .95em }
+  /* Screens (wizard) */
+  .pdw-screens{ position:relative; overflow:auto; scroll-snap-type:y mandatory; -webkit-overflow-scrolling:touch; }
+  .screen{ min-height:100svh; padding: clamp(16px,5vw,22px); display:grid; align-content:center; gap:16px;
+           scroll-snap-align:start; }
+  .card{ background:var(--pd-card); border:1px solid var(--pd-ring); border-radius:16px; padding: clamp(14px,4.5vw,18px); display:grid; gap:12px }
+  .card h2{ margin:0; font-weight:800; font-size: clamp(18px,6vw,22px) }
+  .sub{ color:var(--pd-muted) }
 
-  /* Layout des cartes */
-  .pd-wheel-card{ grid-column: span 12 }
-  .pd-modes-card{ grid-column: span 12 }
-  .pd-swatches-card{ grid-column: span 12 }
-  .pd-contrast-card{ grid-column: span 12 }
-  .pd-tokens-card{ grid-column: span 12 }
-  @media (min-width: 880px){
-    .pd-wheel-card{ grid-column: span 5 }
-    .pd-modes-card{ grid-column: span 7 }
-    .pd-swatches-card{ grid-column: span 8 }
-    .pd-contrast-card{ grid-column: span 4 }
-    .pd-tokens-card{ grid-column: span 12 }
-  }
+  /* Wheel */
+  .wheel-wrap{ display:grid; place-items:center; gap:14px }
+  .wheel{ width:min(84vw, 360px); aspect-ratio:1/1; border-radius:50%;
+          border:1px solid var(--pd-ring); background:radial-gradient(circle, rgba(255,255,255,.05), transparent 60%);
+          position:relative; touch-action:none; }
+  .wheel canvas{ width:100%; height:100%; display:block }
+  .knob{ position:absolute; width:24px; height:24px; border-radius:50%; background:#fff; border:2px solid #111;
+         transform:translate(-50%,-50%); box-shadow:0 0 0 5px rgba(0,0,0,.18); pointer-events:none }
 
-  /* Roue */
-  .pd-wheel{
-    display:grid; grid-template-columns: 1fr; gap:12px; place-items:center;
-  }
-  .pd-wheel-canvas{
-    width: min(86vw, 380px); aspect-ratio:1/1; border-radius:50%;
-    border:1px solid var(--pd-ring); background:radial-gradient(circle, rgba(255,255,255,.04), transparent 60%);
-    position:relative; touch-action:none;
-  }
-  .pd-wheel-canvas canvas{ width:100%; height:100%; display:block }
-  .pd-knob{
-    position:absolute; width:22px; height:22px; border-radius:50%; background:#fff; border:2px solid #111;
-    transform:translate(-50%,-50%); box-shadow:0 0 0 5px rgba(0,0,0,.18); pointer-events:none;
-  }
-
-  .pd-sliders{ width:100%; display:grid; gap:12px; max-width: 420px }
-  .pd-sliders label{ color:var(--pd-muted) }
-  .pd-sliders input[type="range"]{
-    width:100%; height: 42px; appearance:none; background:transparent; touch-action:manipulation;
-  }
-  .pd-sliders input[type="range"]::-webkit-slider-runnable-track{ height:8px; border-radius:999px; background:linear-gradient(90deg, var(--pd-acc), var(--pd-acc2)) }
-  .pd-sliders input[type="range"]::-webkit-slider-thumb{ appearance:none; width:28px; height:28px; border-radius:50%; background:#fff; border:2px solid #111; margin-top:-10px }
-  .pd-sliders input[type="range"]::-moz-range-track{ height:8px; border-radius:999px; background:linear-gradient(90deg, var(--pd-acc), var(--pd-acc2)) }
-  .pd-sliders input[type="range"]::-moz-range-thumb{ width:28px; height:28px; border-radius:50%; background:#fff; border:2px solid #111 }
+  .sliders{ width:100%; max-width: 420px; margin-inline:auto; display:grid; gap:12px }
+  .sliders label{ color:var(--pd-muted) }
+  .sliders input[type="range"]{ width:100%; height:48px; appearance:none; background:transparent; touch-action:manipulation }
+  .sliders input[type="range"]::-webkit-slider-runnable-track{ height:10px; border-radius:999px;
+       background:linear-gradient(90deg, var(--pd-acc), var(--pd-acc2)) }
+  .sliders input[type="range"]::-webkit-slider-thumb{ appearance:none; width:32px; height:32px; border-radius:50%; background:#fff; border:2px solid #111; margin-top:-11px }
+  .sliders input[type="range"]::-moz-range-track{ height:10px; border-radius:999px; background:linear-gradient(90deg, var(--pd-acc), var(--pd-acc2)) }
+  .sliders input[type="range"]::-moz-range-thumb{ width:32px; height:32px; border-radius:50%; background:#fff; border:2px solid #111 }
 
   /* Modes */
-  .pd-modes{ display:flex; flex-wrap:wrap; gap:10px }
-  .pd-chip{
-    padding:12px 14px; border-radius:14px; border:1px solid var(--pd-ring); background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04));
-    min-height:44px; cursor:pointer; font-weight:700;
-  }
-  .pd-chip.active{ outline:2px solid color-mix(in oklab, var(--pd-acc) 30%, transparent) }
+  .chips{ display:flex; flex-wrap:wrap; gap:10px }
+  .chip{ padding:12px 14px; border-radius:14px; border:1px solid var(--pd-ring);
+         background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04));
+         min-height:44px; font-weight:700 }
+  .chip.active{ outline:2px solid color-mix(in oklab, var(--pd-acc) 30%, transparent) }
 
   /* Swatches */
-  .pd-grid{ display:grid; grid-template-columns: repeat(5, 1fr); gap: clamp(10px, 2.5vw, 14px) }
-  @media (max-width: 600px){ .pd-grid{ grid-template-columns: repeat(3, 1fr) } }
-  .pd-swatch{ border:1px solid var(--pd-ring); border-radius:14px; overflow:hidden; background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)); display:grid; grid-template-rows: 76px auto }
-  .pd-swatch .box{ min-height:76px }
-  .pd-meta{ padding:10px; display:grid; gap:6px }
-  .pd-row{ display:flex; align-items:center; justify-content:space-between; gap:10px }
-  .pd-copy{ padding:10px 12px; border-radius:10px; border:1px solid var(--pd-ring); background:transparent; min-height:40px; cursor:pointer; font-weight:700 }
-  .pd-small{ color:var(--pd-muted); font-size:.92em; word-break:break-all }
+  .grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:12px }
+  @media (min-width: 680px){ .grid{ grid-template-columns:repeat(5, 1fr) } }
+  .sw{ border:1px solid var(--pd-ring); border-radius:14px; overflow:hidden; background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+       display:grid; grid-template-rows: 80px auto }
+  .sw .box{ min-height:80px }
+  .meta{ padding:10px; display:grid; gap:6px }
+  .row{ display:flex; align-items:center; justify-content:space-between; gap:10px }
+  .copy{ padding:10px 12px; border-radius:10px; border:1px solid var(--pd-ring); background:transparent; min-height:40px; font-weight:700 }
+  .small{ color:var(--pd-muted); font-size:.95em; word-break:break-all }
 
-  /* Contraste + tokens */
-  .pd-preview{ display:grid; grid-template-columns:1fr 1fr; gap:12px }
-  @media (max-width: 600px){ .pd-preview{ grid-template-columns:1fr } }
-  .pd-demo{ border:1px solid var(--pd-ring); border-radius:12px; overflow:hidden }
-  .pd-demo header{ display:flex; justify-content:space-between; gap:8px; padding:10px 12px; color:var(--pd-muted); border-bottom:1px solid var(--pd-ring) }
-  .pd-demo .box{ min-height:74px; padding:12px; font-weight:700 }
+  /* Contrast & tokens */
+  .preview{ display:grid; grid-template-columns:1fr; gap:12px }
+  @media (min-width: 780px){ .preview{ grid-template-columns:1fr 1fr } }
+  .demo{ border:1px solid var(--pd-ring); border-radius:12px; overflow:hidden }
+  .demo header{ display:flex; justify-content:space-between; gap:8px; padding:10px 12px; color:var(--pd-muted);
+                border-bottom:1px solid var(--pd-ring) }
+  .demo .box{ min-height:76px; padding:12px; font-weight:800 }
 
-  .pd-txt{ width:100%; min-height:140px; font: 13px/1.4 ui-monospace, Menlo, Consolas, monospace; background:transparent; color:var(--pd-ink); border:1px dashed var(--pd-ring); border-radius:12px; padding:12px }
+  .tokens{ width:100%; min-height:140px; font: 13px/1.5 ui-monospace, Menlo, Consolas, monospace;
+           background:transparent; color:var(--pd-ink); border:1px dashed var(--pd-ring); border-radius:12px; padding:12px }
 
-  /* Footer */
-  .pd-foot{
-    display:flex; align-items:center; justify-content:space-between; gap:12px;
-    padding: clamp(12px, 3.5vw, 18px); border-top:1px solid var(--pd-ring);
-    color:var(--pd-muted);
-  }
+  /* Footer (nav) */
+  .pdw-foot{ display:flex; align-items:center; justify-content:space-between; gap:12px;
+             padding: clamp(12px,4vw,18px); border-top:1px solid var(--pd-ring); background:var(--pd-card); }
+  .dots{ display:flex; gap:8px }
+  .dot{ width:10px; height:10px; border-radius:50%; background:color-mix(in oklab, var(--pd-ink) 22%, transparent); }
+  .dot.on{ background:linear-gradient(180deg, var(--pd-acc), var(--pd-acc2)); box-shadow:0 0 10px color-mix(in oklab, var(--pd-acc) 30%, transparent) }
 </style>
 
-<div class="pdfs" id="pdfs" role="dialog" aria-label="Concepteur de palettes — plein écran">
-  <div class="pd-top">
-    <div class="pd-title">🎨 Palette — Bento futuriste</div>
-    <div class="pd-actions">
-      <button class="pd-btn" id="pdRand">Aléatoire</button>
-      <button class="pd-btn primary" id="pdApply">Appliquer à la page</button>
-      <button class="pd-btn" id="pdClose">Fermer</button>
+<div class="pdw" id="pdw" role="dialog" aria-label="Concepteur de palettes — wizard mobile">
+  <div class="pdw-top">
+    <div class="pdw-title">🎨 Palette — Wizard</div>
+    <div class="pdw-actions">
+      <button class="pd-btn" id="btnRand">Aléatoire</button>
+      <button class="pd-btn primary" id="btnApply">Appliquer</button>
+      <button class="pd-btn" id="btnClose">Fermer</button>
     </div>
   </div>
 
-  <div class="pd-body">
-    <!-- Roue + sliders -->
-    <section class="pd-card pd-wheel-card">
-      <h3>Roue HSL</h3>
-      <div class="pd-sub">Glisse le doigt sur la roue pour choisir la teinte. Curseurs : saturation & luminosité.</div>
-      <div class="pd-wheel">
-        <div class="pd-wheel-canvas" id="pdCanvas">
-          <canvas id="pdWheel"></canvas>
-          <div class="pd-knob" id="pdKnob"></div>
-        </div>
-        <div class="pd-sliders">
-          <label for="pdSat">Saturation</label>
-          <input id="pdSat" type="range" min="0" max="100" value="80" />
-          <label for="pdLig">Luminosité</label>
-          <input id="pdLig" type="range" min="0" max="100" value="55" />
-        </div>
-      </div>
-    </section>
-
-    <!-- Modes -->
-    <section class="pd-card pd-modes-card">
-      <h3>Harmonies</h3>
-      <div class="pd-modes" id="pdModes">
-        <button class="pd-chip" data-mode="complement">Complémentaire</button>
-        <button class="pd-chip" data-mode="triad">Triade</button>
-        <button class="pd-chip" data-mode="tetrad">Tétrade</button>
-        <button class="pd-chip" data-mode="analog">Analogues</button>
-        <button class="pd-chip" data-mode="mono">Monochrome</button>
-      </div>
-    </section>
-
-    <!-- Swatches -->
-    <section class="pd-card pd-swatches-card">
-      <h3>Couleurs proposées</h3>
-      <div class="pd-grid" id="pdGrid"></div>
-    </section>
-
-    <!-- Contraste -->
-    <section class="pd-card pd-contrast-card">
-      <h3>Contraste (WCAG)</h3>
-      <div class="pd-preview">
-        <div class="pd-demo">
-          <header><span>Fond clair</span><span id="pdAA1">—</span></header>
-          <div class="box" id="pdDL" style="background:#ffffff; color:#111">Aa — Titre & bouton</div>
-        </div>
-        <div class="pd-demo">
-          <header><span>Fond sombre</span><span id="pdAA2">—</span></header>
-          <div class="box" id="pdDD" style="background:#0a0b10; color:#eef2ff">Aa — Titre & bouton</div>
+  <!-- Screens -->
+  <div class="pdw-screens" id="screens" aria-live="polite">
+    <!-- 1. Wheel -->
+    <section class="screen" id="s1">
+      <div class="card">
+        <h2>1 · Teinte</h2>
+        <div class="sub">Tourne la roue (du doigt) puis ajuste Saturation & Luminosité.</div>
+        <div class="wheel-wrap">
+          <div class="wheel" id="wheelWrap">
+            <canvas id="wheel"></canvas>
+            <div class="knob" id="knob"></div>
+          </div>
+          <div class="sliders">
+            <label for="sat">Saturation</label>
+            <input id="sat" type="range" min="0" max="100" value="80" />
+            <label for="lig">Luminosité</label>
+            <input id="lig" type="range" min="0" max="100" value="55" />
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- Tokens -->
-    <section class="pd-card pd-tokens-card">
-      <h3>Tokens CSS</h3>
-      <textarea class="pd-txt" id="pdTokens" readonly></textarea>
+    <!-- 2. Modes -->
+    <section class="screen" id="s2">
+      <div class="card">
+        <h2>2 · Harmonies</h2>
+        <div class="sub">Choisis un schéma : complémentaire, triade, tétrade, analogues ou monochrome.</div>
+        <div class="chips" id="modes">
+          <button class="chip" data-mode="complement">Complémentaire</button>
+          <button class="chip" data-mode="triad">Triade</button>
+          <button class="chip" data-mode="tetrad">Tétrade</button>
+          <button class="chip" data-mode="analog">Analogues</button>
+          <button class="chip" data-mode="mono">Monochrome</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Swatches -->
+    <section class="screen" id="s3">
+      <div class="card">
+        <h2>3 · Couleurs proposées</h2>
+        <div class="grid" id="grid"></div>
+      </div>
+    </section>
+
+    <!-- 4. Contraste & tokens -->
+    <section class="screen" id="s4">
+      <div class="card">
+        <h2>4 · Contraste & Tokens</h2>
+        <div class="preview">
+          <div class="demo">
+            <header><span>Fond clair</span><span id="AA1">—</span></header>
+            <div class="box" id="DL" style="background:#ffffff; color:#111">Aa — Titre & bouton</div>
+          </div>
+          <div class="demo">
+            <header><span>Fond sombre</span><span id="AA2">—</span></header>
+            <div class="box" id="DD" style="background:#0a0b10; color:#eef2ff">Aa — Titre & bouton</div>
+          </div>
+        </div>
+        <textarea class="tokens" id="tokens" readonly></textarea>
+      </div>
     </section>
   </div>
 
-  <div class="pd-foot">
-    <div>Astuce : touche <b>P</b> pour ouvrir/fermer • appui long sur une couleur pour copier</div>
-    <div id="pdToast" aria-live="polite"></div>
+  <div class="pdw-foot">
+    <div class="dots" id="dots">
+      <div class="dot on"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    </div>
+    <div class="nav">
+      <button class="pd-btn" id="prev">◄ Précédent</button>
+      <button class="pd-btn primary" id="next">Suivant ►</button>
+    </div>
   </div>
 </div>
 
@@ -217,148 +184,127 @@
   const hslToHex=(h,s,l)=>rgbToHex(...hslToRgb(h,s,l));
   const hexToRgb=(hex)=>{ const m=/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); return m?[parseInt(m[1],16),parseInt(m[2],16),parseInt(m[3],16)]:[0,0,0] };
   const luminance=(r,g,b)=>{ const t=[r,g,b].map(v=>{v/=255; return v<=.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4)}); return 0.2126*t[0]+0.7152*t[1]+0.0722*t[2] };
-  const ratio=(h1,h2)=>{ const [r1,g1,b1]=hexToRgb(h1),[r2,g2,b2]=hexToRgb(h2); const L1=luminance(r1,g1,b1)+0.05, L2=luminance(r2,g2,b2)+0.05; return Math.round(((L1>L2?L1/L2:L2/L1))*100)/100 };
-  const wcag=r=> r>=7?'AAA': r>=4.5?'AA': r>=3?'AA (large)': 'fail';
+  const ratio=(c1,c2)=>{ const [r1,g1,b1]=hexToRgb(c1),[r2,g2,b2]=hexToRgb(c2); const L1=luminance(r1,g1,b1)+0.05, L2=luminance(r2,g2,b2)+0.05; return Math.round(((L1>L2?L1/L2:L2/L1))*100)/100 };
+  const wcag=r=> r>=7?'AAA': r>=4.5?'AA': r>=3?'AA (large)':'fail';
   const rot=(h,d)=>(((h+d)%360)+360)%360;
 
   /* ==== DOM ==== */
-  const fs = document.getElementById('pdfs');
-  const close = document.getElementById('pdClose');
-  const apply = document.getElementById('pdApply');
-  const rand = document.getElementById('pdRand');
-  const modes = document.getElementById('pdModes');
-  const grid = document.getElementById('pdGrid');
-  const tokens = document.getElementById('pdTokens');
-  const AA1 = document.getElementById('pdAA1');
-  const AA2 = document.getElementById('pdAA2');
-  const demoL = document.getElementById('pdDL');
-  const demoD = document.getElementById('pdDD');
-  const toast = document.getElementById('pdToast');
+  const wrap = document.getElementById('pdw');
+  const screens = document.getElementById('screens');
+  const dots = Array.from(document.getElementById('dots').children);
+  const prev = document.getElementById('prev');
+  const next = document.getElementById('next');
+  const btnClose = document.getElementById('btnClose');
+  const btnApply = document.getElementById('btnApply');
+  const btnRand = document.getElementById('btnRand');
 
-  /* ==== Wheel ==== */
-  const wheel = document.getElementById('pdWheel');
-  const knob = document.getElementById('pdKnob');
-  const canvasWrap = document.getElementById('pdCanvas');
-  const sat = document.getElementById('pdSat');
-  const lig = document.getElementById('pdLig');
+  const grid = document.getElementById('grid');
+  const tokens = document.getElementById('tokens');
+  const AA1 = document.getElementById('AA1');
+  const AA2 = document.getElementById('AA2');
+  const DL  = document.getElementById('DL');
+  const DD  = document.getElementById('DD');
 
-  let H=200, S=80, L=55, MODE='complement';
+  const modes = document.getElementById('modes');
+
+  /* ==== wheel ==== */
+  const wheelWrap = document.getElementById('wheelWrap');
+  const wheel = document.getElementById('wheel');
+  const knob = document.getElementById('knob');
+  const sat = document.getElementById('sat');
+  const lig = document.getElementById('lig');
+
+  let H=200, S=80, L=55, MODE='complement', step=0;
   let dpr = Math.min(window.devicePixelRatio || 1, 2);
 
   function drawWheel(){
-    const size = Math.floor(canvasWrap.clientWidth * dpr);
-    wheel.width = size; wheel.height = size;
+    const size = Math.floor(wheelWrap.clientWidth * dpr);
+    if(size<=0) return;
+    wheel.width = size; wheel.height=size;
     const ctx = wheel.getContext('2d');
     const r=size/2, cx=r, cy=r;
     ctx.clearRect(0,0,size,size);
     for(let deg=0;deg<360;deg++){
-      const g=ctx.createRadialGradient(cx,cy, r*0.18, cx,cy,r*0.98);
+      const g=ctx.createRadialGradient(cx,cy, r*0.18, cx,cy, r*0.98);
       g.addColorStop(0, hslToHex(deg,20,50));
       g.addColorStop(1, hslToHex(deg,100,50));
       ctx.strokeStyle=g; ctx.beginPath();
       const a1=(deg-1)*Math.PI/180, a2=deg*Math.PI/180;
-      ctx.arc(cx,cy,r-2,a1,a2); ctx.lineWidth=Math.max(12*dpr, 10); ctx.stroke();
+      ctx.arc(cx,cy,r-2,a1,a2); ctx.lineWidth=Math.max(14*dpr, 12); ctx.stroke();
     }
-    // centre doux
     ctx.beginPath(); ctx.arc(cx,cy,r*0.2,0,Math.PI*2);
-    ctx.fillStyle='rgba(255,255,255,.07)'; ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,.08)'; ctx.fill();
     positionKnob();
   }
-
   function positionKnob(){
-    const rect = canvasWrap.getBoundingClientRect();
+    const rect = wheelWrap.getBoundingClientRect();
     const r = rect.width/2;
     const ang = (H-90)*Math.PI/180;
-    knob.style.left = (rect.width/2 + (r-14)*Math.cos(ang)) + 'px';
-    knob.style.top  = (rect.height/2 + (r-14)*Math.sin(ang)) + 'px';
+    knob.style.left = (rect.width/2 + (r-16)*Math.cos(ang))+'px';
+    knob.style.top  = (rect.height/2 + (r-16)*Math.sin(ang))+'px';
   }
-
-  function setHueFromPointer(clientX, clientY){
-    const rect = canvasWrap.getBoundingClientRect();
-    const x = clientX - rect.left - rect.width/2;
-    const y = clientY - rect.top  - rect.height/2;
-    H = (Math.round(Math.atan2(y,x)*180/Math.PI + 90) + 360) % 360;
+  function hueFromPointer(x,y){
+    const rect = wheelWrap.getBoundingClientRect();
+    const dx = x - rect.left - rect.width/2;
+    const dy = y - rect.top  - rect.height/2;
+    H = (Math.round(Math.atan2(dy,dx)*180/Math.PI + 90) + 360) % 360;
     render();
   }
-  // Pointeurs (touch/mouse)
   let dragging=false;
-  canvasWrap.addEventListener('pointerdown', e=>{
-    dragging=true; canvasWrap.setPointerCapture(e.pointerId);
-    setHueFromPointer(e.clientX, e.clientY);
-  });
-  canvasWrap.addEventListener('pointermove', e=>{
-    if(!dragging) return;
-    setHueFromPointer(e.clientX, e.clientY);
-  });
-  canvasWrap.addEventListener('pointerup', e=>{
-    dragging=false; try{ canvasWrap.releasePointerCapture(e.pointerId) }catch{}
-  });
+  wheelWrap.addEventListener('pointerdown', e=>{ dragging=true; wheelWrap.setPointerCapture(e.pointerId); hueFromPointer(e.clientX,e.clientY) });
+  wheelWrap.addEventListener('pointermove', e=>{ if(dragging) hueFromPointer(e.clientX,e.clientY) });
+  wheelWrap.addEventListener('pointerup',   e=>{ dragging=false; try{wheelWrap.releasePointerCapture(e.pointerId)}catch{} });
 
-  // sliders
   sat.addEventListener('input', e=>{ S=+e.target.value; render() });
   lig.addEventListener('input', e=>{ L=+e.target.value; render() });
 
-  // modes
-  modes.querySelectorAll('.pd-chip').forEach(b=>{
+  // Modes chips
+  modes.querySelectorAll('.chip').forEach(b=>{
     if(b.dataset.mode==='complement') b.classList.add('active');
     b.addEventListener('click', ()=>{
-      modes.querySelectorAll('.pd-chip').forEach(x=>x.classList.remove('active'));
+      modes.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
       b.classList.add('active'); MODE=b.dataset.mode; render();
     });
   });
 
-  // build palette
+  // Palette builder
   function buildSet(){
     let set=[];
-    if(MODE==='complement'){
-      set = [[H,S,L],[rot(H,180),S,L]];
-    }else if(MODE==='triad'){
-      set = [[H,S,L],[rot(H,120),S,L],[rot(H,-120),S,L]];
-    }else if(MODE==='tetrad'){
-      set = [[H,S,L],[rot(H,90),S,L],[rot(H,180),S,L],[rot(H,270),S,L]];
-    }else if(MODE==='analog'){
-      set = [[rot(H,-30),S,L],[H,S,L],[rot(H,15),S,L],[rot(H,30),S,L]];
-    }else if(MODE==='mono'){
-      set = [[H,S,clamp(L-20,0,100)],[H,S,L],[H,S,clamp(L+20,0,100)]];
-    }
-    while(set.length<5){ set.push([H,S,clamp(L + (set.length-2)*10,0,100)]) }
+    if(MODE==='complement'){ set=[[H,S,L],[rot(H,180),S,L]]; }
+    else if(MODE==='triad'){ set=[[H,S,L],[rot(H,120),S,L],[rot(H,-120),S,L]]; }
+    else if(MODE==='tetrad'){ set=[[H,S,L],[rot(H,90),S,L],[rot(H,180),S,L],[rot(H,270),S,L]]; }
+    else if(MODE==='analog'){ set=[[rot(H,-30),S,L],[H,S,L],[rot(H,15),S,L],[rot(H,30),S,L]]; }
+    else if(MODE==='mono'){ set=[[H,S,clamp(L-20,0,100)],[H,S,L],[H,S,clamp(L+20,0,100)]]; }
+    while(set.length<5){ set.push([H,S,clamp(L+(set.length-2)*10,0,100)]) }
     return set.slice(0,5);
   }
 
-  // rendu
+  // Render
   function render(){
     positionKnob();
-    // swatches
     grid.innerHTML='';
     const set = buildSet();
     set.forEach(([h,s,l],i)=>{
       const hex=hslToHex(h,s,l);
-      const card=document.createElement('div');
-      card.className='pd-swatch';
-      card.innerHTML = `
-        <div class="box" style="background:${hex}"></div>
-        <div class="pd-meta">
-          <div class="pd-row"><b>${i===0?'base':'var'+i}</b><button class="pd-copy" data-copy="${hex}">Copier</button></div>
-          <div class="pd-small">${hex.toUpperCase()} • hsl(${h}, ${s}%, ${l}%)</div>
+      const el=document.createElement('div');
+      el.className='sw';
+      el.innerHTML=`<div class="box" style="background:${hex}"></div>
+        <div class="meta">
+          <div class="row"><b>${i===0?'base':'var'+i}</b><button class="copy" data-copy="${hex}">Copier</button></div>
+          <div class="small">${hex.toUpperCase()} • hsl(${h}, ${s}%, ${l}%)</div>
         </div>`;
-      grid.appendChild(card);
+      grid.appendChild(el);
     });
-    // copier
     grid.querySelectorAll('[data-copy]').forEach(b=>{
-      b.onclick=()=>{ navigator.clipboard.writeText(b.dataset.copy); toast.textContent='Copié '+b.dataset.copy; flashToast(); };
-      b.oncontextmenu=(e)=>{ e.preventDefault(); b.click(); };
-      b.onpointerdown=(e)=>{ // appui long mobile
-        let t=setTimeout(()=>b.click(), 500); const stop=()=>{clearTimeout(t)}; ['pointerup','pointercancel','pointerleave'].forEach(ev=>b.addEventListener(ev, stop, {once:true}));
-      };
+      b.onclick=()=> navigator.clipboard.writeText(b.dataset.copy);
+      b.onpointerdown=(e)=>{ let t=setTimeout(()=>b.click(), 500); ['pointerup','pointercancel','pointerleave'].forEach(ev=>b.addEventListener(ev,()=>clearTimeout(t),{once:true})) };
     });
 
-    // contraste
-    const primary=hslToHex(H,S,L);
-    demoL.style.color=primary; demoD.style.color=primary;
+    const primary = hslToHex(H,S,L);
+    DL.style.color=primary; DD.style.color=primary;
     AA1.textContent='Contraste: '+wcag(ratio(primary,'#ffffff'));
     AA2.textContent='Contraste: '+wcag(ratio(primary,'#0a0b10'));
 
-    // tokens
     tokens.value = `:root{
   --acc: ${primary};
   --acc-2: ${hslToHex(rot(H,180),S,L)};
@@ -369,7 +315,7 @@
 }`;
   }
 
-  // Random palettes (curated + algo)
+  // Random palettes
   const curated=[
     ['Vaporwave',[315,80,65],'triad'],
     ['Tropical', [170,75,50],'analog'],
@@ -381,22 +327,21 @@
   ];
   function randomize(){
     if(Math.random()<0.6){
-      const [name,[h,s,l],mode]=curated[Math.floor(Math.random()*curated.length)];
+      const [_,[h,s,l],mode]=curated[Math.floor(Math.random()*curated.length)];
       H=h; S=s; L=l; MODE=mode;
-      modes.querySelectorAll('.pd-chip').forEach(x=>x.classList.toggle('active', x.dataset.mode===MODE));
-      render(); toast.textContent=`Palette « ${name} »`; flashToast();
     }else{
       H=Math.floor(Math.random()*360);
       S=[65,70,75,80,85][Math.floor(Math.random()*5)];
       L=[48,52,56,60,64][Math.floor(Math.random()*5)];
-      const ms=['complement','triad','tetrad','analog','mono']; MODE=ms[Math.floor(Math.random()*ms.length)];
-      modes.querySelectorAll('.pd-chip').forEach(x=>x.classList.toggle('active', x.dataset.mode===MODE));
-      render(); toast.textContent='Palette aléatoire'; flashToast();
+      MODE=['complement','triad','tetrad','analog','mono'][Math.floor(Math.random()*5)];
     }
+    modes.querySelectorAll('.chip').forEach(x=>x.classList.toggle('active', x.dataset.mode===MODE));
+    render();
   }
+  btnRand.onclick=randomize;
 
-  // Appliquer à :root
-  apply.onclick=()=>{
+  // Appliquer tokens à :root
+  btnApply.onclick=()=>{
     const root=document.documentElement.style;
     root.setProperty('--acc',           hslToHex(H,S,L));
     root.setProperty('--acc-2',         hslToHex(rot(H,180),S,L));
@@ -404,31 +349,32 @@
     root.setProperty('--acc-tri-2',     hslToHex(rot(H,-120),S,L));
     root.setProperty('--acc-analog-1',  hslToHex(rot(H,15),S,L));
     root.setProperty('--acc-analog-2',  hslToHex(rot(H,-15),S,L));
-    toast.textContent='Tokens appliqués à :root'; flashToast();
   };
 
-  // Ouvrir/Fermer
-  close.onclick=()=> fs.classList.add('pd-hidden');
-  document.addEventListener('keydown', e=>{ if(e.key.toLowerCase()==='p'){ fs.classList.toggle('pd-hidden') } });
-
-  // Toast
-  function flashToast(){
-    toast.style.opacity='0'; toast.style.transition='none'; toast.style.transform='translateY(6px)';
-    requestAnimationFrame(()=>{
-      toast.style.transition='opacity .25s ease, transform .25s ease';
-      toast.style.opacity='1'; toast.style.transform='translateY(0)';
-      setTimeout(()=>{ toast.style.opacity='0' }, 1200);
-    });
+  // Wizard nav (snap + boutons)
+  function goto(i){
+    step = clamp(i,0,3);
+    const y = step * window.innerHeight; // approx
+    screens.scrollTo({ top: y, behavior:'smooth' });
+    dots.forEach((d,k)=> d.classList.toggle('on', k===step));
   }
+  prev.onclick=()=> goto(step-1);
+  next.onclick=()=> goto(step+1);
+  screens.addEventListener('scroll', ()=>{
+    const i = Math.round(screens.scrollTop / window.innerHeight);
+    if(i!==step){ step=i; dots.forEach((d,k)=> d.classList.toggle('on', k===step)); }
+  }, {passive:true});
 
-  // Resize & init
-  function onResize(){ dpr = Math.min(window.devicePixelRatio||1, 2); drawWheel(); render(); }
+  // Close + toggle (P)
+  btnClose.onclick=()=> wrap.classList.add('pd-hidden');
+  document.addEventListener('keydown', e=>{ if(e.key.toLowerCase()==='p'){ wrap.classList.toggle('pd-hidden') } });
+
+  // Resize -> redraw wheel
+  function onResize(){ dpr=Math.min(window.devicePixelRatio||1,2); drawWheel(); render(); }
   window.addEventListener('resize', onResize, {passive:true});
+
+  // Init
   onResize();
-
-  // Random btn
-  rand.onclick = randomize;
-
 })();
 </script>
-<!-- ========== /FULLSCREEN BENTO ========== -->
+<!-- ========== /WIZARD MOBILE ========== -->
