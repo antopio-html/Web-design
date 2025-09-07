@@ -1,110 +1,146 @@
-<!-- ============ 🎨 PALETTE DESIGNER — WIZARD MOBILE (SCREENS + SNAP) ============ -->
+<!-- ============ 🎨 PALETTE — MOBILE APP UX (GROS TEXTE) ============ -->
 <style>
   :root{
-    --pd-bg: rgba(10,11,16,.94);
-    --pd-card: rgba(255,255,255,.06);
-    --pd-ring: rgba(255,255,255,.14);
-    --pd-ink:#eef2ff; --pd-muted:#9fafcd;
-    --pd-acc:#2bd9ff; --pd-acc2:#ff3cac;
+    --ui-bg: rgba(10,11,16,.96);
+    --ui-card: rgba(255,255,255,.06);
+    --ui-ring: rgba(255,255,255,.16);
+    --ui-ink: #eef2ff;
+    --ui-muted:#9fb0d3;
+    --ui-acc:#2bd9ff; --ui-acc2:#ff3cac;
   }
   @media (prefers-color-scheme: light){
-    :root{ --pd-bg: rgba(250,252,255,.98); --pd-card: rgba(0,0,0,.06); --pd-ring: rgba(0,0,0,.12); --pd-ink:#0e1116; --pd-muted:#586274 }
+    :root{ --ui-bg: rgba(250,252,255,.98); --ui-card: rgba(0,0,0,.06); --ui-ring: rgba(0,0,0,.14); --ui-ink:#0e1116; --ui-muted:#4f5b73 }
   }
 
-  .pdw{ position:fixed; inset:0; z-index:99999; background:var(--pd-bg);
-        color:var(--pd-ink); display:grid; grid-template-rows:auto 1fr auto;
-        font: clamp(16px,4.2vw,18px)/1.55 Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
-  .pd-hidden{ display:none }
+  .pal-app{
+    position:fixed; inset:0; z-index:99999; background:var(--ui-bg);
+    color:var(--ui-ink);
+    display:grid; grid-template-rows:auto 1fr auto;
+    font: clamp(18px, 4.8vw, 20px)/1.55 Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing:grayscale;
+  }
+  .pal-hidden{ display:none }
 
-  /* Header simple */
-  .pdw-top{ display:flex; align-items:center; justify-content:space-between; gap:12px;
-    padding: clamp(12px,4vw,18px); border-bottom:1px solid var(--pd-ring); background:var(--pd-card); }
-  .pdw-title{ font-weight:800; letter-spacing:.2px }
-  .pd-btn{ appearance:none; border:1px solid var(--pd-ring); background:linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.04));
-           color:inherit; border-radius:14px; padding:12px 16px; font-weight:700; min-height:44px; min-width:44px; }
-  .pd-btn.primary{ background:linear-gradient(180deg, color-mix(in oklab, var(--pd-acc) 26%, transparent), transparent);
-                    box-shadow:0 8px 28px color-mix(in oklab, var(--pd-acc) 22%, transparent) }
+  /* Top bar */
+  .pal-top{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding: clamp(14px,5vw,20px);
+    border-bottom:1px solid var(--ui-ring); background:var(--ui-card);
+  }
+  .pal-title{ font-weight:900; letter-spacing:.2px; font-size: clamp(22px, 6vw, 28px) }
+  .btn{
+    appearance:none; border:1px solid var(--ui-ring);
+    background:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06));
+    color:inherit; border-radius:16px; padding:14px 18px; font-weight:800;
+    min-height:48px; min-width:48px; cursor:pointer; touch-action:manipulation;
+  }
+  .btn.primary{
+    background:linear-gradient(180deg, color-mix(in oklab, var(--ui-acc) 28%, transparent), transparent);
+    box-shadow:0 10px 30px color-mix(in oklab, var(--ui-acc) 24%, transparent);
+  }
 
-  /* Screens (wizard) */
-  .pdw-screens{ position:relative; overflow:auto; scroll-snap-type:y mandatory; -webkit-overflow-scrolling:touch; }
-  .screen{ min-height:100svh; padding: clamp(16px,5vw,22px); display:grid; align-content:center; gap:16px;
-           scroll-snap-align:start; }
-  .card{ background:var(--pd-card); border:1px solid var(--pd-ring); border-radius:16px; padding: clamp(14px,4.5vw,18px); display:grid; gap:12px }
-  .card h2{ margin:0; font-weight:800; font-size: clamp(18px,6vw,22px) }
-  .sub{ color:var(--pd-muted) }
+  /* Views */
+  .pal-views{ position:relative; overflow:auto; -webkit-overflow-scrolling:touch; }
+  .view{
+    padding: clamp(16px,5.5vw,24px);
+    display:grid; gap: clamp(14px, 4vw, 18px);
+  }
+  .card{
+    background:var(--ui-card); border:1px solid var(--ui-ring); border-radius:18px;
+    padding: clamp(14px,4.5vw,18px); display:grid; gap: clamp(12px,3.5vw,16px);
+  }
+  .card h2{ margin:0; font-weight:900; font-size: clamp(22px,6.2vw,28px) }
+  .sub{ color:var(--ui-muted) }
 
   /* Wheel */
-  .wheel-wrap{ display:grid; place-items:center; gap:14px }
-  .wheel{ width:min(84vw, 360px); aspect-ratio:1/1; border-radius:50%;
-          border:1px solid var(--pd-ring); background:radial-gradient(circle, rgba(255,255,255,.05), transparent 60%);
-          position:relative; touch-action:none; }
+  .wheel-wrap{ display:grid; gap:16px; place-items:center }
+  .wheel{
+    width: min(88vw, 420px); aspect-ratio:1/1; border-radius:50%;
+    border:1px solid var(--ui-ring);
+    background:radial-gradient(circle, rgba(255,255,255,.06), transparent 62%);
+    position:relative; touch-action:none;
+  }
   .wheel canvas{ width:100%; height:100%; display:block }
-  .knob{ position:absolute; width:24px; height:24px; border-radius:50%; background:#fff; border:2px solid #111;
-         transform:translate(-50%,-50%); box-shadow:0 0 0 5px rgba(0,0,0,.18); pointer-events:none }
+  .knob{
+    position:absolute; width:26px; height:26px; border-radius:50%; background:#fff; border:2px solid #111;
+    transform:translate(-50%,-50%); box-shadow:0 0 0 6px rgba(0,0,0,.18); pointer-events:none
+  }
 
-  .sliders{ width:100%; max-width: 420px; margin-inline:auto; display:grid; gap:12px }
-  .sliders label{ color:var(--pd-muted) }
-  .sliders input[type="range"]{ width:100%; height:48px; appearance:none; background:transparent; touch-action:manipulation }
-  .sliders input[type="range"]::-webkit-slider-runnable-track{ height:10px; border-radius:999px;
-       background:linear-gradient(90deg, var(--pd-acc), var(--pd-acc2)) }
-  .sliders input[type="range"]::-webkit-slider-thumb{ appearance:none; width:32px; height:32px; border-radius:50%; background:#fff; border:2px solid #111; margin-top:-11px }
-  .sliders input[type="range"]::-moz-range-track{ height:10px; border-radius:999px; background:linear-gradient(90deg, var(--pd-acc), var(--pd-acc2)) }
-  .sliders input[type="range"]::-moz-range-thumb{ width:32px; height:32px; border-radius:50%; background:#fff; border:2px solid #111 }
+  .sliders{ width:100%; max-width:520px; display:grid; gap:14px }
+  .sliders label{ color:var(--ui-muted) }
+  .sliders input[type="range"]{ width:100%; height:52px; appearance:none; background:transparent }
+  .sliders input[type="range"]::-webkit-slider-runnable-track{ height:12px; border-radius:999px; background:linear-gradient(90deg, var(--ui-acc), var(--ui-acc2)) }
+  .sliders input[type="range"]::-webkit-slider-thumb{ appearance:none; width:34px; height:34px; border-radius:50%; background:#fff; border:2px solid #111; margin-top:-11px }
+  .sliders input[type="range"]::-moz-range-track{ height:12px; border-radius:999px; background:linear-gradient(90deg, var(--ui-acc), var(--ui-acc2)) }
+  .sliders input[type="range"]::-moz-range-thumb{ width:34px; height:34px; border-radius:50%; background:#fff; border:2px solid #111 }
 
-  /* Modes */
-  .chips{ display:flex; flex-wrap:wrap; gap:10px }
-  .chip{ padding:12px 14px; border-radius:14px; border:1px solid var(--pd-ring);
-         background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04));
-         min-height:44px; font-weight:700 }
-  .chip.active{ outline:2px solid color-mix(in oklab, var(--pd-acc) 30%, transparent) }
+  /* Chips + swatches */
+  .chips{ display:flex; flex-wrap:wrap; gap:12px }
+  .chip{
+    padding:14px 16px; border-radius:16px; border:1px solid var(--ui-ring);
+    background:linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.05));
+    min-height:48px; font-weight:800;
+  }
+  .chip.active{ outline:2px solid color-mix(in oklab, var(--ui-acc) 34%, transparent) }
 
-  /* Swatches */
-  .grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:12px }
-  @media (min-width: 680px){ .grid{ grid-template-columns:repeat(5, 1fr) } }
-  .sw{ border:1px solid var(--pd-ring); border-radius:14px; overflow:hidden; background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
-       display:grid; grid-template-rows: 80px auto }
-  .sw .box{ min-height:80px }
-  .meta{ padding:10px; display:grid; gap:6px }
-  .row{ display:flex; align-items:center; justify-content:space-between; gap:10px }
-  .copy{ padding:10px 12px; border-radius:10px; border:1px solid var(--pd-ring); background:transparent; min-height:40px; font-weight:700 }
-  .small{ color:var(--pd-muted); font-size:.95em; word-break:break-all }
+  .sw-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:14px }
+  @media (min-width: 680px){ .sw-grid{ grid-template-columns:repeat(5, 1fr) } }
+  .sw{
+    border:1px solid var(--ui-ring); border-radius:16px; overflow:hidden;
+    background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+    display:grid; grid-template-rows: 96px auto;
+  }
+  .sw .box{ min-height:96px }
+  .meta{ padding:12px; display:grid; gap:8px }
+  .row{ display:flex; align-items:center; justify-content:space-between; gap:12px }
+  .copy{ padding:12px 14px; border-radius:12px; border:1px solid var(--ui-ring); background:transparent; min-height:44px; font-weight:800 }
+  .small{ color:var(--ui-muted); font-size: .95em; word-break:break-all }
 
-  /* Contrast & tokens */
-  .preview{ display:grid; grid-template-columns:1fr; gap:12px }
+  /* Contrast + tokens */
+  .preview{ display:grid; grid-template-columns:1fr; gap:14px }
   @media (min-width: 780px){ .preview{ grid-template-columns:1fr 1fr } }
-  .demo{ border:1px solid var(--pd-ring); border-radius:12px; overflow:hidden }
-  .demo header{ display:flex; justify-content:space-between; gap:8px; padding:10px 12px; color:var(--pd-muted);
-                border-bottom:1px solid var(--pd-ring) }
-  .demo .box{ min-height:76px; padding:12px; font-weight:800 }
+  .demo{ border:1px solid var(--ui-ring); border-radius:16px; overflow:hidden }
+  .demo header{ display:flex; justify-content:space-between; gap:12px; padding:12px 14px; color:var(--ui-muted); border-bottom:1px solid var(--ui-ring) }
+  .demo .box{ min-height:84px; padding:14px; font-weight:900; font-size: clamp(20px, 5.5vw, 24px) }
 
-  .tokens{ width:100%; min-height:140px; font: 13px/1.5 ui-monospace, Menlo, Consolas, monospace;
-           background:transparent; color:var(--pd-ink); border:1px dashed var(--pd-ring); border-radius:12px; padding:12px }
+  .tokens{ width:100%; min-height:160px; font: 15px/1.5 ui-monospace, Menlo, Consolas, monospace; background:transparent; color:var(--ui-ink); border:1px dashed var(--ui-ring); border-radius:14px; padding:14px }
 
-  /* Footer (nav) */
-  .pdw-foot{ display:flex; align-items:center; justify-content:space-between; gap:12px;
-             padding: clamp(12px,4vw,18px); border-top:1px solid var(--pd-ring); background:var(--pd-card); }
-  .dots{ display:flex; gap:8px }
-  .dot{ width:10px; height:10px; border-radius:50%; background:color-mix(in oklab, var(--pd-ink) 22%, transparent); }
-  .dot.on{ background:linear-gradient(180deg, var(--pd-acc), var(--pd-acc2)); box-shadow:0 0 10px color-mix(in oklab, var(--pd-acc) 30%, transparent) }
+  /* Bottom tabs */
+  .tabs{
+    display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;
+    padding: clamp(12px,5vw,18px);
+    border-top:1px solid var(--ui-ring); background:var(--ui-card);
+  }
+  .tab{
+    display:grid; place-items:center; gap:6px;
+    padding:12px; border-radius:14px; border:1px solid var(--ui-ring); font-weight:900; min-height:48px;
+    background:linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.05));
+  }
+  .tab.active{ outline:2px solid color-mix(in oklab, var(--ui-acc) 34%, transparent) }
+
+  /* Reduce motion */
+  @media (prefers-reduced-motion: reduce){
+    .btn, .chip, .tab { transition: none !important }
+  }
 </style>
 
-<div class="pdw" id="pdw" role="dialog" aria-label="Concepteur de palettes — wizard mobile">
-  <div class="pdw-top">
-    <div class="pdw-title">🎨 Palette — Wizard</div>
-    <div class="pdw-actions">
-      <button class="pd-btn" id="btnRand">Aléatoire</button>
-      <button class="pd-btn primary" id="btnApply">Appliquer</button>
-      <button class="pd-btn" id="btnClose">Fermer</button>
+<div class="pal-app" id="palApp" role="dialog" aria-label="Palette — Mobile App UX">
+  <div class="pal-top">
+    <div class="pal-title">🎨 Palette (mobile)</div>
+    <div class="pal-actions">
+      <button class="btn" id="btnRand">Aléatoire</button>
+      <button class="btn primary" id="btnApply">Appliquer</button>
+      <button class="btn" id="btnClose">Fermer</button>
     </div>
   </div>
 
-  <!-- Screens -->
-  <div class="pdw-screens" id="screens" aria-live="polite">
-    <!-- 1. Wheel -->
-    <section class="screen" id="s1">
+  <!-- Views -->
+  <div class="pal-views" id="views">
+    <!-- Teinte -->
+    <section class="view" data-view="hue">
       <div class="card">
-        <h2>1 · Teinte</h2>
-        <div class="sub">Tourne la roue (du doigt) puis ajuste Saturation & Luminosité.</div>
+        <h2>Teinte</h2>
+        <div class="sub">Fais glisser ton doigt sur la roue. Ajuste Saturation & Luminosité si besoin.</div>
         <div class="wheel-wrap">
           <div class="wheel" id="wheelWrap">
             <canvas id="wheel"></canvas>
@@ -120,12 +156,11 @@
       </div>
     </section>
 
-    <!-- 2. Modes -->
-    <section class="screen" id="s2">
+    <!-- Harmonies -->
+    <section class="view" data-view="harmonies">
       <div class="card">
-        <h2>2 · Harmonies</h2>
-        <div class="sub">Choisis un schéma : complémentaire, triade, tétrade, analogues ou monochrome.</div>
-        <div class="chips" id="modes">
+        <h2>Harmonies</h2>
+        <div class="chips" id="chips">
           <button class="chip" data-mode="complement">Complémentaire</button>
           <button class="chip" data-mode="triad">Triade</button>
           <button class="chip" data-mode="tetrad">Tétrade</button>
@@ -133,20 +168,17 @@
           <button class="chip" data-mode="mono">Monochrome</button>
         </div>
       </div>
-    </section>
 
-    <!-- 3. Swatches -->
-    <section class="screen" id="s3">
       <div class="card">
-        <h2>3 · Couleurs proposées</h2>
-        <div class="grid" id="grid"></div>
+        <h2>Couleurs proposées</h2>
+        <div class="sw-grid" id="swGrid"></div>
       </div>
     </section>
 
-    <!-- 4. Contraste & tokens -->
-    <section class="screen" id="s4">
+    <!-- Export -->
+    <section class="view" data-view="export">
       <div class="card">
-        <h2>4 · Contraste & Tokens</h2>
+        <h2>Contraste</h2>
         <div class="preview">
           <div class="demo">
             <header><span>Fond clair</span><span id="AA1">—</span></header>
@@ -157,20 +189,21 @@
             <div class="box" id="DD" style="background:#0a0b10; color:#eef2ff">Aa — Titre & bouton</div>
           </div>
         </div>
+      </div>
+
+      <div class="card">
+        <h2>Tokens CSS</h2>
         <textarea class="tokens" id="tokens" readonly></textarea>
       </div>
     </section>
   </div>
 
-  <div class="pdw-foot">
-    <div class="dots" id="dots">
-      <div class="dot on"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
-    </div>
-    <div class="nav">
-      <button class="pd-btn" id="prev">◄ Précédent</button>
-      <button class="pd-btn primary" id="next">Suivant ►</button>
-    </div>
-  </div>
+  <!-- Bottom tabs -->
+  <nav class="tabs" aria-label="Navigation onglets">
+    <button class="tab active" data-goto="hue">Teinte</button>
+    <button class="tab" data-goto="harmonies">Harmonies</button>
+    <button class="tab" data-goto="export">Export</button>
+  </nav>
 </div>
 
 <script>
@@ -189,39 +222,46 @@
   const rot=(h,d)=>(((h+d)%360)+360)%360;
 
   /* ==== DOM ==== */
-  const wrap = document.getElementById('pdw');
-  const screens = document.getElementById('screens');
-  const dots = Array.from(document.getElementById('dots').children);
-  const prev = document.getElementById('prev');
-  const next = document.getElementById('next');
+  const app = document.getElementById('palApp');
   const btnClose = document.getElementById('btnClose');
-  const btnApply = document.getElementById('btnApply');
   const btnRand = document.getElementById('btnRand');
+  const btnApply = document.getElementById('btnApply');
+  const tabs = Array.from(document.querySelectorAll('.tab'));
+  const views = document.querySelectorAll('.view');
 
-  const grid = document.getElementById('grid');
-  const tokens = document.getElementById('tokens');
-  const AA1 = document.getElementById('AA1');
-  const AA2 = document.getElementById('AA2');
-  const DL  = document.getElementById('DL');
-  const DD  = document.getElementById('DD');
-
-  const modes = document.getElementById('modes');
-
-  /* ==== wheel ==== */
+  // wheel
   const wheelWrap = document.getElementById('wheelWrap');
   const wheel = document.getElementById('wheel');
   const knob = document.getElementById('knob');
   const sat = document.getElementById('sat');
   const lig = document.getElementById('lig');
 
-  let H=200, S=80, L=55, MODE='complement', step=0;
+  // harmonies
+  const chips = document.getElementById('chips');
+  const swGrid = document.getElementById('swGrid');
+
+  // export
+  const AA1 = document.getElementById('AA1'), AA2 = document.getElementById('AA2');
+  const DL = document.getElementById('DL'), DD = document.getElementById('DD');
+  const tokens = document.getElementById('tokens');
+
+  let H=200,S=80,L=55, MODE='complement';
   let dpr = Math.min(window.devicePixelRatio || 1, 2);
 
+  /* ==== Tabs ==== */
+  function goto(name){
+    tabs.forEach(t=> t.classList.toggle('active', t.dataset.goto===name));
+    views.forEach(v=> v.style.display = (v.dataset.view===name) ? 'grid' : 'none');
+  }
+  tabs.forEach(t=> t.addEventListener('click', ()=> goto(t.dataset.goto)));
+  goto('hue'); // start
+
+  /* ==== Wheel (DPR-aware) ==== */
   function drawWheel(){
     const size = Math.floor(wheelWrap.clientWidth * dpr);
     if(size<=0) return;
-    wheel.width = size; wheel.height=size;
-    const ctx = wheel.getContext('2d');
+    wheel.width=size; wheel.height=size;
+    const ctx = wheel.getContext('2d', { willReadFrequently:false });
     const r=size/2, cx=r, cy=r;
     ctx.clearRect(0,0,size,size);
     for(let deg=0;deg<360;deg++){
@@ -230,7 +270,7 @@
       g.addColorStop(1, hslToHex(deg,100,50));
       ctx.strokeStyle=g; ctx.beginPath();
       const a1=(deg-1)*Math.PI/180, a2=deg*Math.PI/180;
-      ctx.arc(cx,cy,r-2,a1,a2); ctx.lineWidth=Math.max(14*dpr, 12); ctx.stroke();
+      ctx.arc(cx,cy,r-3,a1,a2); ctx.lineWidth=Math.max(16*dpr, 14); ctx.stroke();
     }
     ctx.beginPath(); ctx.arc(cx,cy,r*0.2,0,Math.PI*2);
     ctx.fillStyle='rgba(255,255,255,.08)'; ctx.fill();
@@ -240,8 +280,8 @@
     const rect = wheelWrap.getBoundingClientRect();
     const r = rect.width/2;
     const ang = (H-90)*Math.PI/180;
-    knob.style.left = (rect.width/2 + (r-16)*Math.cos(ang))+'px';
-    knob.style.top  = (rect.height/2 + (r-16)*Math.sin(ang))+'px';
+    knob.style.left = (rect.width/2 + (r-18)*Math.cos(ang))+'px';
+    knob.style.top  = (rect.height/2 + (r-18)*Math.sin(ang))+'px';
   }
   function hueFromPointer(x,y){
     const rect = wheelWrap.getBoundingClientRect();
@@ -258,16 +298,15 @@
   sat.addEventListener('input', e=>{ S=+e.target.value; render() });
   lig.addEventListener('input', e=>{ L=+e.target.value; render() });
 
-  // Modes chips
-  modes.querySelectorAll('.chip').forEach(b=>{
+  /* ==== Harmonies ==== */
+  chips.querySelectorAll('.chip').forEach(b=>{
     if(b.dataset.mode==='complement') b.classList.add('active');
     b.addEventListener('click', ()=>{
-      modes.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
+      chips.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
       b.classList.add('active'); MODE=b.dataset.mode; render();
     });
   });
 
-  // Palette builder
   function buildSet(){
     let set=[];
     if(MODE==='complement'){ set=[[H,S,L],[rot(H,180),S,L]]; }
@@ -279,10 +318,12 @@
     return set.slice(0,5);
   }
 
-  // Render
+  /* ==== Render ==== */
   function render(){
     positionKnob();
-    grid.innerHTML='';
+
+    // swatches (gros)
+    swGrid.innerHTML='';
     const set = buildSet();
     set.forEach(([h,s,l],i)=>{
       const hex=hslToHex(h,s,l);
@@ -293,18 +334,20 @@
           <div class="row"><b>${i===0?'base':'var'+i}</b><button class="copy" data-copy="${hex}">Copier</button></div>
           <div class="small">${hex.toUpperCase()} • hsl(${h}, ${s}%, ${l}%)</div>
         </div>`;
-      grid.appendChild(el);
+      swGrid.appendChild(el);
     });
-    grid.querySelectorAll('[data-copy]').forEach(b=>{
+    swGrid.querySelectorAll('[data-copy]').forEach(b=>{
       b.onclick=()=> navigator.clipboard.writeText(b.dataset.copy);
-      b.onpointerdown=(e)=>{ let t=setTimeout(()=>b.click(), 500); ['pointerup','pointercancel','pointerleave'].forEach(ev=>b.addEventListener(ev,()=>clearTimeout(t),{once:true})) };
+      b.onpointerdown=(e)=>{ let t=setTimeout(()=>b.click(), 450); ['pointerup','pointercancel','pointerleave'].forEach(ev=>b.addEventListener(ev,()=>clearTimeout(t),{once:true})) };
     });
 
+    // contraste
     const primary = hslToHex(H,S,L);
     DL.style.color=primary; DD.style.color=primary;
     AA1.textContent='Contraste: '+wcag(ratio(primary,'#ffffff'));
     AA2.textContent='Contraste: '+wcag(ratio(primary,'#0a0b10'));
 
+    // tokens
     tokens.value = `:root{
   --acc: ${primary};
   --acc-2: ${hslToHex(rot(H,180),S,L)};
@@ -315,7 +358,7 @@
 }`;
   }
 
-  // Random palettes
+  /* ==== Random + Apply ==== */
   const curated=[
     ['Vaporwave',[315,80,65],'triad'],
     ['Tropical', [170,75,50],'analog'],
@@ -335,12 +378,11 @@
       L=[48,52,56,60,64][Math.floor(Math.random()*5)];
       MODE=['complement','triad','tetrad','analog','mono'][Math.floor(Math.random()*5)];
     }
-    modes.querySelectorAll('.chip').forEach(x=>x.classList.toggle('active', x.dataset.mode===MODE));
+    chips.querySelectorAll('.chip').forEach(x=>x.classList.toggle('active', x.dataset.mode===MODE));
     render();
   }
   btnRand.onclick=randomize;
 
-  // Appliquer tokens à :root
   btnApply.onclick=()=>{
     const root=document.documentElement.style;
     root.setProperty('--acc',           hslToHex(H,S,L));
@@ -351,30 +393,13 @@
     root.setProperty('--acc-analog-2',  hslToHex(rot(H,-15),S,L));
   };
 
-  // Wizard nav (snap + boutons)
-  function goto(i){
-    step = clamp(i,0,3);
-    const y = step * window.innerHeight; // approx
-    screens.scrollTo({ top: y, behavior:'smooth' });
-    dots.forEach((d,k)=> d.classList.toggle('on', k===step));
-  }
-  prev.onclick=()=> goto(step-1);
-  next.onclick=()=> goto(step+1);
-  screens.addEventListener('scroll', ()=>{
-    const i = Math.round(screens.scrollTop / window.innerHeight);
-    if(i!==step){ step=i; dots.forEach((d,k)=> d.classList.toggle('on', k===step)); }
-  }, {passive:true});
+  btnClose.onclick=()=> app.classList.add('pal-hidden');
+  document.addEventListener('keydown', e=>{ if(e.key.toLowerCase()==='p'){ app.classList.toggle('pal-hidden') }});
 
-  // Close + toggle (P)
-  btnClose.onclick=()=> wrap.classList.add('pd-hidden');
-  document.addEventListener('keydown', e=>{ if(e.key.toLowerCase()==='p'){ wrap.classList.toggle('pd-hidden') } });
-
-  // Resize -> redraw wheel
+  /* ==== Resize ==== */
   function onResize(){ dpr=Math.min(window.devicePixelRatio||1,2); drawWheel(); render(); }
   window.addEventListener('resize', onResize, {passive:true});
-
-  // Init
   onResize();
 })();
 </script>
-<!-- ========== /WIZARD MOBILE ========== -->
+<!-- ========== /MOBILE APP UX ========== -->
