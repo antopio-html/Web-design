@@ -1,278 +1,365 @@
-<!-- ============ 🎨 PALETTE DESIGNER — FULLSCREEN ============ -->
+<!-- ============ 🎨 PALETTE DESIGNER — FULLSCREEN BENTO (MOBILE-FIRST) ============ -->
 <style>
-  :root {
-    --pd-bg: rgba(10,11,16,.88);
+  :root{
+    --pd-bg: rgba(10,11,16,.92);
     --pd-card: rgba(255,255,255,.06);
-    --pd-ring: rgba(255,255,255,.12);
-    --pd-ink: #e8ecff; --pd-muted:#a7b0d0;
+    --pd-ring: rgba(255,255,255,.14);
+    --pd-ink:#eef2ff; --pd-muted:#a9b2d1;
+    --pd-acc:#2bd9ff; --pd-acc2:#ff3cac;
   }
   @media (prefers-color-scheme: light){
-    :root{ --pd-bg: rgba(250,252,255,.94); --pd-card: rgba(0,0,0,.06); --pd-ring: rgba(0,0,0,.12); --pd-ink:#0e1116; --pd-muted:#596274 }
+    :root{ --pd-bg: rgba(250,252,255,.96); --pd-card: rgba(0,0,0,.06); --pd-ring: rgba(0,0,0,.12); --pd-ink:#0f1116; --pd-muted:#596274 }
   }
 
-  /* Overlay plein écran */
-  .pd-overlay{
+  /* Overlay */
+  .pdfs{
     position:fixed; inset:0; z-index:99999;
-    background: var(--pd-bg);
-    backdrop-filter: blur(12px) saturate(140%);
-    color: var(--pd-ink);
+    background:var(--pd-bg); backdrop-filter: blur(14px) saturate(140%);
+    color:var(--pd-ink);
     display:grid; grid-template-rows:auto 1fr auto;
+    font: clamp(15px, 2.8vw, 17px)/1.5 Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
   }
   .pd-hidden{ display:none }
 
   /* Topbar */
   .pd-top{
     display:flex; align-items:center; justify-content:space-between; gap:12px;
-    padding:12px clamp(12px, 4vw, 28px);
-    border-bottom:1px solid var(--pd-ring); background: var(--pd-card);
+    padding: clamp(12px, 3.5vw, 18px);
+    border-bottom:1px solid var(--pd-ring);
   }
-  .pd-title{ font-weight:800; letter-spacing:.2px; display:flex; gap:10px; align-items:center }
-  .pd-actions{ display:flex; gap:8px; flex-wrap:wrap }
+  .pd-title{ display:flex; gap:.6em; align-items:center; font-weight:800; letter-spacing:.3px; font-size: clamp(16px, 4vw, 18px) }
+  .pd-actions{ display:flex; gap:10px; flex-wrap:wrap }
   .pd-btn{
-    appearance:none; background:transparent; color:inherit; border:1px solid var(--pd-ring);
-    padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:600;
+    appearance:none; background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.04));
+    color:inherit; border:1px solid var(--pd-ring);
+    border-radius:14px; padding:12px 16px; cursor:pointer; font-weight:700;
+    min-height:44px; min-width:44px;
+  }
+  .pd-btn.primary{
+    background: linear-gradient(180deg, color-mix(in oklab, var(--pd-acc) 30%, transparent), transparent);
+    box-shadow: 0 8px 28px color-mix(in oklab, var(--pd-acc) 25%, transparent);
   }
 
-  /* Corps en 3 colonnes (grandes surfaces) */
+  /* Bento grid */
   .pd-body{
-    display:grid; grid-template-columns: 360px 1fr 420px; gap:16px;
-    padding:16px clamp(12px, 3vw, 28px);
+    padding: clamp(12px, 3.5vw, 20px);
+    display:grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: clamp(10px, 2.5vw, 16px);
     overflow:auto;
   }
-  @media (max-width:1200px){ .pd-body{ grid-template-columns: 320px 1fr 360px } }
-  @media (max-width:980px){  .pd-body{ grid-template-columns: 1fr; grid-auto-rows: min-content } }
-
-  /* Col. 1 : roue + sliders */
-  .pd-section{ display:grid; gap:14px; align-content:start }
   .pd-card{
-    border:1px solid var(--pd-ring); border-radius:16px; background:var(--pd-card);
-    padding:14px; overflow:hidden;
+    background:var(--pd-card); border:1px solid var(--pd-ring); border-radius:16px;
+    padding: clamp(12px, 3vw, 16px);
+    display:grid; gap: clamp(10px, 2.5vw, 14px);
+    min-height: 120px;
   }
-  .pd-h3{ margin:0 0 8px; font-size:14px; color:var(--pd-muted) }
+  .pd-card h3{ margin:0; font-weight:800; letter-spacing:.2px; font-size: clamp(16px, 4.2vw, 18px); color:var(--pd-ink) }
+  .pd-sub{ color:var(--pd-muted); font-size: .95em }
 
-  .pd-canvas{
-    --size: 320px;
-    width:var(--size); height:var(--size); border-radius:50%; border:1px solid var(--pd-ring);
-    background:var(--pd-card); margin:auto; position:relative;
+  /* Layout des cartes */
+  .pd-wheel-card{ grid-column: span 12 }
+  .pd-modes-card{ grid-column: span 12 }
+  .pd-swatches-card{ grid-column: span 12 }
+  .pd-contrast-card{ grid-column: span 12 }
+  .pd-tokens-card{ grid-column: span 12 }
+  @media (min-width: 880px){
+    .pd-wheel-card{ grid-column: span 5 }
+    .pd-modes-card{ grid-column: span 7 }
+    .pd-swatches-card{ grid-column: span 8 }
+    .pd-contrast-card{ grid-column: span 4 }
+    .pd-tokens-card{ grid-column: span 12 }
   }
-  @media (max-width:1200px){ .pd-canvas{ --size: 280px } }
-  @media (max-width:600px){  .pd-canvas{ --size: 240px } }
-  .pd-canvas canvas{ width:100%; height:100%; display:block }
+
+  /* Roue */
+  .pd-wheel{
+    display:grid; grid-template-columns: 1fr; gap:12px; place-items:center;
+  }
+  .pd-wheel-canvas{
+    width: min(86vw, 380px); aspect-ratio:1/1; border-radius:50%;
+    border:1px solid var(--pd-ring); background:radial-gradient(circle, rgba(255,255,255,.04), transparent 60%);
+    position:relative; touch-action:none;
+  }
+  .pd-wheel-canvas canvas{ width:100%; height:100%; display:block }
   .pd-knob{
-    position:absolute; width:18px; height:18px; border-radius:50%; background:#fff; border:2px solid #111;
-    transform:translate(-50%,-50%); pointer-events:none; box-shadow:0 0 0 4px rgba(0,0,0,.15);
+    position:absolute; width:22px; height:22px; border-radius:50%; background:#fff; border:2px solid #111;
+    transform:translate(-50%,-50%); box-shadow:0 0 0 5px rgba(0,0,0,.18); pointer-events:none;
   }
-  .pd-sl{ display:grid; gap:10px }
-  .pd-sl label{ font-size:12px; color:var(--pd-muted) }
-  .pd-sl input[type="range"]{ width:100% }
 
-  /* Col. 2 : modes + swatches */
-  .pd-modes{ display:flex; flex-wrap:wrap; gap:8px }
+  .pd-sliders{ width:100%; display:grid; gap:12px; max-width: 420px }
+  .pd-sliders label{ color:var(--pd-muted) }
+  .pd-sliders input[type="range"]{
+    width:100%; height: 42px; appearance:none; background:transparent; touch-action:manipulation;
+  }
+  .pd-sliders input[type="range"]::-webkit-slider-runnable-track{ height:8px; border-radius:999px; background:linear-gradient(90deg, var(--pd-acc), var(--pd-acc2)) }
+  .pd-sliders input[type="range"]::-webkit-slider-thumb{ appearance:none; width:28px; height:28px; border-radius:50%; background:#fff; border:2px solid #111; margin-top:-10px }
+  .pd-sliders input[type="range"]::-moz-range-track{ height:8px; border-radius:999px; background:linear-gradient(90deg, var(--pd-acc), var(--pd-acc2)) }
+  .pd-sliders input[type="range"]::-moz-range-thumb{ width:28px; height:28px; border-radius:50%; background:#fff; border:2px solid #111 }
+
+  /* Modes */
+  .pd-modes{ display:flex; flex-wrap:wrap; gap:10px }
   .pd-chip{
-    font-size:12px; padding:8px 12px; border-radius:999px; border:1px solid var(--pd-ring);
-    background:var(--pd-card); cursor:pointer;
+    padding:12px 14px; border-radius:14px; border:1px solid var(--pd-ring); background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04));
+    min-height:44px; cursor:pointer; font-weight:700;
   }
-  .pd-chip.active{ outline:2px solid rgba(255,255,255,.14) }
-  .pd-grid{ display:grid; grid-template-columns:repeat(5, 1fr); gap:12px; margin-top:12px }
-  @media (max-width:600px){ .pd-grid{ grid-template-columns:repeat(3,1fr) } }
-  .pd-swatch{
-    border:1px solid var(--pd-ring); border-radius:14px; background:var(--pd-card);
-    display:grid; grid-template-rows: 80px auto;
-  }
-  .pd-swatch .box{ min-height:80px }
-  .pd-swatch .meta{ padding:10px; display:grid; gap:6px }
-  .pd-row{ display:flex; align-items:center; justify-content:space-between; gap:8px }
-  .pd-swatch small{ color:var(--pd-muted); font-size:11px }
+  .pd-chip.active{ outline:2px solid color-mix(in oklab, var(--pd-acc) 30%, transparent) }
 
-  /* Col. 3 : contraste + tokens + actions */
+  /* Swatches */
+  .pd-grid{ display:grid; grid-template-columns: repeat(5, 1fr); gap: clamp(10px, 2.5vw, 14px) }
+  @media (max-width: 600px){ .pd-grid{ grid-template-columns: repeat(3, 1fr) } }
+  .pd-swatch{ border:1px solid var(--pd-ring); border-radius:14px; overflow:hidden; background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)); display:grid; grid-template-rows: 76px auto }
+  .pd-swatch .box{ min-height:76px }
+  .pd-meta{ padding:10px; display:grid; gap:6px }
+  .pd-row{ display:flex; align-items:center; justify-content:space-between; gap:10px }
+  .pd-copy{ padding:10px 12px; border-radius:10px; border:1px solid var(--pd-ring); background:transparent; min-height:40px; cursor:pointer; font-weight:700 }
+  .pd-small{ color:var(--pd-muted); font-size:.92em; word-break:break-all }
+
+  /* Contraste + tokens */
   .pd-preview{ display:grid; grid-template-columns:1fr 1fr; gap:12px }
-  @media (max-width:600px){ .pd-preview{ grid-template-columns:1fr } }
+  @media (max-width: 600px){ .pd-preview{ grid-template-columns:1fr } }
   .pd-demo{ border:1px solid var(--pd-ring); border-radius:12px; overflow:hidden }
-  .pd-demo header{ display:flex; justify-content:space-between; padding:8px 10px; font-size:12px; color:var(--pd-muted); border-bottom:1px solid var(--pd-ring); background:var(--pd-card) }
-  .pd-demo .box{ min-height:72px; padding:12px; font-size:14px }
+  .pd-demo header{ display:flex; justify-content:space-between; gap:8px; padding:10px 12px; color:var(--pd-muted); border-bottom:1px solid var(--pd-ring) }
+  .pd-demo .box{ min-height:74px; padding:12px; font-weight:700 }
 
-  .pd-txt{ width:100%; min-height:120px; font:12px/1.4 ui-monospace,Menlo,Consolas,monospace;
-    background:transparent; color:var(--pd-ink); border:1px dashed var(--pd-ring); border-radius:8px; padding:10px }
+  .pd-txt{ width:100%; min-height:140px; font: 13px/1.4 ui-monospace, Menlo, Consolas, monospace; background:transparent; color:var(--pd-ink); border:1px dashed var(--pd-ring); border-radius:12px; padding:12px }
 
-  /* Footer (raccourcis) */
+  /* Footer */
   .pd-foot{
     display:flex; align-items:center; justify-content:space-between; gap:12px;
-    padding:10px clamp(12px, 4vw, 28px); border-top:1px solid var(--pd-ring); background:var(--pd-card); color:var(--pd-muted); font-size:12px;
+    padding: clamp(12px, 3.5vw, 18px); border-top:1px solid var(--pd-ring);
+    color:var(--pd-muted);
   }
 </style>
 
-<div class="pd-overlay" id="pdOverlay" role="dialog" aria-label="Concepteur de palettes (plein écran)">
+<div class="pdfs" id="pdfs" role="dialog" aria-label="Concepteur de palettes — plein écran">
   <div class="pd-top">
-    <div class="pd-title">🎨 Roue & Palettes — Plein écran</div>
+    <div class="pd-title">🎨 Palette — Bento futuriste</div>
     <div class="pd-actions">
-      <button class="pd-btn" id="pdRandom">Aléatoire</button>
-      <button class="pd-btn" id="pdApply">Appliquer à la page</button>
+      <button class="pd-btn" id="pdRand">Aléatoire</button>
+      <button class="pd-btn primary" id="pdApply">Appliquer à la page</button>
       <button class="pd-btn" id="pdClose">Fermer</button>
     </div>
   </div>
 
   <div class="pd-body">
-    <!-- Col. 1 -->
-    <div class="pd-section">
-      <div class="pd-card">
-        <h3 class="pd-h3">Roue HSL</h3>
-        <div class="pd-canvas" id="pdCanvas">
-          <canvas id="pdWheel" width="320" height="320"></canvas>
-          <div class="pd-knob" id="pdKnob" style="left:160px; top:12px"></div>
+    <!-- Roue + sliders -->
+    <section class="pd-card pd-wheel-card">
+      <h3>Roue HSL</h3>
+      <div class="pd-sub">Glisse le doigt sur la roue pour choisir la teinte. Curseurs : saturation & luminosité.</div>
+      <div class="pd-wheel">
+        <div class="pd-wheel-canvas" id="pdCanvas">
+          <canvas id="pdWheel"></canvas>
+          <div class="pd-knob" id="pdKnob"></div>
         </div>
-      </div>
-      <div class="pd-card">
-        <h3 class="pd-h3">Réglages</h3>
-        <div class="pd-sl">
+        <div class="pd-sliders">
           <label for="pdSat">Saturation</label>
-          <input id="pdSat" type="range" min="0" max="100" value="80">
+          <input id="pdSat" type="range" min="0" max="100" value="80" />
           <label for="pdLig">Luminosité</label>
-          <input id="pdLig" type="range" min="0" max="100" value="55">
+          <input id="pdLig" type="range" min="0" max="100" value="55" />
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- Col. 2 -->
-    <div class="pd-section">
-      <div class="pd-card">
-        <h3 class="pd-h3">Harmonies</h3>
-        <div class="pd-modes">
-          <button class="pd-chip" data-mode="complement">Complémentaire</button>
-          <button class="pd-chip" data-mode="triad">Triade</button>
-          <button class="pd-chip" data-mode="tetrad">Tétrade</button>
-          <button class="pd-chip" data-mode="analog">Analogues</button>
-          <button class="pd-chip" data-mode="mono">Monochrome</button>
-        </div>
-        <div class="pd-grid" id="pdGrid"></div>
+    <!-- Modes -->
+    <section class="pd-card pd-modes-card">
+      <h3>Harmonies</h3>
+      <div class="pd-modes" id="pdModes">
+        <button class="pd-chip" data-mode="complement">Complémentaire</button>
+        <button class="pd-chip" data-mode="triad">Triade</button>
+        <button class="pd-chip" data-mode="tetrad">Tétrade</button>
+        <button class="pd-chip" data-mode="analog">Analogues</button>
+        <button class="pd-chip" data-mode="mono">Monochrome</button>
       </div>
-    </div>
+    </section>
 
-    <!-- Col. 3 -->
-    <div class="pd-section">
-      <div class="pd-card">
-        <h3 class="pd-h3">Contraste (WCAG)</h3>
-        <div class="pd-preview">
-          <div class="pd-demo">
-            <header><span>Fond clair</span><span id="pdAA1">—</span></header>
-            <div class="box" id="pdDemoLight" style="background:#ffffff; color:#111">Aa — Titre & bouton</div>
-          </div>
-          <div class="pd-demo">
-            <header><span>Fond sombre</span><span id="pdAA2">—</span></header>
-            <div class="box" id="pdDemoDark" style="background:#0a0b10; color:#e8ecff">Aa — Titre & bouton</div>
-          </div>
+    <!-- Swatches -->
+    <section class="pd-card pd-swatches-card">
+      <h3>Couleurs proposées</h3>
+      <div class="pd-grid" id="pdGrid"></div>
+    </section>
+
+    <!-- Contraste -->
+    <section class="pd-card pd-contrast-card">
+      <h3>Contraste (WCAG)</h3>
+      <div class="pd-preview">
+        <div class="pd-demo">
+          <header><span>Fond clair</span><span id="pdAA1">—</span></header>
+          <div class="box" id="pdDL" style="background:#ffffff; color:#111">Aa — Titre & bouton</div>
+        </div>
+        <div class="pd-demo">
+          <header><span>Fond sombre</span><span id="pdAA2">—</span></header>
+          <div class="box" id="pdDD" style="background:#0a0b10; color:#eef2ff">Aa — Titre & bouton</div>
         </div>
       </div>
-      <div class="pd-card">
-        <h3 class="pd-h3">Tokens CSS</h3>
-        <textarea class="pd-txt" id="pdTokens" readonly></textarea>
-      </div>
-    </div>
+    </section>
+
+    <!-- Tokens -->
+    <section class="pd-card pd-tokens-card">
+      <h3>Tokens CSS</h3>
+      <textarea class="pd-txt" id="pdTokens" readonly></textarea>
+    </section>
   </div>
 
   <div class="pd-foot">
-    <div>Astuce : appuie sur <b>P</b> pour ouvrir/fermer, clique sur un code pour copier.</div>
+    <div>Astuce : touche <b>P</b> pour ouvrir/fermer • appui long sur une couleur pour copier</div>
     <div id="pdToast" aria-live="polite"></div>
   </div>
 </div>
 
 <script>
-(function(){
-  /* ==== helpers couleurs ==== */
+(()=> {
+  /* ==== helpers ==== */
   const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
-  const hslToRgb=(h,s,l)=>{
-    s/=100; l/=100; const k=n=>(n+(h/30))%12;
-    const a=s*Math.min(l,1-l);
+  const hslToRgb=(h,s,l)=>{ s/=100; l/=100; const k=n=>(n+(h/30))%12; const a=s*Math.min(l,1-l);
     const f=n=> l - a*Math.max(-1, Math.min(k(n)-3, Math.min(9-k(n),1)));
-    return [Math.round(255*f(0)),Math.round(255*f(8)),Math.round(255*f(4))];
-  };
+    return [Math.round(255*f(0)),Math.round(255*f(8)),Math.round(255*f(4))] };
   const rgbToHex=(r,g,b)=>'#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');
   const hslToHex=(h,s,l)=>rgbToHex(...hslToRgb(h,s,l));
-  const hexToRgb=(hex)=>{ const m=/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); return m?[parseInt(m[1],16),parseInt(m[2],16),parseInt(m[3],16)]:[0,0,0]; };
-  const luminance=(r,g,b)=>{ const t=[r,g,b].map(v=>{v/=255; return v<=.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4)}); return 0.2126*t[0]+0.7152*t[1]+0.0722*t[2]; };
-  const contrastRatio=(c1,c2)=>{ const [r1,g1,b1]=hexToRgb(c1),[r2,g2,b2]=hexToRgb(c2); const L1=luminance(r1,g1,b1)+0.05, L2=luminance(r2,g2,b2)+0.05; return Math.round(((L1>L2?L1/L2:L2/L1))*100)/100; };
-  const wcag=(r)=> r>=7?'AAA': r>=4.5?'AA': r>=3?'AA (large)':'fail';
+  const hexToRgb=(hex)=>{ const m=/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); return m?[parseInt(m[1],16),parseInt(m[2],16),parseInt(m[3],16)]:[0,0,0] };
+  const luminance=(r,g,b)=>{ const t=[r,g,b].map(v=>{v/=255; return v<=.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4)}); return 0.2126*t[0]+0.7152*t[1]+0.0722*t[2] };
+  const ratio=(h1,h2)=>{ const [r1,g1,b1]=hexToRgb(h1),[r2,g2,b2]=hexToRgb(h2); const L1=luminance(r1,g1,b1)+0.05, L2=luminance(r2,g2,b2)+0.05; return Math.round(((L1>L2?L1/L2:L2/L1))*100)/100 };
+  const wcag=r=> r>=7?'AAA': r>=4.5?'AA': r>=3?'AA (large)': 'fail';
   const rot=(h,d)=>(((h+d)%360)+360)%360;
 
   /* ==== DOM ==== */
-  const overlay = document.getElementById('pdOverlay');
-  const wheel = document.getElementById('pdWheel');
-  const ctx = wheel.getContext('2d');
-  const knob = document.getElementById('pdKnob');
-  const sat = document.getElementById('pdSat');
-  const lig = document.getElementById('pdLig');
+  const fs = document.getElementById('pdfs');
+  const close = document.getElementById('pdClose');
+  const apply = document.getElementById('pdApply');
+  const rand = document.getElementById('pdRand');
+  const modes = document.getElementById('pdModes');
   const grid = document.getElementById('pdGrid');
   const tokens = document.getElementById('pdTokens');
-  const demoL = document.getElementById('pdDemoLight');
-  const demoD = document.getElementById('pdDemoDark');
-  const a1 = document.getElementById('pdAA1');
-  const a2 = document.getElementById('pdAA2');
+  const AA1 = document.getElementById('pdAA1');
+  const AA2 = document.getElementById('pdAA2');
+  const demoL = document.getElementById('pdDL');
+  const demoD = document.getElementById('pdDD');
   const toast = document.getElementById('pdToast');
-  const btnClose = document.getElementById('pdClose');
-  const btnRandom = document.getElementById('pdRandom');
-  const btnApply = document.getElementById('pdApply');
-  const chips = Array.from(document.querySelectorAll('.pd-chip'));
+
+  /* ==== Wheel ==== */
+  const wheel = document.getElementById('pdWheel');
+  const knob = document.getElementById('pdKnob');
+  const canvasWrap = document.getElementById('pdCanvas');
+  const sat = document.getElementById('pdSat');
+  const lig = document.getElementById('pdLig');
 
   let H=200, S=80, L=55, MODE='complement';
+  let dpr = Math.min(window.devicePixelRatio || 1, 2);
 
-  /* ==== wheel ==== */
   function drawWheel(){
-    const r=wheel.width/2, cx=r, cy=r;
+    const size = Math.floor(canvasWrap.clientWidth * dpr);
+    wheel.width = size; wheel.height = size;
+    const ctx = wheel.getContext('2d');
+    const r=size/2, cx=r, cy=r;
+    ctx.clearRect(0,0,size,size);
     for(let deg=0;deg<360;deg++){
-      const g=ctx.createRadialGradient(cx,cy,r*0.2,cx,cy,r);
+      const g=ctx.createRadialGradient(cx,cy, r*0.18, cx,cy,r*0.98);
       g.addColorStop(0, hslToHex(deg,20,50));
       g.addColorStop(1, hslToHex(deg,100,50));
       ctx.strokeStyle=g; ctx.beginPath();
       const a1=(deg-1)*Math.PI/180, a2=deg*Math.PI/180;
-      ctx.arc(cx,cy,r-1,a1,a2); ctx.lineWidth=16; ctx.stroke();
+      ctx.arc(cx,cy,r-2,a1,a2); ctx.lineWidth=Math.max(12*dpr, 10); ctx.stroke();
     }
+    // centre doux
     ctx.beginPath(); ctx.arc(cx,cy,r*0.2,0,Math.PI*2);
-    ctx.fillStyle='rgba(255,255,255,.06)'; ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,.07)'; ctx.fill();
+    positionKnob();
   }
 
-  const buildSet=()=>{
-    const set=[];
+  function positionKnob(){
+    const rect = canvasWrap.getBoundingClientRect();
+    const r = rect.width/2;
+    const ang = (H-90)*Math.PI/180;
+    knob.style.left = (rect.width/2 + (r-14)*Math.cos(ang)) + 'px';
+    knob.style.top  = (rect.height/2 + (r-14)*Math.sin(ang)) + 'px';
+  }
+
+  function setHueFromPointer(clientX, clientY){
+    const rect = canvasWrap.getBoundingClientRect();
+    const x = clientX - rect.left - rect.width/2;
+    const y = clientY - rect.top  - rect.height/2;
+    H = (Math.round(Math.atan2(y,x)*180/Math.PI + 90) + 360) % 360;
+    render();
+  }
+  // Pointeurs (touch/mouse)
+  let dragging=false;
+  canvasWrap.addEventListener('pointerdown', e=>{
+    dragging=true; canvasWrap.setPointerCapture(e.pointerId);
+    setHueFromPointer(e.clientX, e.clientY);
+  });
+  canvasWrap.addEventListener('pointermove', e=>{
+    if(!dragging) return;
+    setHueFromPointer(e.clientX, e.clientY);
+  });
+  canvasWrap.addEventListener('pointerup', e=>{
+    dragging=false; try{ canvasWrap.releasePointerCapture(e.pointerId) }catch{}
+  });
+
+  // sliders
+  sat.addEventListener('input', e=>{ S=+e.target.value; render() });
+  lig.addEventListener('input', e=>{ L=+e.target.value; render() });
+
+  // modes
+  modes.querySelectorAll('.pd-chip').forEach(b=>{
+    if(b.dataset.mode==='complement') b.classList.add('active');
+    b.addEventListener('click', ()=>{
+      modes.querySelectorAll('.pd-chip').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active'); MODE=b.dataset.mode; render();
+    });
+  });
+
+  // build palette
+  function buildSet(){
+    let set=[];
     if(MODE==='complement'){
-      set.push([H,S,L],[rot(H,180),S,L]);
-    } else if(MODE==='triad'){
-      set.push([H,S,L],[rot(H,120),S,L],[rot(H,-120),S,L]);
-    } else if(MODE==='tetrad'){
-      set.push([H,S,L],[rot(H,90),S,L],[rot(H,180),S,L],[rot(H,270),S,L]);
-    } else if(MODE==='analog'){
-      set.push([rot(H,-30),S,L],[H,S,L],[rot(H,15),S,L],[rot(H,30),S,L]);
-    } else if(MODE==='mono'){
-      set.push([H,S,clamp(L-20,0,100)],[H,S,L],[H,S,clamp(L+20,0,100)]);
+      set = [[H,S,L],[rot(H,180),S,L]];
+    }else if(MODE==='triad'){
+      set = [[H,S,L],[rot(H,120),S,L],[rot(H,-120),S,L]];
+    }else if(MODE==='tetrad'){
+      set = [[H,S,L],[rot(H,90),S,L],[rot(H,180),S,L],[rot(H,270),S,L]];
+    }else if(MODE==='analog'){
+      set = [[rot(H,-30),S,L],[H,S,L],[rot(H,15),S,L],[rot(H,30),S,L]];
+    }else if(MODE==='mono'){
+      set = [[H,S,clamp(L-20,0,100)],[H,S,L],[H,S,clamp(L+20,0,100)]];
     }
     while(set.length<5){ set.push([H,S,clamp(L + (set.length-2)*10,0,100)]) }
     return set.slice(0,5);
-  };
+  }
 
+  // rendu
   function render(){
-    sat.value=S; lig.value=L;
-    const r=wheel.width/2, cx=r, cy=r, ang=(H-90)*Math.PI/180;
-    knob.style.left=(cx + (r-18)*Math.cos(ang))+'px';
-    knob.style.top =(cy + (r-18)*Math.sin(ang))+'px';
-
-    const set = buildSet();
+    positionKnob();
+    // swatches
     grid.innerHTML='';
+    const set = buildSet();
     set.forEach(([h,s,l],i)=>{
       const hex=hslToHex(h,s,l);
-      const el=document.createElement('div');
-      el.className='pd-swatch';
-      el.innerHTML=`
+      const card=document.createElement('div');
+      card.className='pd-swatch';
+      card.innerHTML = `
         <div class="box" style="background:${hex}"></div>
-        <div class="meta">
-          <div class="pd-row"><b>${i===0?'base':'var'+i}</b><button class="pd-btn" data-copy="${hex}">Copier</button></div>
-          <small>${hex.toUpperCase()} • hsl(${h}, ${s}%, ${l}%)</small>
+        <div class="pd-meta">
+          <div class="pd-row"><b>${i===0?'base':'var'+i}</b><button class="pd-copy" data-copy="${hex}">Copier</button></div>
+          <div class="pd-small">${hex.toUpperCase()} • hsl(${h}, ${s}%, ${l}%)</div>
         </div>`;
-      grid.appendChild(el);
+      grid.appendChild(card);
+    });
+    // copier
+    grid.querySelectorAll('[data-copy]').forEach(b=>{
+      b.onclick=()=>{ navigator.clipboard.writeText(b.dataset.copy); toast.textContent='Copié '+b.dataset.copy; flashToast(); };
+      b.oncontextmenu=(e)=>{ e.preventDefault(); b.click(); };
+      b.onpointerdown=(e)=>{ // appui long mobile
+        let t=setTimeout(()=>b.click(), 500); const stop=()=>{clearTimeout(t)}; ['pointerup','pointercancel','pointerleave'].forEach(ev=>b.addEventListener(ev, stop, {once:true}));
+      };
     });
 
+    // contraste
     const primary=hslToHex(H,S,L);
     demoL.style.color=primary; demoD.style.color=primary;
-    a1.textContent='Contraste: '+wcag(contrastRatio(primary,'#ffffff'));
-    a2.textContent='Contraste: '+wcag(contrastRatio(primary,'#0a0b10'));
+    AA1.textContent='Contraste: '+wcag(ratio(primary,'#ffffff'));
+    AA2.textContent='Contraste: '+wcag(ratio(primary,'#0a0b10'));
 
-    tokens.value=`:root{
+    // tokens
+    tokens.value = `:root{
   --acc: ${primary};
   --acc-2: ${hslToHex(rot(H,180),S,L)};
   --acc-tri-1: ${hslToHex(rot(H,120),S,L)};
@@ -280,29 +367,9 @@
   --acc-analog-1: ${hslToHex(rot(H,15),S,L)};
   --acc-analog-2: ${hslToHex(rot(H,-15),S,L)};
 }`;
-    // copier
-    grid.querySelectorAll('[data-copy]').forEach(b=>{
-      b.onclick=()=>{ navigator.clipboard.writeText(b.dataset.copy); toast.textContent='Copié '+b.dataset.copy; fireToast(); }
-    });
   }
 
-  function setHueFromPoint(x,y){
-    const rect=wheel.getBoundingClientRect();
-    const dx=x-rect.left-rect.width/2, dy=y-rect.top-rect.height/2;
-    H=(Math.round(Math.atan2(dy,dx)*180/Math.PI + 90)+360)%360;
-    render();
-  }
-  let dragging=false;
-  wheel.addEventListener('pointerdown', e=>{ dragging=true; setHueFromPoint(e.clientX,e.clientY); wheel.setPointerCapture(e.pointerId) });
-  wheel.addEventListener('pointermove', e=>{ if(dragging) setHueFromPoint(e.clientX,e.clientY) });
-  wheel.addEventListener('pointerup', e=>{ dragging=false; try{wheel.releasePointerCapture(e.pointerId)}catch{} });
-
-  sat.oninput=e=>{ S=+e.target.value; render() }
-  lig.oninput=e=>{ L=+e.target.value; render() }
-  chips.forEach(c=> c.addEventListener('click', ()=>{ chips.forEach(x=>x.classList.remove('active')); c.classList.add('active'); MODE=c.dataset.mode; render(); }));
-  document.querySelector('.pd-chip[data-mode="complement"]').classList.add('active');
-
-  /* ==== Random (curaté + algo) ==== */
+  // Random palettes (curated + algo)
   const curated=[
     ['Vaporwave',[315,80,65],'triad'],
     ['Tropical', [170,75,50],'analog'],
@@ -312,25 +379,24 @@
     ['Sakura',   [340,70,66],'mono'],
     ['Cyber',    [190,90,55],'tetrad'],
   ];
-  function pickRandom(){
+  function randomize(){
     if(Math.random()<0.6){
       const [name,[h,s,l],mode]=curated[Math.floor(Math.random()*curated.length)];
       H=h; S=s; L=l; MODE=mode;
-      chips.forEach(x=>x.classList.toggle('active', x.dataset.mode===MODE));
-      render(); toast.textContent=`Palette '${name}'`; fireToast();
+      modes.querySelectorAll('.pd-chip').forEach(x=>x.classList.toggle('active', x.dataset.mode===MODE));
+      render(); toast.textContent=`Palette « ${name} »`; flashToast();
     }else{
       H=Math.floor(Math.random()*360);
       S=[65,70,75,80,85][Math.floor(Math.random()*5)];
       L=[48,52,56,60,64][Math.floor(Math.random()*5)];
       const ms=['complement','triad','tetrad','analog','mono']; MODE=ms[Math.floor(Math.random()*ms.length)];
-      chips.forEach(x=>x.classList.toggle('active', x.dataset.mode===MODE));
-      render(); toast.textContent='Palette aléatoire'; fireToast();
+      modes.querySelectorAll('.pd-chip').forEach(x=>x.classList.toggle('active', x.dataset.mode===MODE));
+      render(); toast.textContent='Palette aléatoire'; flashToast();
     }
   }
-  btnRandom.onclick=pickRandom;
 
-  /* ==== Appliquer à la page (variables CSS) ==== */
-  btnApply.onclick=()=>{
+  // Appliquer à :root
+  apply.onclick=()=>{
     const root=document.documentElement.style;
     root.setProperty('--acc',           hslToHex(H,S,L));
     root.setProperty('--acc-2',         hslToHex(rot(H,180),S,L));
@@ -338,28 +404,31 @@
     root.setProperty('--acc-tri-2',     hslToHex(rot(H,-120),S,L));
     root.setProperty('--acc-analog-1',  hslToHex(rot(H,15),S,L));
     root.setProperty('--acc-analog-2',  hslToHex(rot(H,-15),S,L));
-    toast.textContent='Tokens appliqués à :root'; fireToast();
+    toast.textContent='Tokens appliqués à :root'; flashToast();
   };
 
-  /* ==== Open/Close + shortcuts ==== */
-  btnClose.onclick=()=> overlay.classList.add('pd-hidden');
-  document.addEventListener('keydown', e=>{
-    if(e.key.toLowerCase()==='p'){ overlay.classList.toggle('pd-hidden') }
-    if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='enter'){ btnApply.click() }
-  });
+  // Ouvrir/Fermer
+  close.onclick=()=> fs.classList.add('pd-hidden');
+  document.addEventListener('keydown', e=>{ if(e.key.toLowerCase()==='p'){ fs.classList.toggle('pd-hidden') } });
 
-  /* ==== Toast ==== */
-  function fireToast(){
-    toast.style.opacity='0'; toast.style.transition='none';
+  // Toast
+  function flashToast(){
+    toast.style.opacity='0'; toast.style.transition='none'; toast.style.transform='translateY(6px)';
     requestAnimationFrame(()=>{
-      toast.style.transition='opacity .3s ease, transform .3s ease';
+      toast.style.transition='opacity .25s ease, transform .25s ease';
       toast.style.opacity='1'; toast.style.transform='translateY(0)';
-      setTimeout(()=>{ toast.style.opacity='0'; }, 1200);
+      setTimeout(()=>{ toast.style.opacity='0' }, 1200);
     });
   }
 
-  /* init */
-  drawWheel(); render();
+  // Resize & init
+  function onResize(){ dpr = Math.min(window.devicePixelRatio||1, 2); drawWheel(); render(); }
+  window.addEventListener('resize', onResize, {passive:true});
+  onResize();
+
+  // Random btn
+  rand.onclick = randomize;
+
 })();
 </script>
-<!-- ========== /FULLSCREEN PALETTE DESIGNER ========== -->
+<!-- ========== /FULLSCREEN BENTO ========== -->
