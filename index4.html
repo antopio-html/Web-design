@@ -3,134 +3,94 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1, viewport-fit=cover" />
-<title>PRISM — Roue & Palette centrées</title>
+<title>PRISM — Roue & Palette (centrées, 5 colonnes)</title>
 <style>
   :root{
     --bg:#0b0f16; --ink:#f2f6ff; --muted:#9fb0d3; --ring:rgba(255,255,255,.16);
-    --card:rgba(255,255,255,.06);
-    --acc:#6C66FA; --acc-2:#FA66F4;
-    --page-pad: clamp(16px, 5vw, 24px);
-    --container: 1080px;
+    --card:rgba(255,255,255,.06); --acc:#6C66FA; --acc-2:#FA66F4;
+    --pad: clamp(14px, 5vw, 22px); --container: 1080px;
   }
   @media (prefers-color-scheme: light){
     :root{ --bg:#f7faff; --ink:#0e1116; --muted:#4e5a73; --ring:rgba(0,0,0,.14); --card:rgba(0,0,0,.06) }
   }
 
-  /* Base & centrage global */
   html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);
-    font: clamp(18px,4.6vw,20px)/1.6 Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    font: clamp(18px,4.6vw,20px)/1.6 Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
     -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; overflow-x:hidden}
   *{box-sizing:border-box}
-  .container{max-width:var(--container); margin-inline:auto; padding-inline:var(--page-pad)}
 
-  /* Header fixé + marges safe-area */
-  header{
-    position:sticky; top:0; z-index:10;
-    border-bottom:1px solid var(--ring);
-    background: color-mix(in oklab, var(--card) 82%, transparent);
-    backdrop-filter: blur(10px) saturate(140%);
-  }
+  .container{max-width:var(--container); margin-inline:auto; padding-inline:var(--pad)}
+
+  header{position:sticky; top:0; z-index:10; border-bottom:1px solid var(--ring);
+    background: color-mix(in oklab, var(--card) 82%, transparent); backdrop-filter: blur(10px) saturate(140%)}
   .head-inner{display:flex; align-items:center; justify-content:space-between; gap:12px;
-    padding-block: max(12px, env(safe-area-inset-top)) 12px}
+    padding-block: max(10px, env(safe-area-inset-top)) 10px}
   .brand{font-weight:900; letter-spacing:.3px; display:flex; align-items:center; gap:.6em}
-  .brand .dot{width:12px;height:12px;border-radius:50%;background:linear-gradient(180deg,var(--acc),var(--acc-2));box-shadow:0 0 14px var(--acc)}
+  .dot{width:12px;height:12px;border-radius:50%;background:linear-gradient(180deg,var(--acc),var(--acc-2));box-shadow:0 0 14px var(--acc)}
   .btn{appearance:none; border:1px solid var(--ring); background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.06));
-    color:inherit; border-radius:16px; padding:14px 18px; font-weight:900; min-height:48px}
+    color:inherit; border-radius:16px; padding:12px 16px; font-weight:900; min-height:44px}
   .btn.primary{background:linear-gradient(180deg,color-mix(in oklab,var(--acc) 28%, transparent), transparent);
-    box-shadow:0 10px 30px color-mix(in oklab,var(--acc) 24%, transparent)}
+    box-shadow:0 8px 26px color-mix(in oklab,var(--acc) 24%, transparent)}
 
-  main{padding-block: var(--page-pad);}
+  main{padding-block: var(--pad)}
 
-  /* Panneaux */
-  .panel{
-    background:var(--card); border:1px solid var(--ring); border-radius:18px;
-    padding: clamp(14px,4.5vw,18px); display:grid; gap: clamp(12px,3.5vw,16px);
-    margin-block: var(--page-pad);
-  }
-  h1{margin:0; font-weight:900; font-size: clamp(22px,6.8vw,32px)}
+  .panel{background:var(--card); border:1px solid var(--ring); border-radius:18px;
+    padding: clamp(12px,4.5vw,18px); display:grid; gap: clamp(10px,3.5vw,16px); margin-block: var(--pad)}
+  h1{margin:0; font-weight:900; font-size: clamp(22px,6.6vw,32px)}
   h2{margin:0; font-weight:900; font-size: clamp(20px,6vw,26px)}
   .sub{color:var(--muted)}
 
-  /* ROUE — toujours parfaitement centrée, jamais coupée */
-  .wheel-wrap{
-    width:100%;
-    display:grid; place-items:center; gap:16px;
-    margin-inline:auto;
-  }
+  /* ROUE — plus petite, centrée, non coupée */
+  .wheel-wrap{ width:100%; display:grid; place-items:center; gap:14px; margin-inline:auto }
   .wheel{
-    /* on retire la taille en svw, on se base sur la largeur du container pour éviter toute coupe */
-    width: min(92vw - calc(var(--page-pad)*2), 560px);
-    max-width: 560px;
+    width: min(78vw, 420px);           /* ⬅️ roue réduite */
+    max-width: 420px;
     aspect-ratio:1/1; border-radius:50%;
     border:1px solid var(--ring);
     background:radial-gradient(circle, rgba(255,255,255,.06), transparent 62%);
     position:relative; touch-action:none; margin-inline:auto;
   }
   .wheel canvas{ width:100%; height:100%; display:block }
-  .knob{
-    position:absolute; width:28px; height:28px; border-radius:50%; background:#fff; border:2px solid #111;
-    transform:translate(-50%,-50%); box-shadow:0 0 0 6px rgba(0,0,0,.18); pointer-events:none
-  }
-  .sliders{ width:100%; max-width:560px; display:grid; gap:14px; margin-inline:auto }
+  .knob{ position:absolute; width:26px; height:26px; border-radius:50%; background:#fff; border:2px solid #111;
+         transform:translate(-50%,-50%); box-shadow:0 0 0 6px rgba(0,0,0,.18); pointer-events:none }
+  .sliders{ width:100%; max-width:520px; display:grid; gap:12px; margin-inline:auto }
   .sliders label{ color:var(--muted) }
-  input[type="range"]{ width:100%; height:52px; appearance:none; background:transparent }
-  input[type="range"]::-webkit-slider-runnable-track{ height:12px; border-radius:999px; background:linear-gradient(90deg,var(--acc),var(--acc-2))}
-  input[type="range"]::-webkit-slider-thumb{ appearance:none; width:34px;height:34px;border-radius:50%; background:#fff; border:2px solid #111; margin-top:-11px }
-  input[type="range"]::-moz-range-track{ height:12px; border-radius:999px; background:linear-gradient(90deg,var(--acc),var(--acc-2))}
-  input[type="range"]::-moz-range-thumb{ width:34px;height:34px;border-radius:50%; background:#fff; border:2px solid #111 }
+  input[type="range"]{ width:100%; height:50px; appearance:none; background:transparent }
+  input[type="range"]::-webkit-slider-runnable-track{ height:10px; border-radius:999px; background:linear-gradient(90deg,var(--acc),var(--acc-2))}
+  input[type="range"]::-webkit-slider-thumb{ appearance:none; width:32px;height:32px;border-radius:50%; background:#fff; border:2px solid #111; margin-top:-11px }
+  input[type="range"]::-moz-range-track{ height:10px; border-radius:999px; background:linear-gradient(90deg,var(--acc),var(--acc-2))}
+  input[type="range"]::-moz-range-thumb{ width:32px;height:32px;border-radius:50%; background:#fff; border:2px solid #111 }
 
-  /* Harmonies */
   .toolbar{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center }
-  .chip{padding:12px 16px; border-radius:14px; border:1px solid var(--ring); background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.05)); font-weight:800; min-height:44px}
+  .chip{padding:10px 14px; border-radius:14px; border:1px solid var(--ring); background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.05)); font-weight:800; min-height:42px}
   .chip.active{ outline:2px solid color-mix(in oklab, var(--acc) 34%, transparent) }
 
-  /* BARRE PALETTE — 5 couleurs sur toute la largeur — wrap auto (2 lignes si besoin) */
-  .bar{
-    background:var(--card); border:1px solid var(--ring); border-radius:18px;
-    padding: clamp(10px,3.5vw,14px);
-  }
+  /* BARRE PALETTE — toujours 5 colonnes, wrap auto en 2 lignes si manque de place */
+  .bar{ background:var(--card); border:1px solid var(--ring); border-radius:18px; padding: clamp(8px,3vw,12px) }
   .bar-grid{
     display:grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* passe à 2 lignes toute seule */
-    gap: clamp(8px,2.4vw,12px);
-    align-items:stretch;
+    grid-template-columns: repeat(5, 1fr);   /* ⬅️ 5 sur la largeur */
+    gap: clamp(6px,2vw,10px);
   }
-  .slot{
-    border:1px solid var(--ring); border-radius:14px; overflow:hidden;
-    display:grid; grid-template-rows: min(18svh, 160px) auto;
+  @media (max-width: 360px){
+    .bar-grid{ grid-template-columns: repeat(5, minmax(0, 1fr)); } /* force 2 lignes si nécessaire */
   }
+  .slot{ border:1px solid var(--ring); border-radius:14px; overflow:hidden;
+         display:grid; grid-template-rows: min(14svh, 120px) auto }  /* ⬅️ éléments un peu plus petits */
   .swatch{ width:100%; height:100% }
-  .hex{ padding:10px; text-align:center; font-weight:900; letter-spacing:.4px; font-family: ui-monospace, Menlo, Consolas, monospace }
+  .hex{ padding:8px; text-align:center; font-weight:900; letter-spacing:.3px;
+        font-family: ui-monospace, Menlo, Consolas, monospace; position:relative }
+  .baseMark{ position:absolute; left:50%; top:-6px; transform:translateX(-50%); font-size:16px }
 
-  /* Aperçu & export */
-  .preview{display:grid; gap:12px}
+  .preview{display:grid; gap:10px}
   .pane{border:1px solid var(--ring); border-radius:16px; overflow:hidden}
-  .pane header{display:flex; justify-content:space-between; gap:10px; padding:12px 14px; color:var(--muted); border-bottom:1px solid var(--ring); background:color-mix(in oklab,var(--card) 72%, transparent)}
-  .pane .box{min-height:90px; padding:14px; font-weight:900; font-size: clamp(20px,5.5vw,24px)}
-  textarea.tokens{width:100%; min-height:150px; font:15px/1.5 ui-monospace,Menlo,Consolas,monospace; color:var(--ink); background:transparent; border:1px dashed var(--ring); border-radius:14px; padding:14px}
+  .pane header{display:flex; justify-content:space-between; gap:10px; padding:10px 12px; color:var(--muted); border-bottom:1px solid var(--ring); background:color-mix(in oklab,var(--card) 72%, transparent)}
+  .pane .box{min-height:86px; padding:12px; font-weight:900; font-size: clamp(18px,5.2vw,22px)}
+  textarea.tokens{width:100%; min-height:140px; font:15px/1.5 ui-monospace,Menlo,Consolas,monospace; color:var(--ink); background:transparent; border:1px dashed var(--ring); border-radius:14px; padding:12px}
 
-  .actions{display:flex; flex-wrap:wrap; gap:10px; justify-content:center}
+  .actions{display:flex; flex-wrap:wrap; gap:8px; justify-content:center}
 
-  /* Overlay plein écran */
-  .overlay{
-    position:fixed; inset:0; z-index:9999; display:none;
-    background: color-mix(in oklab, var(--bg) 85%, #0000);
-    backdrop-filter: blur(10px) saturate(140%); color:var(--ink);
-    grid-template-rows:auto 1fr;
-  }
-  .overlay.show{ display:grid }
-  .ov-top{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
-  .ov-inner{ max-width:var(--container); margin-inline:auto; padding-inline:var(--page-pad); width:100% }
-  .ov-head{ padding-block: clamp(14px,5vw,20px); border-bottom:1px solid var(--ring); background:color-mix(in oklab, var(--card) 80%, transparent) }
-  .ov-title{ font-weight:900; font-size: clamp(22px,6vw,28px) }
-  .ov-grid{ padding-block: clamp(14px,5vw,22px); display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px; align-content:start; overflow:auto }
-  .ov-tile{ border:1px solid var(--ring); border-radius:18px; overflow:hidden; display:grid; grid-template-rows: min(28svh, 300px) auto; background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03)) }
-  .ov-color{ width:100%; height:100% }
-  .ov-meta{ padding:14px; display:flex; align-items:center; justify-content:space-between; gap:12px }
-  .ov-hex{ font-weight:900; font-family: ui-monospace, Menlo, Consolas, monospace }
-  .ov-copy{ padding:12px 14px; border-radius:12px; border:1px solid var(--ring); background:transparent; font-weight:900; min-height:44px }
-
-  /* Thème “force” */
+  /* Thème “force” (appliquer au site) */
   .themed-hard *{ accent-color: var(--acc) !important; }
   .themed-hard a, .themed-hard a:visited{ color: var(--acc) !important; }
   .themed-hard button, .themed-hard .btn{ background: linear-gradient(180deg, color-mix(in oklab, var(--acc) 26%, transparent), transparent) !important; border-color: color-mix(in oklab, var(--acc) 38%, var(--ring)) !important; color: var(--ink) !important; }
@@ -146,7 +106,6 @@
       <div class="brand"><span class="dot"></span> PRISM — Générateur</div>
       <div class="actions">
         <button class="btn" id="random">Aléatoire</button>
-        <button class="btn" id="expand">Palette plein écran</button>
         <button class="btn primary" id="apply">Appliquer au site</button>
       </div>
     </div>
@@ -156,7 +115,7 @@
     <!-- ROUE -->
     <section class="panel">
       <h1>Roue chromatique</h1>
-      <p class="sub">Glisse sur la roue pour choisir la teinte. Ajuste saturation / luminosité.</p>
+      <p class="sub">Glisse sur la roue pour la teinte. Ajuste saturation / luminosité.</p>
       <div class="wheel-wrap">
         <div class="wheel" id="wheelWrap">
           <canvas id="wheel"></canvas>
@@ -174,20 +133,20 @@
     <!-- Harmonies -->
     <section class="panel">
       <div class="toolbar" id="modes">
+        <button class="chip" data-mode="analog">Analogues</button>
         <button class="chip" data-mode="complement">Complémentaire</button>
         <button class="chip" data-mode="triad">Triade</button>
         <button class="chip" data-mode="tetrad">Tétrade</button>
-        <button class="chip" data-mode="analog">Analogues</button>
         <button class="chip" data-mode="mono">Monochrome</button>
       </div>
     </section>
 
-    <!-- BARRE PALETTE (s’étend et wrap en 2 lignes si besoin) -->
+    <!-- Palette (5 colonnes) -->
     <section class="bar">
       <div class="bar-grid" id="barGrid"></div>
     </section>
 
-    <!-- APERÇU & EXPORT -->
+    <!-- Aperçu & export -->
     <section class="panel">
       <h2>Contraste & export</h2>
       <div class="preview">
@@ -208,21 +167,8 @@
     </section>
   </main>
 
-  <!-- OVERLAY PALETTE PLEIN ÉCRAN -->
-  <aside class="overlay" id="overlay" aria-label="Palette plein écran">
-    <div class="ov-inner">
-      <div class="ov-head">
-        <div class="ov-top">
-          <div class="ov-title">Palette — plein écran</div>
-          <div class="actions"><button class="btn" id="closeOv">Fermer</button></div>
-        </div>
-      </div>
-      <div class="ov-grid" id="ovGrid"></div>
-    </div>
-  </aside>
-
 <script>
-/* ==== helpers ==== */
+/* ===== Helpers ===== */
 const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
 const rgbToHex=(r,g,b)=>'#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');
 const hslToRgb=(h,s,l)=>{ s/=100; l/=100; const k=n=>(n+(h/30))%12; const a=s*Math.min(l,1-l);
@@ -231,58 +177,48 @@ const hslToRgb=(h,s,l)=>{ s/=100; l/=100; const k=n=>(n+(h/30))%12; const a=s*Ma
 const hslToHex=(h,s,l)=>rgbToHex(...hslToRgb(h,s,l));
 const hexToRgb=(hex)=>{ const m=/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); return m?[parseInt(m[1],16),parseInt(m[2],16),parseInt(m[3],16)]:[0,0,0] };
 const luminance=(r,g,b)=>{ const t=[r,g,b].map(v=>{v/=255; return v<=.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4)}); return 0.2126*t[0]+0.7152*t[1]+0.0722*t[2] };
-const contrastRatio=(hex1,hex2)=>{ const [r1,g1,b1]=hexToRgb(hex1),[r2,g2,b2]=hexToRgb(hex2);
-  const L1=luminance(r1,g1,b1)+0.05, L2=luminance(r2,g2,b2)+0.05; const ratio=L1>L2?L1/L2:L2/L1; return Math.round(ratio*100)/100 };
-const wcag=(r)=> r>=7?'AAA': r>=4.5?'AA': r>=3?'AA (large)':'fail';
+const contrastRatio=(hex1,hex2)=>{ const [r1,g1,b1]=hexToRgb(hex1),[r2,g2,b2]=hexToRgb(hex2); const L1=luminance(r1,g1,b1)+0.05, L2=luminance(r2,g2,b2)+0.05; return Math.round((L1>L2?L1/L2:L2/L1)*100)/100 };
+const wcag=r=> r>=7?'AAA': r>=4.5?'AA': r>=3?'AA (large)':'fail';
 const rot=(h,d)=>(((h+d)%360)+360)%360;
 
-/* ==== DOM ==== */
+/* ===== DOM ===== */
 const wheelWrap = document.getElementById('wheelWrap');
 const wheel = document.getElementById('wheel');
 const knob = document.getElementById('knob');
 const sat = document.getElementById('sat');
 const lig = document.getElementById('lig');
-
 const modes = document.getElementById('modes');
 const barGrid = document.getElementById('barGrid');
-
 const demoL = document.getElementById('demoLight');
 const demoD = document.getElementById('demoDark');
 const wcagL = document.getElementById('wcagLight');
 const wcagD = document.getElementById('wcagDark');
 const tokens = document.getElementById('tokens');
-
 const randomBtn = document.getElementById('random');
 const applyBtn = document.getElementById('apply');
-const expandBtn = document.getElementById('expand');
-
-const overlay = document.getElementById('overlay');
-const ovGrid = document.getElementById('ovGrid');
-const closeOv = document.getElementById('closeOv');
 const copyCss = document.getElementById('copyCss');
 const copyJson = document.getElementById('copyJson');
 
-/* ==== state ==== */
-let H=264, S=80, L=60;   // base violette (comme ta capture)
+/* ===== State ===== */
+let H=264, S=80, L=60;     // base
 let MODE='analog';
 let dpr = Math.min(window.devicePixelRatio||1, 2);
 
-/* ==== roue ==== */
+/* ===== Wheel (smaller, centered) ===== */
 function drawWheel(){
-  const wrapW = wheelWrap.getBoundingClientRect().width;   // largeur réelle centrée
-  const size = Math.floor(wrapW * dpr);
-  if(size<=0) return;
-  wheel.width=size; wheel.height=size;
+  const w = Math.floor(wheelWrap.getBoundingClientRect().width * dpr);
+  if(w<=0) return;
+  wheel.width=w; wheel.height=w;
   const ctx = wheel.getContext('2d', { willReadFrequently:false });
-  const r=size/2, cx=r, cy=r;
-  ctx.clearRect(0,0,size,size);
+  const r=w/2, cx=r, cy=r;
+  ctx.clearRect(0,0,w,w);
   for(let deg=0;deg<360;deg++){
     const g=ctx.createRadialGradient(cx,cy, r*0.18, cx,cy, r*0.98);
     g.addColorStop(0, hslToHex(deg,20,50));
     g.addColorStop(1, hslToHex(deg,100,50));
     ctx.strokeStyle=g; ctx.beginPath();
     const a1=(deg-1)*Math.PI/180, a2=deg*Math.PI/180;
-    ctx.arc(cx,cy,r-3,a1,a2); ctx.lineWidth=Math.max(18*dpr, 16); ctx.stroke();
+    ctx.arc(cx,cy,r-3,a1,a2); ctx.lineWidth=Math.max(16*dpr, 14); ctx.stroke();
   }
   ctx.beginPath(); ctx.arc(cx,cy,r*0.2,0,Math.PI*2);
   ctx.fillStyle='rgba(255,255,255,.08)'; ctx.fill();
@@ -292,8 +228,8 @@ function positionKnob(){
   const rect = wheelWrap.getBoundingClientRect();
   const r = rect.width/2;
   const ang = (H-90)*Math.PI/180;
-  knob.style.left = (rect.width/2 + (r-20)*Math.cos(ang))+'px';
-  knob.style.top  = (rect.height/2 + (r-20)*Math.sin(ang))+'px';
+  knob.style.left = (rect.width/2 + (r-18)*Math.cos(ang))+'px';
+  knob.style.top  = (rect.height/2 + (r-18)*Math.sin(ang))+'px';
 }
 function hueFromPointer(x,y){
   const rect = wheelWrap.getBoundingClientRect();
@@ -310,67 +246,58 @@ wheelWrap.addEventListener('pointerup',   e=>{ dragging=false; try{wheelWrap.rel
 sat.addEventListener('input', e=>{ S=+e.target.value; render() });
 lig.addEventListener('input', e=>{ L=+e.target.value; render() });
 
-/* ==== harmonies ==== */
+/* ===== Modes ===== */
 modes.querySelectorAll('.chip').forEach(b=>{
   if(b.dataset.mode===MODE) b.classList.add('active');
-  b.addEventListener('click',()=>{
+  b.addEventListener('click', ()=>{
     modes.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
     b.classList.add('active'); MODE=b.dataset.mode; render();
   });
 });
 
-/* ==== palette ==== */
-function buildSet(){
-  let set=[];
-  if(MODE==='complement'){ set=[[H,S,L],[rot(H,180),S,L]]; }
-  else if(MODE==='triad'){ set=[[H,S,L],[rot(H,120),S,L],[rot(H,-120),S,L]]; }
-  else if(MODE==='tetrad'){ set=[[H,S,L],[rot(H,90),S,L],[rot(H,180),S,L],[rot(H,270),S,L]]; }
-  else if(MODE==='analog'){ set=[[rot(H,-30),S,L],[H,S,L],[rot(H,15),S,L],[rot(H,30),S,L]]; }
-  else if(MODE==='mono'){ set=[[H,S,clamp(L-20,0,100)],[H,S,L],[H,S,clamp(L+18,0,100)]]; }
-  while(set.length<5){ set.push([H,S,clamp(L+(set.length-2)*8,0,100)]) }
-  return set.slice(0,5);
+/* ===== Build palette (toujours 5, base au CENTRE) ===== */
+function buildSet5(){
+  // offsets en degrés autour de la base (centre = 0)
+  let offsets=[];
+  if(MODE==='analog')       offsets=[-30, -15, 0, 15, 30];
+  else if(MODE==='complement') offsets=[-180, -30, 0, 30, 180];
+  else if(MODE==='triad')   offsets=[-120, -30, 0, 30, 120];
+  else if(MODE==='tetrad')  offsets=[-90, 0, 90, 180, -45]; // 4 teintes clés + un intermédiaire
+  else if(MODE==='mono')    return [
+                               [H,S,clamp(L-24,0,100)],
+                               [H,S,clamp(L-12,0,100)],
+                               [H,S,L],                // centre = base
+                               [H,S,clamp(L+12,0,100)],
+                               [H,S,clamp(L+24,0,100)]
+                             ];
+  return offsets.map(d=>[rot(H,d), S, L]);
 }
 
-/* ==== rendu ==== */
+/* ===== Render ===== */
 function render(){
   positionKnob();
 
-  // Barre palette centrée sur toute la largeur (wrap auto 2 lignes si besoin)
-  const set = buildSet();
+  // Palette 5 colonnes (base au centre + marque ▲)
+  const set = buildSet5();
   barGrid.innerHTML='';
-  set.forEach(([h,s,l])=>{
-    const hex = hslToHex(h,s,l);
-    const el = document.createElement('div');
+  set.forEach(([h,s,l],i)=>{
+    const hex=hslToHex(h,s,l);
+    const el=document.createElement('div');
     el.className='slot';
-    el.innerHTML = `<div class="swatch" style="background:${hex}"></div>
-      <div class="hex">${hex.toUpperCase()}</div>`;
+    el.innerHTML=`<div class="swatch" style="background:${hex}"></div>
+      <div class="hex">${i===2?'<span class="baseMark">▲</span>':''}${hex.toUpperCase()}</div>`;
     barGrid.appendChild(el);
   });
 
-  // Overlay plein écran — HEX visibles + copier
-  ovGrid.innerHTML='';
-  set.forEach(([h,s,l])=>{
-    const hex = hslToHex(h,s,l);
-    const tile = document.createElement('div');
-    tile.className='ov-tile';
-    tile.innerHTML = `<div class="ov-color" style="background:${hex}"></div>
-      <div class="ov-meta">
-        <div class="ov-hex">${hex.toUpperCase()}</div>
-        <button class="ov-copy" data-copy="${hex}">Copier</button>
-      </div>`;
-    ovGrid.appendChild(tile);
-  });
-  ovGrid.querySelectorAll('[data-copy]').forEach(b=> b.onclick=()=> navigator.clipboard.writeText(b.dataset.copy));
-
-  // Contraste
-  const primary = hslToHex(H,S,L);
-  demoL.style.color=primary; demoD.style.color=primary;
-  wcagL.textContent='Contraste: '+wcag(contrastRatio(primary,'#ffffff'));
-  wcagD.textContent='Contraste: '+wcag(contrastRatio(primary,'#0b0f16'));
+  // Contraste (cohérent avec la roue : base = set[2])
+  const baseHex = hslToHex(H,S,L);
+  demoL.style.color=baseHex; demoD.style.color=baseHex;
+  wcagL.textContent='Contraste: '+wcag(contrastRatio(baseHex,'#ffffff'));
+  wcagD.textContent='Contraste: '+wcag(contrastRatio(baseHex,'#0b0f16'));
 
   // Export CSS
   tokens.value = `:root{
-  --acc: ${primary};
+  --acc: ${baseHex};
   --acc-2: ${hslToHex(rot(H,180),S,L)};
   --acc-tri-1: ${hslToHex(rot(H,120),S,L)};
   --acc-tri-2: ${hslToHex(rot(H,-120),S,L)};
@@ -379,34 +306,19 @@ function render(){
 }`;
 }
 
-/* ==== actions ==== */
-const curated=[
-  ['Vaporwave',[315,80,65],'triad'],
-  ['Tropical', [170,75,50],'analog'],
-  ['Arcade',   [200,90,55],'tetrad'],
-  ['Sunset',   [18,85,58], 'complement'],
-  ['Aurora',   [155,70,54],'analog'],
-  ['Sakura',   [340,70,66],'mono'],
-  ['Cyber',    [190,90,55],'tetrad'],
-];
-randomBtn.addEventListener('click', ()=>{
-  if(Math.random()<0.6){
-    const [_,[h,s,l],m]=curated[Math.floor(Math.random()*curated.length)];
-    [H,S,L]=[h,s,l]; MODE=m;
-  }else{
-    H=Math.floor(Math.random()*360);
-    S=[65,70,75,80,85][Math.floor(Math.random()*5)];
-    L=[48,52,56,60,64][Math.floor(Math.random()*5)];
-    MODE=['complement','triad','tetrad','analog','mono'][Math.floor(Math.random()*5)];
-  }
+/* ===== Actions ===== */
+const curated=[ ['Vaporwave',[315,80,65],'triad'], ['Tropical',[170,75,50],'analog'],
+  ['Arcade',[200,90,55],'tetrad'], ['Sunset',[18,85,58],'complement'],
+  ['Aurora',[155,70,54],'analog'], ['Sakura',[340,70,66],'mono'], ['Cyber',[190,90,55],'tetrad'] ];
+randomBtn?.addEventListener('click', ()=>{
+  if(Math.random()<0.6){ const [_,[h,s,l],m]=curated[Math.floor(Math.random()*curated.length)]; [H,S,L]=[h,s,l]; MODE=m; }
+  else{ H=Math.floor(Math.random()*360); S=[65,70,75,80,85][Math.floor(Math.random()*5)];
+        L=[48,52,56,60,64][Math.floor(Math.random()*5)];
+        MODE=['analog','complement','triad','tetrad','mono'][Math.floor(Math.random()*5)]; }
   modes.querySelectorAll('.chip').forEach(x=>x.classList.toggle('active', x.dataset.mode===MODE));
   render();
 });
 
-expandBtn.addEventListener('click', ()=> overlay.classList.add('show'));
-closeOv.addEventListener('click', ()=> overlay.classList.remove('show'));
-
-/* Appliquer au site (force) */
 applyBtn.addEventListener('click', ()=>{
   const root=document.documentElement.style;
   root.setProperty('--acc',           hslToHex(H,S,L));
@@ -414,21 +326,15 @@ applyBtn.addEventListener('click', ()=>{
   document.documentElement.classList.add('themed-hard');
 });
 
-/* Copier exports */
 copyCss.onclick=()=> navigator.clipboard.writeText(tokens.value);
 copyJson.onclick=()=>{
-  const obj = {
-    acc: hslToHex(H,S,L),
-    acc2: hslToHex(rot(H,180),S,L),
-    tri1: hslToHex(rot(H,120),S,L),
-    tri2: hslToHex(rot(H,-120),S,L),
-    analog1: hslToHex(rot(H,15),S,L),
-    analog2: hslToHex(rot(H,-15),S,L)
-  };
+  const obj = { acc: hslToHex(H,S,L), acc2: hslToHex(rot(H,180),S,L),
+    tri1: hslToHex(rot(H,120),S,L), tri2: hslToHex(rot(H,-120),S,L),
+    analog1: hslToHex(rot(H,15),S,L), analog2: hslToHex(rot(H,-15),S,L) };
   navigator.clipboard.writeText(JSON.stringify(obj,null,2));
 };
 
-/* ==== init & resize (centrage garanti) ==== */
+/* ===== Init & Resize ===== */
 function onResize(){ dpr=Math.min(window.devicePixelRatio||1,2); drawWheel(); render(); }
 window.addEventListener('resize', onResize, {passive:true});
 onResize();
