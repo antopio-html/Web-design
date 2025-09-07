@@ -1,232 +1,235 @@
-<!-- ============ 🎨 PALETTE DESIGNER — Mobile + Random ============ -->
+<!-- ============ 🎨 PALETTE DESIGNER — FULLSCREEN ============ -->
 <style>
   :root {
-    --pd-bg: rgba(10,11,16,.82);
+    --pd-bg: rgba(10,11,16,.88);
     --pd-card: rgba(255,255,255,.06);
     --pd-ring: rgba(255,255,255,.12);
-    --pd-ink: #e8ecff;
-    --pd-muted:#a7b0d0;
+    --pd-ink: #e8ecff; --pd-muted:#a7b0d0;
   }
   @media (prefers-color-scheme: light){
-    :root{ --pd-bg: rgba(250,252,255,.92); --pd-card: rgba(0,0,0,.06); --pd-ring: rgba(0,0,0,.12); --pd-ink:#0e1116; --pd-muted:#596274 }
+    :root{ --pd-bg: rgba(250,252,255,.94); --pd-card: rgba(0,0,0,.06); --pd-ring: rgba(0,0,0,.12); --pd-ink:#0e1116; --pd-muted:#596274 }
   }
 
-  .pd-fab{
-    position:fixed; right:14px; bottom:14px; z-index:9999;
-    background:linear-gradient(180deg,#fff,rgba(255,255,255,.9));
-    border:1px solid var(--pd-ring); color:#111; border-radius:16px; padding:12px 16px; cursor:pointer;
-    box-shadow:0 10px 30px rgba(0,0,0,.25); display:flex; gap:10px; align-items:center; user-select:none;
-    touch-action:manipulation; font-weight:700;
-  }
-  .pd-fab:active{ transform:translateY(1px) }
-
-  .pd-panel{
-    position:fixed; right:16px; bottom:16px; width:min(440px, 96vw); max-height:min(80vh, 680px);
-    z-index:10000; background:var(--pd-bg); color:var(--pd-ink);
+  /* Overlay plein écran */
+  .pd-overlay{
+    position:fixed; inset:0; z-index:99999;
+    background: var(--pd-bg);
     backdrop-filter: blur(12px) saturate(140%);
-    border:1px solid var(--pd-ring); border-radius:20px; box-shadow:0 22px 70px rgba(0,0,0,.45);
-    display:none; grid-template-rows:auto auto 1fr auto; overflow:hidden;
+    color: var(--pd-ink);
+    display:grid; grid-template-rows:auto 1fr auto;
   }
-  .pd-panel.show{ display:grid }
+  .pd-hidden{ display:none }
 
-  /* — Bottom sheet smartphone — */
-  @media (max-width: 600px){
-    .pd-panel{
-      inset:auto 0 0 0; margin:auto; width:100vw; max-height:75vh; border-radius:16px 16px 0 0;
-    }
+  /* Topbar */
+  .pd-top{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:12px clamp(12px, 4vw, 28px);
+    border-bottom:1px solid var(--pd-ring); background: var(--pd-card);
   }
-
-  .pd-hdr{
-    display:flex; align-items:center; justify-content:space-between; gap:10px;
-    padding:12px; background:var(--pd-card); border-bottom:1px solid var(--pd-ring);
-    touch-action:none; cursor:grab;
-  }
-  .pd-hdr .pd-title{ display:flex; gap:10px; align-items:center; font-weight:700 }
+  .pd-title{ font-weight:800; letter-spacing:.2px; display:flex; gap:10px; align-items:center }
   .pd-actions{ display:flex; gap:8px; flex-wrap:wrap }
   .pd-btn{
     appearance:none; background:transparent; color:inherit; border:1px solid var(--pd-ring);
-    padding:10px 12px; border-radius:12px; cursor:pointer; touch-action:manipulation;
+    padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:600;
   }
 
+  /* Corps en 3 colonnes (grandes surfaces) */
   .pd-body{
-    display:grid; grid-template-columns: 200px 1fr; gap:12px; padding:12px; overflow:auto;
+    display:grid; grid-template-columns: 360px 1fr 420px; gap:16px;
+    padding:16px clamp(12px, 3vw, 28px);
+    overflow:auto;
   }
-  @media (max-width: 900px){ .pd-body{ grid-template-columns: 1fr } }
+  @media (max-width:1200px){ .pd-body{ grid-template-columns: 320px 1fr 360px } }
+  @media (max-width:980px){  .pd-body{ grid-template-columns: 1fr; grid-auto-rows: min-content } }
 
-  .pd-wheel-wrap{ display:grid; gap:12px; align-content:start }
-  .pd-canvas{
-    --size: 200px;
-    width:var(--size); height:var(--size); border-radius:50%; border:1px solid var(--pd-ring);
-    background:var(--pd-card); box-shadow:inset 0 0 0 1px rgba(255,255,255,.04);
-    position:relative; overflow:hidden; margin:auto;
+  /* Col. 1 : roue + sliders */
+  .pd-section{ display:grid; gap:14px; align-content:start }
+  .pd-card{
+    border:1px solid var(--pd-ring); border-radius:16px; background:var(--pd-card);
+    padding:14px; overflow:hidden;
   }
-  @media (max-width:600px){ .pd-canvas{ --size: 180px } }
+  .pd-h3{ margin:0 0 8px; font-size:14px; color:var(--pd-muted) }
+
+  .pd-canvas{
+    --size: 320px;
+    width:var(--size); height:var(--size); border-radius:50%; border:1px solid var(--pd-ring);
+    background:var(--pd-card); margin:auto; position:relative;
+  }
+  @media (max-width:1200px){ .pd-canvas{ --size: 280px } }
+  @media (max-width:600px){  .pd-canvas{ --size: 240px } }
   .pd-canvas canvas{ width:100%; height:100%; display:block }
   .pd-knob{
     position:absolute; width:18px; height:18px; border-radius:50%; background:#fff; border:2px solid #111;
     transform:translate(-50%,-50%); pointer-events:none; box-shadow:0 0 0 4px rgba(0,0,0,.15);
   }
-
-  .pd-sl{ display:grid; gap:10px; grid-template-columns: 1fr; }
+  .pd-sl{ display:grid; gap:10px }
   .pd-sl label{ font-size:12px; color:var(--pd-muted) }
   .pd-sl input[type="range"]{ width:100% }
 
-  .pd-swatches{ display:grid; gap:10px; align-content:start }
+  /* Col. 2 : modes + swatches */
   .pd-modes{ display:flex; flex-wrap:wrap; gap:8px }
   .pd-chip{
     font-size:12px; padding:8px 12px; border-radius:999px; border:1px solid var(--pd-ring);
-    background:var(--pd-card); cursor:pointer; touch-action:manipulation;
+    background:var(--pd-card); cursor:pointer;
   }
   .pd-chip.active{ outline:2px solid rgba(255,255,255,.14) }
-
-  .pd-grid{ display:grid; grid-template-columns:repeat(5, 1fr); gap:10px }
-  @media (max-width:600px){ .pd-grid{ grid-template-columns:repeat(3, 1fr) } }
+  .pd-grid{ display:grid; grid-template-columns:repeat(5, 1fr); gap:12px; margin-top:12px }
+  @media (max-width:600px){ .pd-grid{ grid-template-columns:repeat(3,1fr) } }
   .pd-swatch{
-    border:1px solid var(--pd-ring); border-radius:12px; overflow:hidden; background:var(--pd-card);
-    display:grid; grid-template-rows: 60px auto;
+    border:1px solid var(--pd-ring); border-radius:14px; background:var(--pd-card);
+    display:grid; grid-template-rows: 80px auto;
   }
-  .pd-swatch .box{ min-height:60px }
-  .pd-swatch .meta{ padding:8px; display:grid; gap:4px }
+  .pd-swatch .box{ min-height:80px }
+  .pd-swatch .meta{ padding:10px; display:grid; gap:6px }
+  .pd-row{ display:flex; align-items:center; justify-content:space-between; gap:8px }
   .pd-swatch small{ color:var(--pd-muted); font-size:11px }
-  .pd-row{ display:flex; align-items:center; gap:8px; justify-content:space-between }
 
-  .pd-contrast{ display:grid; gap:8px; padding:0 12px 12px 12px }
-  .pd-preview{ display:grid; grid-template-columns:1fr 1fr; gap:8px }
+  /* Col. 3 : contraste + tokens + actions */
+  .pd-preview{ display:grid; grid-template-columns:1fr 1fr; gap:12px }
   @media (max-width:600px){ .pd-preview{ grid-template-columns:1fr } }
-  .pd-card{ border:1px solid var(--pd-ring); border-radius:12px; overflow:hidden }
-  .pd-card .demo{ padding:12px; min-height:62px; font-size:14px }
-  .pd-card header{ display:flex; justify-content:space-between; padding:8px 10px; font-size:12px; color:var(--pd-muted); background:var(--pd-card);
-    border-bottom:1px solid var(--pd-ring); }
+  .pd-demo{ border:1px solid var(--pd-ring); border-radius:12px; overflow:hidden }
+  .pd-demo header{ display:flex; justify-content:space-between; padding:8px 10px; font-size:12px; color:var(--pd-muted); border-bottom:1px solid var(--pd-ring); background:var(--pd-card) }
+  .pd-demo .box{ min-height:72px; padding:12px; font-size:14px }
 
-  .pd-ft{
-    border-top:1px solid var(--pd-ring); background:var(--pd-card); padding:10px; display:flex; gap:8px; flex-wrap:wrap; align-items:center
+  .pd-txt{ width:100%; min-height:120px; font:12px/1.4 ui-monospace,Menlo,Consolas,monospace;
+    background:transparent; color:var(--pd-ink); border:1px dashed var(--pd-ring); border-radius:8px; padding:10px }
+
+  /* Footer (raccourcis) */
+  .pd-foot{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:10px clamp(12px, 4vw, 28px); border-top:1px solid var(--pd-ring); background:var(--pd-card); color:var(--pd-muted); font-size:12px;
   }
-  .pd-txt{ width:100%; min-height:88px; font:12px/1.4 ui-monospace,Menlo,Consolas,monospace; background:transparent; color:var(--pd-ink); border:1px dashed var(--pd-ring); border-radius:8px; padding:8px }
-  .pd-copy{ margin-left:auto }
-
-  .pd-toast{ position:fixed; left:50%; bottom:18px; transform:translateX(-50%); background:#111a; color:#fff; padding:8px 12px; border-radius:10px; display:none }
-  .pd-toast.show{ display:block; animation: fadepd 1.6s ease both }
-  @keyframes fadepd{ 0%{opacity:0; transform:translateX(-50%) translateY(6px)} 12%{opacity:1; transform:translateX(-50%) translateY(0)} 100%{opacity:0} }
 </style>
 
-<button class="pd-fab" id="pdOpen" aria-label="Ouvrir la palette">🎨 Palette</button>
-
-<aside class="pd-panel" id="pdPanel" role="dialog" aria-label="Concepteur de palettes">
-  <div class="pd-hdr" id="pdDrag">
-    <div class="pd-title">🎨 Roue & Harmonies</div>
+<div class="pd-overlay" id="pdOverlay" role="dialog" aria-label="Concepteur de palettes (plein écran)">
+  <div class="pd-top">
+    <div class="pd-title">🎨 Roue & Palettes — Plein écran</div>
     <div class="pd-actions">
       <button class="pd-btn" id="pdRandom">Aléatoire</button>
+      <button class="pd-btn" id="pdApply">Appliquer à la page</button>
       <button class="pd-btn" id="pdClose">Fermer</button>
     </div>
   </div>
 
   <div class="pd-body">
-    <!-- Col. roue -->
-    <div class="pd-wheel-wrap">
-      <div class="pd-canvas" id="pdCanvas">
-        <canvas id="pdWheel" width="200" height="200"></canvas>
-        <div class="pd-knob" id="pdKnob" style="left:100px;top:10px"></div>
-      </div>
-      <div class="pd-sl">
-        <label for="pdSat">Saturation</label>
-        <input id="pdSat" type="range" min="0" max="100" value="80">
-        <label for="pdLig">Luminosité</label>
-        <input id="pdLig" type="range" min="0" max="100" value="55">
-      </div>
-    </div>
-
-    <!-- Col. swatches -->
-    <div class="pd-swatches">
-      <div class="pd-modes">
-        <button class="pd-chip" data-mode="complement">Complémentaire</button>
-        <button class="pd-chip" data-mode="triad">Triade</button>
-        <button class="pd-chip" data-mode="tetrad">Tétrade</button>
-        <button class="pd-chip" data-mode="analog">Analogues</button>
-        <button class="pd-chip" data-mode="mono">Monochrome</button>
-      </div>
-      <div class="pd-grid" id="pdGrid"></div>
-    </div>
-  </div>
-
-  <div class="pd-contrast">
-    <div class="pd-preview">
+    <!-- Col. 1 -->
+    <div class="pd-section">
       <div class="pd-card">
-        <header><span>Fond clair</span><span id="pdAA1">—</span></header>
-        <div class="demo" id="pdDemoLight" style="background:#ffffff; color:#111">Aa — Titre & bouton</div>
+        <h3 class="pd-h3">Roue HSL</h3>
+        <div class="pd-canvas" id="pdCanvas">
+          <canvas id="pdWheel" width="320" height="320"></canvas>
+          <div class="pd-knob" id="pdKnob" style="left:160px; top:12px"></div>
+        </div>
       </div>
       <div class="pd-card">
-        <header><span>Fond sombre</span><span id="pdAA2">—</span></header>
-        <div class="demo" id="pdDemoDark" style="background:#0a0b10; color:#e8ecff">Aa — Titre & bouton</div>
+        <h3 class="pd-h3">Réglages</h3>
+        <div class="pd-sl">
+          <label for="pdSat">Saturation</label>
+          <input id="pdSat" type="range" min="0" max="100" value="80">
+          <label for="pdLig">Luminosité</label>
+          <input id="pdLig" type="range" min="0" max="100" value="55">
+        </div>
+      </div>
+    </div>
+
+    <!-- Col. 2 -->
+    <div class="pd-section">
+      <div class="pd-card">
+        <h3 class="pd-h3">Harmonies</h3>
+        <div class="pd-modes">
+          <button class="pd-chip" data-mode="complement">Complémentaire</button>
+          <button class="pd-chip" data-mode="triad">Triade</button>
+          <button class="pd-chip" data-mode="tetrad">Tétrade</button>
+          <button class="pd-chip" data-mode="analog">Analogues</button>
+          <button class="pd-chip" data-mode="mono">Monochrome</button>
+        </div>
+        <div class="pd-grid" id="pdGrid"></div>
+      </div>
+    </div>
+
+    <!-- Col. 3 -->
+    <div class="pd-section">
+      <div class="pd-card">
+        <h3 class="pd-h3">Contraste (WCAG)</h3>
+        <div class="pd-preview">
+          <div class="pd-demo">
+            <header><span>Fond clair</span><span id="pdAA1">—</span></header>
+            <div class="box" id="pdDemoLight" style="background:#ffffff; color:#111">Aa — Titre & bouton</div>
+          </div>
+          <div class="pd-demo">
+            <header><span>Fond sombre</span><span id="pdAA2">—</span></header>
+            <div class="box" id="pdDemoDark" style="background:#0a0b10; color:#e8ecff">Aa — Titre & bouton</div>
+          </div>
+        </div>
+      </div>
+      <div class="pd-card">
+        <h3 class="pd-h3">Tokens CSS</h3>
+        <textarea class="pd-txt" id="pdTokens" readonly></textarea>
       </div>
     </div>
   </div>
 
-  <div class="pd-ft">
-    <textarea class="pd-txt" id="pdTokens" readonly></textarea>
-    <button class="pd-btn pd-copy" id="pdCopy">Copier tokens CSS</button>
+  <div class="pd-foot">
+    <div>Astuce : appuie sur <b>P</b> pour ouvrir/fermer, clique sur un code pour copier.</div>
+    <div id="pdToast" aria-live="polite"></div>
   </div>
-</aside>
-
-<div class="pd-toast" id="pdToast">Copié ✅</div>
+</div>
 
 <script>
 (function(){
-  /* ========== helpers couleurs ========== */
+  /* ==== helpers couleurs ==== */
   const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
   const hslToRgb=(h,s,l)=>{
-    s/=100; l/=100;
-    const k=n=>(n+(h/30))%12;
+    s/=100; l/=100; const k=n=>(n+(h/30))%12;
     const a=s*Math.min(l,1-l);
     const f=n=> l - a*Math.max(-1, Math.min(k(n)-3, Math.min(9-k(n),1)));
-    return [Math.round(255*f(0)), Math.round(255*f(8)), Math.round(255*f(4))];
+    return [Math.round(255*f(0)),Math.round(255*f(8)),Math.round(255*f(4))];
   };
   const rgbToHex=(r,g,b)=>'#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');
   const hslToHex=(h,s,l)=>rgbToHex(...hslToRgb(h,s,l));
   const hexToRgb=(hex)=>{ const m=/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); return m?[parseInt(m[1],16),parseInt(m[2],16),parseInt(m[3],16)]:[0,0,0]; };
   const luminance=(r,g,b)=>{ const t=[r,g,b].map(v=>{v/=255; return v<=.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4)}); return 0.2126*t[0]+0.7152*t[1]+0.0722*t[2]; };
-  const contrastRatio=(hex1,hex2)=>{ const [r1,g1,b1]=hexToRgb(hex1),[r2,g2,b2]=hexToRgb(hex2); const L1=luminance(r1,g1,b1)+0.05,L2=luminance(r2,g2,b2)+0.05; return Math.round(((L1>L2?L1/L2:L2/L1))*100)/100; };
+  const contrastRatio=(c1,c2)=>{ const [r1,g1,b1]=hexToRgb(c1),[r2,g2,b2]=hexToRgb(c2); const L1=luminance(r1,g1,b1)+0.05, L2=luminance(r2,g2,b2)+0.05; return Math.round(((L1>L2?L1/L2:L2/L1))*100)/100; };
   const wcag=(r)=> r>=7?'AAA': r>=4.5?'AA': r>=3?'AA (large)':'fail';
   const rot=(h,d)=>(((h+d)%360)+360)%360;
 
-  /* ========== DOM ========== */
+  /* ==== DOM ==== */
+  const overlay = document.getElementById('pdOverlay');
   const wheel = document.getElementById('pdWheel');
   const ctx = wheel.getContext('2d');
   const knob = document.getElementById('pdKnob');
   const sat = document.getElementById('pdSat');
   const lig = document.getElementById('pdLig');
   const grid = document.getElementById('pdGrid');
-  const modes = document.querySelectorAll('.pd-chip');
   const tokens = document.getElementById('pdTokens');
   const demoL = document.getElementById('pdDemoLight');
   const demoD = document.getElementById('pdDemoDark');
   const a1 = document.getElementById('pdAA1');
   const a2 = document.getElementById('pdAA2');
-  const open = document.getElementById('pdOpen');
-  const panel = document.getElementById('pdPanel');
-  const close = document.getElementById('pdClose');
-  const randomBtn = document.getElementById('pdRandom');
-  const drag = document.getElementById('pdDrag');
   const toast = document.getElementById('pdToast');
+  const btnClose = document.getElementById('pdClose');
+  const btnRandom = document.getElementById('pdRandom');
+  const btnApply = document.getElementById('pdApply');
+  const chips = Array.from(document.querySelectorAll('.pd-chip'));
 
   let H=200, S=80, L=55, MODE='complement';
 
-  /* ========== roue ========== */
+  /* ==== wheel ==== */
   function drawWheel(){
     const r=wheel.width/2, cx=r, cy=r;
     for(let deg=0;deg<360;deg++){
-      const grd = ctx.createRadialGradient(cx,cy, r*0.2, cx,cy,r);
-      grd.addColorStop(0, hslToHex(deg,20,50));
-      grd.addColorStop(1, hslToHex(deg,100,50));
-      ctx.strokeStyle=grd; ctx.beginPath();
+      const g=ctx.createRadialGradient(cx,cy,r*0.2,cx,cy,r);
+      g.addColorStop(0, hslToHex(deg,20,50));
+      g.addColorStop(1, hslToHex(deg,100,50));
+      ctx.strokeStyle=g; ctx.beginPath();
       const a1=(deg-1)*Math.PI/180, a2=deg*Math.PI/180;
-      ctx.arc(cx,cy,r-1,a1,a2);
-      ctx.lineWidth=12; ctx.stroke();
+      ctx.arc(cx,cy,r-1,a1,a2); ctx.lineWidth=16; ctx.stroke();
     }
     ctx.beginPath(); ctx.arc(cx,cy,r*0.2,0,Math.PI*2);
     ctx.fillStyle='rgba(255,255,255,.06)'; ctx.fill();
   }
 
-  function buildSet(){
+  const buildSet=()=>{
     const set=[];
     if(MODE==='complement'){
       set.push([H,S,L],[rot(H,180),S,L]);
@@ -237,40 +240,39 @@
     } else if(MODE==='analog'){
       set.push([rot(H,-30),S,L],[H,S,L],[rot(H,15),S,L],[rot(H,30),S,L]);
     } else if(MODE==='mono'){
-      set.push([H,S,clamp(L-20,0,100)],[H,S,L],[H,S,clamp(L+18,0,100)]);
+      set.push([H,S,clamp(L-20,0,100)],[H,S,L],[H,S,clamp(L+20,0,100)]);
     }
     while(set.length<5){ set.push([H,S,clamp(L + (set.length-2)*10,0,100)]) }
     return set.slice(0,5);
-  }
+  };
 
   function render(){
     sat.value=S; lig.value=L;
     const r=wheel.width/2, cx=r, cy=r, ang=(H-90)*Math.PI/180;
-    knob.style.left = (cx + (r-14)*Math.cos(ang))+'px';
-    knob.style.top  = (cy + (r-14)*Math.sin(ang))+'px';
+    knob.style.left=(cx + (r-18)*Math.cos(ang))+'px';
+    knob.style.top =(cy + (r-18)*Math.sin(ang))+'px';
 
-    const set=buildSet();
+    const set = buildSet();
     grid.innerHTML='';
     set.forEach(([h,s,l],i)=>{
       const hex=hslToHex(h,s,l);
-      const sw=document.createElement('div'); sw.className='pd-swatch';
-      sw.innerHTML = `
+      const el=document.createElement('div');
+      el.className='pd-swatch';
+      el.innerHTML=`
         <div class="box" style="background:${hex}"></div>
         <div class="meta">
           <div class="pd-row"><b>${i===0?'base':'var'+i}</b><button class="pd-btn" data-copy="${hex}">Copier</button></div>
           <small>${hex.toUpperCase()} • hsl(${h}, ${s}%, ${l}%)</small>
         </div>`;
-      grid.appendChild(sw);
+      grid.appendChild(el);
     });
 
-    // Contraste
-    const primary = hslToHex(H,S,L);
-    demoL.style.color = primary; demoD.style.color = primary;
-    a1.textContent = 'Contraste: '+wcag(contrastRatio(primary,'#ffffff'));
-    a2.textContent = 'Contraste: '+wcag(contrastRatio(primary,'#0a0b10'));
+    const primary=hslToHex(H,S,L);
+    demoL.style.color=primary; demoD.style.color=primary;
+    a1.textContent='Contraste: '+wcag(contrastRatio(primary,'#ffffff'));
+    a2.textContent='Contraste: '+wcag(contrastRatio(primary,'#0a0b10'));
 
-    // Tokens CSS
-    const txt=`:root{
+    tokens.value=`:root{
   --acc: ${primary};
   --acc-2: ${hslToHex(rot(H,180),S,L)};
   --acc-tri-1: ${hslToHex(rot(H,120),S,L)};
@@ -278,90 +280,86 @@
   --acc-analog-1: ${hslToHex(rot(H,15),S,L)};
   --acc-analog-2: ${hslToHex(rot(H,-15),S,L)};
 }`;
-    document.getElementById('pdTokens').value = txt;
-
     // copier
     grid.querySelectorAll('[data-copy]').forEach(b=>{
-      b.onclick=()=> { navigator.clipboard.writeText(b.dataset.copy).then(()=>{ toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'),1200); }) }
+      b.onclick=()=>{ navigator.clipboard.writeText(b.dataset.copy); toast.textContent='Copié '+b.dataset.copy; fireToast(); }
     });
   }
 
-  // wheel interactions (drag)
   function setHueFromPoint(x,y){
     const rect=wheel.getBoundingClientRect();
     const dx=x-rect.left-rect.width/2, dy=y-rect.top-rect.height/2;
-    const ang=Math.atan2(dy,dx)*180/Math.PI + 90;
-    H = (Math.round(ang)+360)%360; render();
+    H=(Math.round(Math.atan2(dy,dx)*180/Math.PI + 90)+360)%360;
+    render();
   }
-  let dragHue=false;
-  wheel.addEventListener('pointerdown', e=>{ dragHue=true; setHueFromPoint(e.clientX,e.clientY); wheel.setPointerCapture(e.pointerId) });
-  wheel.addEventListener('pointermove', e=>{ if(dragHue) setHueFromPoint(e.clientX,e.clientY) });
-  wheel.addEventListener('pointerup', e=>{ dragHue=false; try{wheel.releasePointerCapture(e.pointerId)}catch{} });
+  let dragging=false;
+  wheel.addEventListener('pointerdown', e=>{ dragging=true; setHueFromPoint(e.clientX,e.clientY); wheel.setPointerCapture(e.pointerId) });
+  wheel.addEventListener('pointermove', e=>{ if(dragging) setHueFromPoint(e.clientX,e.clientY) });
+  wheel.addEventListener('pointerup', e=>{ dragging=false; try{wheel.releasePointerCapture(e.pointerId)}catch{} });
 
-  sat.oninput = e=>{ S=+e.target.value; render() }
-  lig.oninput = e=>{ L=+e.target.value; render() }
-  modes.forEach(m=>m.addEventListener('click', ()=>{ modes.forEach(x=>x.classList.remove('active')); m.classList.add('active'); MODE=m.dataset.mode; render(); }));
+  sat.oninput=e=>{ S=+e.target.value; render() }
+  lig.oninput=e=>{ L=+e.target.value; render() }
+  chips.forEach(c=> c.addEventListener('click', ()=>{ chips.forEach(x=>x.classList.remove('active')); c.classList.add('active'); MODE=c.dataset.mode; render(); }));
   document.querySelector('.pd-chip[data-mode="complement"]').classList.add('active');
 
-  // Random palettes (curation + algo)
-  const curated = [
-    // name, [H,S,L], mode
-    ['Vaporwave', [315,80,65], 'triad'],
-    ['Tropical',  [170,75,50], 'analog'],
-    ['Arcade',    [200,90,55], 'tetrad'],
-    ['Sunset',    [18,85,58],  'complement'],
-    ['Aurora',    [155,70,54], 'analog'],
-    ['Sakura',    [340,70,66], 'mono'],
-    ['Cyber',     [190,90,55], 'tetrad'],
+  /* ==== Random (curaté + algo) ==== */
+  const curated=[
+    ['Vaporwave',[315,80,65],'triad'],
+    ['Tropical', [170,75,50],'analog'],
+    ['Arcade',   [200,90,55],'tetrad'],
+    ['Sunset',   [18,85,58], 'complement'],
+    ['Aurora',   [155,70,54],'analog'],
+    ['Sakura',   [340,70,66],'mono'],
+    ['Cyber',    [190,90,55],'tetrad'],
   ];
   function pickRandom(){
-    // 60% curation, 40% algo
     if(Math.random()<0.6){
       const [name,[h,s,l],mode]=curated[Math.floor(Math.random()*curated.length)];
       H=h; S=s; L=l; MODE=mode;
-      modes.forEach(x=>x.classList.toggle('active', x.dataset.mode===MODE));
-      render();
-      wink(`Palette '${name}'`);
+      chips.forEach(x=>x.classList.toggle('active', x.dataset.mode===MODE));
+      render(); toast.textContent=`Palette '${name}'`; fireToast();
     }else{
-      // Algo: choisir une teinte “safe”, S/L dans zones harmonieuses
       H=Math.floor(Math.random()*360);
-      S= [65,70,75,80,85][Math.floor(Math.random()*5)];
-      L= [48,52,56,60,64][Math.floor(Math.random()*5)];
-      const ms=['complement','triad','tetrad','analog','mono'];
-      MODE=ms[Math.floor(Math.random()*ms.length)];
-      modes.forEach(x=>x.classList.toggle('active', x.dataset.mode===MODE));
-      render();
-      wink('Palette aléatoire');
+      S=[65,70,75,80,85][Math.floor(Math.random()*5)];
+      L=[48,52,56,60,64][Math.floor(Math.random()*5)];
+      const ms=['complement','triad','tetrad','analog','mono']; MODE=ms[Math.floor(Math.random()*ms.length)];
+      chips.forEach(x=>x.classList.toggle('active', x.dataset.mode===MODE));
+      render(); toast.textContent='Palette aléatoire'; fireToast();
     }
   }
+  btnRandom.onclick=pickRandom;
 
-  function wink(msg){
-    toast.textContent = msg+' ✅';
-    toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'),1200);
+  /* ==== Appliquer à la page (variables CSS) ==== */
+  btnApply.onclick=()=>{
+    const root=document.documentElement.style;
+    root.setProperty('--acc',           hslToHex(H,S,L));
+    root.setProperty('--acc-2',         hslToHex(rot(H,180),S,L));
+    root.setProperty('--acc-tri-1',     hslToHex(rot(H,120),S,L));
+    root.setProperty('--acc-tri-2',     hslToHex(rot(H,-120),S,L));
+    root.setProperty('--acc-analog-1',  hslToHex(rot(H,15),S,L));
+    root.setProperty('--acc-analog-2',  hslToHex(rot(H,-15),S,L));
+    toast.textContent='Tokens appliqués à :root'; fireToast();
+  };
+
+  /* ==== Open/Close + shortcuts ==== */
+  btnClose.onclick=()=> overlay.classList.add('pd-hidden');
+  document.addEventListener('keydown', e=>{
+    if(e.key.toLowerCase()==='p'){ overlay.classList.toggle('pd-hidden') }
+    if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='enter'){ btnApply.click() }
+  });
+
+  /* ==== Toast ==== */
+  function fireToast(){
+    toast.style.opacity='0'; toast.style.transition='none';
+    requestAnimationFrame(()=>{
+      toast.style.transition='opacity .3s ease, transform .3s ease';
+      toast.style.opacity='1'; toast.style.transform='translateY(0)';
+      setTimeout(()=>{ toast.style.opacity='0'; }, 1200);
+    });
   }
 
-  randomBtn.addEventListener('click', pickRandom);
-
-  // Open/close + bottom-sheet drag
-  open.onclick=()=> panel.classList.toggle('show');
-  close.onclick=()=> panel.classList.remove('show');
-
-  // drag panel (desktop)
-  let dragging=false, ox=0, oy=0, startL=0, startT=0;
-  drag.addEventListener('pointerdown', e=>{
-    dragging=true; const r=panel.getBoundingClientRect(); startL=r.left; startT=r.top; ox=e.clientX; oy=e.clientY; drag.setPointerCapture(e.pointerId);
-  });
-  drag.addEventListener('pointermove', e=>{
-    if(!dragging) return;
-    if(window.matchMedia('(max-width: 600px)').matches) return; // pas de drag en bottom-sheet
-    const dx=e.clientX-ox, dy=e.clientY-oy;
-    panel.style.right='auto'; panel.style.bottom='auto';
-    panel.style.left=(startL+dx)+'px'; panel.style.top=(startT+dy)+'px';
-  });
-  drag.addEventListener('pointerup', e=>{ dragging=false; try{drag.releasePointerCapture(e.pointerId)}catch{} });
-
-  // init
+  /* init */
   drawWheel(); render();
 })();
 </script>
-<!-- ========== /PALETTE DESIGNER ========== -->
+<!-- ========== /FULLSCREEN PALETTE DESIGNER ========== -->
