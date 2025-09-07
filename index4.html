@@ -3,30 +3,35 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1, viewport-fit=cover" />
-<title>PRISM — Roue & Palette (style Adobe)</title>
+<title>PRISM — Roue & Palette centrées</title>
 <style>
   :root{
     --bg:#0b0f16; --ink:#f2f6ff; --muted:#9fb0d3; --ring:rgba(255,255,255,.16);
     --card:rgba(255,255,255,.06);
-    --acc:#6C66FA; --acc-2:#FA66F4; /* remplacés quand tu appliques */
+    --acc:#6C66FA; --acc-2:#FA66F4;
+    --page-pad: clamp(16px, 5vw, 24px);
+    --container: 1080px;
   }
   @media (prefers-color-scheme: light){
     :root{ --bg:#f7faff; --ink:#0e1116; --muted:#4e5a73; --ring:rgba(0,0,0,.14); --card:rgba(0,0,0,.06) }
   }
 
-  html,body{height:100%; margin:0; background:var(--bg); color:var(--ink);
+  /* Base & centrage global */
+  html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);
     font: clamp(18px,4.6vw,20px)/1.6 Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
     -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; overflow-x:hidden}
   *{box-sizing:border-box}
+  .container{max-width:var(--container); margin-inline:auto; padding-inline:var(--page-pad)}
 
-  /* top bar */
+  /* Header fixé + marges safe-area */
   header{
-    position:sticky; top:0; z-index:10; display:flex; align-items:center; justify-content:space-between; gap:12px;
-    padding: max(12px, env(safe-area-inset-top)) clamp(14px,5vw,22px) 12px;
+    position:sticky; top:0; z-index:10;
     border-bottom:1px solid var(--ring);
     background: color-mix(in oklab, var(--card) 82%, transparent);
     backdrop-filter: blur(10px) saturate(140%);
   }
+  .head-inner{display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding-block: max(12px, env(safe-area-inset-top)) 12px}
   .brand{font-weight:900; letter-spacing:.3px; display:flex; align-items:center; gap:.6em}
   .brand .dot{width:12px;height:12px;border-radius:50%;background:linear-gradient(180deg,var(--acc),var(--acc-2));box-shadow:0 0 14px var(--acc)}
   .btn{appearance:none; border:1px solid var(--ring); background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.06));
@@ -34,29 +39,39 @@
   .btn.primary{background:linear-gradient(180deg,color-mix(in oklab,var(--acc) 28%, transparent), transparent);
     box-shadow:0 10px 30px color-mix(in oklab,var(--acc) 24%, transparent)}
 
-  main{display:grid; gap: clamp(14px,3.5vw,18px); padding: clamp(14px,5vw,22px); max-width:1100px; margin:auto}
+  main{padding-block: var(--page-pad);}
 
-  /* — SECTION ROUE — */
+  /* Panneaux */
   .panel{
     background:var(--card); border:1px solid var(--ring); border-radius:18px;
-    padding: clamp(14px,4.5vw,18px); display:grid; gap: clamp(12px,3.5vw,16px)
+    padding: clamp(14px,4.5vw,18px); display:grid; gap: clamp(12px,3.5vw,16px);
+    margin-block: var(--page-pad);
   }
   h1{margin:0; font-weight:900; font-size: clamp(22px,6.8vw,32px)}
+  h2{margin:0; font-weight:900; font-size: clamp(20px,6vw,26px)}
   .sub{color:var(--muted)}
 
-  .wheel-wrap{ display:grid; gap:16px; place-items:center }
+  /* ROUE — toujours parfaitement centrée, jamais coupée */
+  .wheel-wrap{
+    width:100%;
+    display:grid; place-items:center; gap:16px;
+    margin-inline:auto;
+  }
   .wheel{
-    width: min(92svw, 560px); aspect-ratio:1/1; border-radius:50%;
+    /* on retire la taille en svw, on se base sur la largeur du container pour éviter toute coupe */
+    width: min(92vw - calc(var(--page-pad)*2), 560px);
+    max-width: 560px;
+    aspect-ratio:1/1; border-radius:50%;
     border:1px solid var(--ring);
     background:radial-gradient(circle, rgba(255,255,255,.06), transparent 62%);
-    position:relative; touch-action:none;
+    position:relative; touch-action:none; margin-inline:auto;
   }
   .wheel canvas{ width:100%; height:100%; display:block }
   .knob{
     position:absolute; width:28px; height:28px; border-radius:50%; background:#fff; border:2px solid #111;
     transform:translate(-50%,-50%); box-shadow:0 0 0 6px rgba(0,0,0,.18); pointer-events:none
   }
-  .sliders{ width:100%; max-width:560px; display:grid; gap:14px }
+  .sliders{ width:100%; max-width:560px; display:grid; gap:14px; margin-inline:auto }
   .sliders label{ color:var(--muted) }
   input[type="range"]{ width:100%; height:52px; appearance:none; background:transparent }
   input[type="range"]::-webkit-slider-runnable-track{ height:12px; border-radius:999px; background:linear-gradient(90deg,var(--acc),var(--acc-2))}
@@ -64,18 +79,21 @@
   input[type="range"]::-moz-range-track{ height:12px; border-radius:999px; background:linear-gradient(90deg,var(--acc),var(--acc-2))}
   input[type="range"]::-moz-range-thumb{ width:34px;height:34px;border-radius:50%; background:#fff; border:2px solid #111 }
 
-  /* — Harmonies — */
-  .toolbar{ display:flex; flex-wrap:wrap; gap:10px }
+  /* Harmonies */
+  .toolbar{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center }
   .chip{padding:12px 16px; border-radius:14px; border:1px solid var(--ring); background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.05)); font-weight:800; min-height:44px}
   .chip.active{ outline:2px solid color-mix(in oklab, var(--acc) 34%, transparent) }
 
-  /* — Barre palette façon Adobe Color (toujours visible sous la roue) — */
+  /* BARRE PALETTE — 5 couleurs sur toute la largeur — wrap auto (2 lignes si besoin) */
   .bar{
     background:var(--card); border:1px solid var(--ring); border-radius:18px;
     padding: clamp(10px,3.5vw,14px);
   }
   .bar-grid{
-    display:grid; grid-template-columns: repeat(5, 1fr); gap: clamp(8px,2.4vw,12px);
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* passe à 2 lignes toute seule */
+    gap: clamp(8px,2.4vw,12px);
+    align-items:stretch;
   }
   .slot{
     border:1px solid var(--ring); border-radius:14px; overflow:hidden;
@@ -84,16 +102,16 @@
   .swatch{ width:100%; height:100% }
   .hex{ padding:10px; text-align:center; font-weight:900; letter-spacing:.4px; font-family: ui-monospace, Menlo, Consolas, monospace }
 
-  /* — Aperçu & export — */
+  /* Aperçu & export */
   .preview{display:grid; gap:12px}
   .pane{border:1px solid var(--ring); border-radius:16px; overflow:hidden}
   .pane header{display:flex; justify-content:space-between; gap:10px; padding:12px 14px; color:var(--muted); border-bottom:1px solid var(--ring); background:color-mix(in oklab,var(--card) 72%, transparent)}
   .pane .box{min-height:90px; padding:14px; font-weight:900; font-size: clamp(20px,5.5vw,24px)}
   textarea.tokens{width:100%; min-height:150px; font:15px/1.5 ui-monospace,Menlo,Consolas,monospace; color:var(--ink); background:transparent; border:1px dashed var(--ring); border-radius:14px; padding:14px}
 
-  .actions{display:flex; flex-wrap:wrap; gap:10px}
+  .actions{display:flex; flex-wrap:wrap; gap:10px; justify-content:center}
 
-  /* — Overlay Palette plein écran — */
+  /* Overlay plein écran */
   .overlay{
     position:fixed; inset:0; z-index:9999; display:none;
     background: color-mix(in oklab, var(--bg) 85%, #0000);
@@ -101,19 +119,18 @@
     grid-template-rows:auto 1fr;
   }
   .overlay.show{ display:grid }
-  .ov-top{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding: clamp(14px,5vw,20px); border-bottom:1px solid var(--ring); background:color-mix(in oklab, var(--card) 80%, transparent) }
+  .ov-top{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  .ov-inner{ max-width:var(--container); margin-inline:auto; padding-inline:var(--page-pad); width:100% }
+  .ov-head{ padding-block: clamp(14px,5vw,20px); border-bottom:1px solid var(--ring); background:color-mix(in oklab, var(--card) 80%, transparent) }
   .ov-title{ font-weight:900; font-size: clamp(22px,6vw,28px) }
-  .ov-grid{ padding: clamp(14px,5vw,22px); display:grid; grid-template-columns: repeat(2, 1fr); gap:12px; align-content:start; overflow:auto }
-  @media (min-width: 720px){ .ov-grid{ grid-template-columns: repeat(3, 1fr) } }
-  @media (min-width:1040px){ .ov-grid{ grid-template-columns: repeat(5, 1fr) } }
+  .ov-grid{ padding-block: clamp(14px,5vw,22px); display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px; align-content:start; overflow:auto }
   .ov-tile{ border:1px solid var(--ring); border-radius:18px; overflow:hidden; display:grid; grid-template-rows: min(28svh, 300px) auto; background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03)) }
   .ov-color{ width:100%; height:100% }
-  .ov-meta{ padding:14px; display:grid; gap:6px }
-  .ov-row{ display:flex; align-items:center; justify-content:space-between; gap:12px }
+  .ov-meta{ padding:14px; display:flex; align-items:center; justify-content:space-between; gap:12px }
   .ov-hex{ font-weight:900; font-family: ui-monospace, Menlo, Consolas, monospace }
   .ov-copy{ padding:12px 14px; border-radius:12px; border:1px solid var(--ring); background:transparent; font-weight:900; min-height:44px }
 
-  /* — Mode “forcer le thème partout” (ajouté au click) — */
+  /* Thème “force” */
   .themed-hard *{ accent-color: var(--acc) !important; }
   .themed-hard a, .themed-hard a:visited{ color: var(--acc) !important; }
   .themed-hard button, .themed-hard .btn{ background: linear-gradient(180deg, color-mix(in oklab, var(--acc) 26%, transparent), transparent) !important; border-color: color-mix(in oklab, var(--acc) 38%, var(--ring)) !important; color: var(--ink) !important; }
@@ -125,15 +142,17 @@
 </head>
 <body>
   <header>
-    <div class="brand"><span class="dot"></span> PRISM — Générateur</div>
-    <div class="actions">
-      <button class="btn" id="random">Aléatoire</button>
-      <button class="btn" id="expand">Palette plein écran</button>
-      <button class="btn primary" id="apply">Appliquer au site</button>
+    <div class="container head-inner">
+      <div class="brand"><span class="dot"></span> PRISM — Générateur</div>
+      <div class="actions">
+        <button class="btn" id="random">Aléatoire</button>
+        <button class="btn" id="expand">Palette plein écran</button>
+        <button class="btn primary" id="apply">Appliquer au site</button>
+      </div>
     </div>
   </header>
 
-  <main>
+  <main class="container">
     <!-- ROUE -->
     <section class="panel">
       <h1>Roue chromatique</h1>
@@ -152,7 +171,7 @@
       </div>
     </section>
 
-    <!-- HARMONIES -->
+    <!-- Harmonies -->
     <section class="panel">
       <div class="toolbar" id="modes">
         <button class="chip" data-mode="complement">Complémentaire</button>
@@ -163,13 +182,14 @@
       </div>
     </section>
 
-    <!-- BARRE PALETTE façon Adobe -->
+    <!-- BARRE PALETTE (s’étend et wrap en 2 lignes si besoin) -->
     <section class="bar">
-      <div class="bar-grid" id="barGrid"><!-- rempli en JS --></div>
+      <div class="bar-grid" id="barGrid"></div>
     </section>
 
     <!-- APERÇU & EXPORT -->
     <section class="panel">
+      <h2>Contraste & export</h2>
       <div class="preview">
         <div class="pane">
           <header><span>Fond clair</span><span id="wcagLight">—</span></header>
@@ -190,11 +210,15 @@
 
   <!-- OVERLAY PALETTE PLEIN ÉCRAN -->
   <aside class="overlay" id="overlay" aria-label="Palette plein écran">
-    <div class="ov-top">
-      <div class="ov-title">Palette — plein écran</div>
-      <div class="actions"><button class="btn" id="closeOv">Fermer</button></div>
+    <div class="ov-inner">
+      <div class="ov-head">
+        <div class="ov-top">
+          <div class="ov-title">Palette — plein écran</div>
+          <div class="actions"><button class="btn" id="closeOv">Fermer</button></div>
+        </div>
+      </div>
+      <div class="ov-grid" id="ovGrid"></div>
     </div>
-    <div class="ov-grid" id="ovGrid"></div>
   </aside>
 
 <script>
@@ -239,13 +263,14 @@ const copyCss = document.getElementById('copyCss');
 const copyJson = document.getElementById('copyJson');
 
 /* ==== state ==== */
-let H=264, S=80, L=60; // base violette (comme ta capture)
+let H=264, S=80, L=60;   // base violette (comme ta capture)
 let MODE='analog';
 let dpr = Math.min(window.devicePixelRatio||1, 2);
 
 /* ==== roue ==== */
 function drawWheel(){
-  const size = Math.floor(wheelWrap.clientWidth * dpr);
+  const wrapW = wheelWrap.getBoundingClientRect().width;   // largeur réelle centrée
+  const size = Math.floor(wrapW * dpr);
   if(size<=0) return;
   wheel.width=size; wheel.height=size;
   const ctx = wheel.getContext('2d', { willReadFrequently:false });
@@ -302,7 +327,6 @@ function buildSet(){
   else if(MODE==='tetrad'){ set=[[H,S,L],[rot(H,90),S,L],[rot(H,180),S,L],[rot(H,270),S,L]]; }
   else if(MODE==='analog'){ set=[[rot(H,-30),S,L],[H,S,L],[rot(H,15),S,L],[rot(H,30),S,L]]; }
   else if(MODE==='mono'){ set=[[H,S,clamp(L-20,0,100)],[H,S,L],[H,S,clamp(L+18,0,100)]]; }
-  // complétons pour avoir 5 slots (style Adobe)
   while(set.length<5){ set.push([H,S,clamp(L+(set.length-2)*8,0,100)]) }
   return set.slice(0,5);
 }
@@ -311,10 +335,10 @@ function buildSet(){
 function render(){
   positionKnob();
 
-  // Barre palette (5 slots avec HEX visible)
+  // Barre palette centrée sur toute la largeur (wrap auto 2 lignes si besoin)
   const set = buildSet();
   barGrid.innerHTML='';
-  set.forEach(([h,s,l],i)=>{
+  set.forEach(([h,s,l])=>{
     const hex = hslToHex(h,s,l);
     const el = document.createElement('div');
     el.className='slot';
@@ -323,19 +347,16 @@ function render(){
     barGrid.appendChild(el);
   });
 
-  // Overlay (plein écran) — mêmes refs en gros + bouton copier
+  // Overlay plein écran — HEX visibles + copier
   ovGrid.innerHTML='';
-  set.forEach(([h,s,l],i)=>{
+  set.forEach(([h,s,l])=>{
     const hex = hslToHex(h,s,l);
     const tile = document.createElement('div');
     tile.className='ov-tile';
     tile.innerHTML = `<div class="ov-color" style="background:${hex}"></div>
       <div class="ov-meta">
-        <div class="ov-row">
-          <div class="ov-hex">${hex.toUpperCase()}</div>
-          <button class="ov-copy" data-copy="${hex}">Copier</button>
-        </div>
-        <div style="color:var(--muted)">hsl(${h}, ${s}%, ${l}%)</div>
+        <div class="ov-hex">${hex.toUpperCase()}</div>
+        <button class="ov-copy" data-copy="${hex}">Copier</button>
       </div>`;
     ovGrid.appendChild(tile);
   });
@@ -383,14 +404,13 @@ randomBtn.addEventListener('click', ()=>{
 });
 
 expandBtn.addEventListener('click', ()=> overlay.classList.add('show'));
-document.getElementById('closeOv').addEventListener('click', ()=> overlay.classList.remove('show'));
+closeOv.addEventListener('click', ()=> overlay.classList.remove('show'));
 
-/* ==== Appliquer au site — MODE FORCE ==== */
+/* Appliquer au site (force) */
 applyBtn.addEventListener('click', ()=>{
   const root=document.documentElement.style;
   root.setProperty('--acc',           hslToHex(H,S,L));
   root.setProperty('--acc-2',         hslToHex(rot(H,180),S,L));
-  // “Force” : on ajoute une classe qui active des règles globales + !important
   document.documentElement.classList.add('themed-hard');
 });
 
@@ -408,7 +428,7 @@ copyJson.onclick=()=>{
   navigator.clipboard.writeText(JSON.stringify(obj,null,2));
 };
 
-/* ==== init & resize ==== */
+/* ==== init & resize (centrage garanti) ==== */
 function onResize(){ dpr=Math.min(window.devicePixelRatio||1,2); drawWheel(); render(); }
 window.addEventListener('resize', onResize, {passive:true});
 onResize();
