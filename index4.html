@@ -3,11 +3,14 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1, viewport-fit=cover" />
-<title>PRISM — Roue & Palette (centrées, 5 colonnes)</title>
+<title>PRISM — Roue dynamique (compacte) & 5 couleurs</title>
 <style>
   :root{
     --bg:#0b0f16; --ink:#f2f6ff; --muted:#9fb0d3; --ring:rgba(255,255,255,.16);
-    --card:rgba(255,255,255,.06); --acc:#6C66FA; --acc-2:#FA66F4;
+    --card:rgba(255,255,255,.06);
+    /* palette appliquée (remplie au clic) */
+    --p1:#6c66fa; --p2:#cd66fa; --p3:#9d66fa; --p4:#668ffa; --p5:#fa66f4;
+    --acc: var(--p3); --acc-2: var(--p5);
     --pad: clamp(14px, 5vw, 22px); --container: 1080px;
   }
   @media (prefers-color-scheme: light){
@@ -18,7 +21,6 @@
     font: clamp(18px,4.6vw,20px)/1.6 Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
     -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; overflow-x:hidden}
   *{box-sizing:border-box}
-
   .container{max-width:var(--container); margin-inline:auto; padding-inline:var(--pad)}
 
   header{position:sticky; top:0; z-index:10; border-bottom:1px solid var(--ring);
@@ -33,53 +35,44 @@
     box-shadow:0 8px 26px color-mix(in oklab,var(--acc) 24%, transparent)}
 
   main{padding-block: var(--pad)}
-
   .panel{background:var(--card); border:1px solid var(--ring); border-radius:18px;
     padding: clamp(12px,4.5vw,18px); display:grid; gap: clamp(10px,3.5vw,16px); margin-block: var(--pad)}
   h1{margin:0; font-weight:900; font-size: clamp(22px,6.6vw,32px)}
   h2{margin:0; font-weight:900; font-size: clamp(20px,6vw,26px)}
   .sub{color:var(--muted)}
 
-  /* ROUE — plus petite, centrée, non coupée */
+  /* === ROUE : compacte, centrée, jamais coupée === */
   .wheel-wrap{ width:100%; display:grid; place-items:center; gap:14px; margin-inline:auto }
   .wheel{
-    width: min(78vw, 420px);           /* ⬅️ roue réduite */
-    max-width: 420px;
+    width: min(58vw, 280px);      /* ⬅️ encore réduite */
+    max-width: 280px;
     aspect-ratio:1/1; border-radius:50%;
     border:1px solid var(--ring);
     background:radial-gradient(circle, rgba(255,255,255,.06), transparent 62%);
-    position:relative; touch-action:none; margin-inline:auto;
+    position:relative; touch-action:none; margin-inline:auto; overflow:visible;
   }
   .wheel canvas{ width:100%; height:100%; display:block }
-  .knob{ position:absolute; width:26px; height:26px; border-radius:50%; background:#fff; border:2px solid #111;
+  .knob{ position:absolute; width:22px; height:22px; border-radius:50%; background:#fff; border:2px solid #111;
          transform:translate(-50%,-50%); box-shadow:0 0 0 6px rgba(0,0,0,.18); pointer-events:none }
-  .sliders{ width:100%; max-width:520px; display:grid; gap:12px; margin-inline:auto }
+  .sliders{ width:100%; max-width:460px; display:grid; gap:12px; margin-inline:auto }
   .sliders label{ color:var(--muted) }
   input[type="range"]{ width:100%; height:50px; appearance:none; background:transparent }
   input[type="range"]::-webkit-slider-runnable-track{ height:10px; border-radius:999px; background:linear-gradient(90deg,var(--acc),var(--acc-2))}
-  input[type="range"]::-webkit-slider-thumb{ appearance:none; width:32px;height:32px;border-radius:50%; background:#fff; border:2px solid #111; margin-top:-11px }
+  input[type="range"]::-webkit-slider-thumb{ appearance:none; width:28px;height:28px;border-radius:50%; background:#fff; border:2px solid #111; margin-top:-10px }
   input[type="range"]::-moz-range-track{ height:10px; border-radius:999px; background:linear-gradient(90deg,var(--acc),var(--acc-2))}
-  input[type="range"]::-moz-range-thumb{ width:32px;height:32px;border-radius:50%; background:#fff; border:2px solid #111 }
+  input[type="range"]::-moz-range-thumb{ width:28px;height:28px;border-radius:50%; background:#fff; border:2px solid #111 }
 
   .toolbar{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center }
   .chip{padding:10px 14px; border-radius:14px; border:1px solid var(--ring); background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.05)); font-weight:800; min-height:42px}
   .chip.active{ outline:2px solid color-mix(in oklab, var(--acc) 34%, transparent) }
 
-  /* BARRE PALETTE — toujours 5 colonnes, wrap auto en 2 lignes si manque de place */
+  /* === PALETTE — 5 colonnes (wrap 2 lignes si étroit) === */
   .bar{ background:var(--card); border:1px solid var(--ring); border-radius:18px; padding: clamp(8px,3vw,12px) }
-  .bar-grid{
-    display:grid;
-    grid-template-columns: repeat(5, 1fr);   /* ⬅️ 5 sur la largeur */
-    gap: clamp(6px,2vw,10px);
-  }
-  @media (max-width: 360px){
-    .bar-grid{ grid-template-columns: repeat(5, minmax(0, 1fr)); } /* force 2 lignes si nécessaire */
-  }
-  .slot{ border:1px solid var(--ring); border-radius:14px; overflow:hidden;
-         display:grid; grid-template-rows: min(14svh, 120px) auto }  /* ⬅️ éléments un peu plus petits */
+  .bar-grid{ display:grid; grid-template-columns: repeat(5, 1fr); gap: clamp(6px,2vw,10px) }
+  .slot{ border:1px solid var(--ring); border-radius:14px; overflow:hidden; display:grid; grid-template-rows: 110px auto }
+  @media (max-width: 370px){ .slot{ grid-template-rows: 95px auto } }
   .swatch{ width:100%; height:100% }
-  .hex{ padding:8px; text-align:center; font-weight:900; letter-spacing:.3px;
-        font-family: ui-monospace, Menlo, Consolas, monospace; position:relative }
+  .hex{ padding:8px; text-align:center; font-weight:900; letter-spacing:.3px; font-family: ui-monospace, Menlo, Consolas, monospace; position:relative }
   .baseMark{ position:absolute; left:50%; top:-6px; transform:translateX(-50%); font-size:16px }
 
   .preview{display:grid; gap:10px}
@@ -90,14 +83,25 @@
 
   .actions{display:flex; flex-wrap:wrap; gap:8px; justify-content:center}
 
-  /* Thème “force” (appliquer au site) */
+  /* === Thème “force” : applique TOUTE la palette === */
   .themed-hard *{ accent-color: var(--acc) !important; }
-  .themed-hard a, .themed-hard a:visited{ color: var(--acc) !important; }
-  .themed-hard button, .themed-hard .btn{ background: linear-gradient(180deg, color-mix(in oklab, var(--acc) 26%, transparent), transparent) !important; border-color: color-mix(in oklab, var(--acc) 38%, var(--ring)) !important; color: var(--ink) !important; }
-  .themed-hard input, .themed-hard select, .themed-hard textarea{ border-color: color-mix(in oklab, var(--acc) 38%, var(--ring)) !important; color: var(--ink) !important; background: color-mix(in oklab, var(--card) 75%, transparent) !important; }
-  .themed-hard ::selection{ background: color-mix(in oklab, var(--acc) 55%, transparent); color:#000 }
-  .themed-hard .panel, .themed-hard .bar, .themed-hard .pane, .themed-hard textarea.tokens{ border-color: color-mix(in oklab, var(--acc) 38%, var(--ring)) !important; box-shadow: 0 0 0 1px color-mix(in oklab, var(--acc) 20%, transparent) inset !important; }
-  .themed-hard h1, .themed-hard h2, .themed-hard h3{ color: var(--ink) !important; text-shadow: 0 0 18px color-mix(in oklab, var(--acc) 35%, transparent) }
+  .themed-hard a, .themed-hard a:visited{ color: var(--p3) !important; }
+  .themed-hard button, .themed-hard .btn{
+    background: linear-gradient(180deg, color-mix(in oklab, var(--p3) 30%, transparent), transparent) !important;
+    border-color: color-mix(in oklab, var(--p3) 45%, var(--ring)) !important; color: var(--ink) !important;
+  }
+  .themed-hard input, .themed-hard select, .themed-hard textarea{
+    border-color: color-mix(in oklab, var(--p4) 40%, var(--ring)) !important;
+    background: color-mix(in oklab, var(--card) 75%, transparent) !important; color: var(--ink) !important;
+  }
+  .themed-hard ::selection{ background: color-mix(in oklab, var(--p2) 55%, transparent); color:#000 }
+  .themed-hard .panel, .themed-hard .bar, .themed-hard .pane, .themed-hard textarea.tokens{
+    border-color: color-mix(in oklab, var(--p4) 38%, var(--ring)) !important;
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--p1) 22%, transparent) inset !important;
+  }
+  .themed-hard h1, .themed-hard h2, .themed-hard h3{
+    color: var(--ink) !important; text-shadow: 0 0 18px color-mix(in oklab, var(--p5) 35%, transparent)
+  }
 </style>
 </head>
 <body>
@@ -115,9 +119,9 @@
     <!-- ROUE -->
     <section class="panel">
       <h1>Roue chromatique</h1>
-      <p class="sub">Glisse sur la roue pour la teinte. Ajuste saturation / luminosité.</p>
+      <p class="sub">Glisse sur la roue pour la teinte. Ajuste Saturation / Luminosité.</p>
       <div class="wheel-wrap">
-        <div class="wheel" id="wheelWrap">
+        <div class="wheel" id="wheelBox">
           <canvas id="wheel"></canvas>
           <div class="knob" id="knob"></div>
         </div>
@@ -182,21 +186,21 @@ const wcag=r=> r>=7?'AAA': r>=4.5?'AA': r>=3?'AA (large)':'fail';
 const rot=(h,d)=>(((h+d)%360)+360)%360;
 
 /* ===== DOM ===== */
-const wheelWrap = document.getElementById('wheelWrap');
-const wheel = document.getElementById('wheel');
-const knob = document.getElementById('knob');
-const sat = document.getElementById('sat');
-const lig = document.getElementById('lig');
-const modes = document.getElementById('modes');
-const barGrid = document.getElementById('barGrid');
-const demoL = document.getElementById('demoLight');
-const demoD = document.getElementById('demoDark');
-const wcagL = document.getElementById('wcagLight');
-const wcagD = document.getElementById('wcagDark');
-const tokens = document.getElementById('tokens');
-const randomBtn = document.getElementById('random');
+const wheelBox = document.getElementById('wheelBox'); // conteneur circulaire
+const wheel    = document.getElementById('wheel');    // canvas
+const knob     = document.getElementById('knob');
+const sat      = document.getElementById('sat');
+const lig      = document.getElementById('lig');
+const modes    = document.getElementById('modes');
+const barGrid  = document.getElementById('barGrid');
+const demoL    = document.getElementById('demoLight');
+const demoD    = document.getElementById('demoDark');
+const wcagL    = document.getElementById('wcagLight');
+const wcagD    = document.getElementById('wcagDark');
+const tokens   = document.getElementById('tokens');
+const randomBtn= document.getElementById('random');
 const applyBtn = document.getElementById('apply');
-const copyCss = document.getElementById('copyCss');
+const copyCss  = document.getElementById('copyCss');
 const copyJson = document.getElementById('copyJson');
 
 /* ===== State ===== */
@@ -204,44 +208,52 @@ let H=264, S=80, L=60;     // base
 let MODE='analog';
 let dpr = Math.min(window.devicePixelRatio||1, 2);
 
-/* ===== Wheel (smaller, centered) ===== */
+/* ===== Wheel drawing (uses CONTAINER width) ===== */
 function drawWheel(){
-  const w = Math.floor(wheelWrap.getBoundingClientRect().width * dpr);
-  if(w<=0) return;
-  wheel.width=w; wheel.height=w;
+  const size = Math.floor(wheelBox.clientWidth * dpr); // ⬅️ largeur du conteneur (fiable)
+  if(size<=0) return;
+  wheel.width=size; wheel.height=size;
   const ctx = wheel.getContext('2d', { willReadFrequently:false });
-  const r=w/2, cx=r, cy=r;
-  ctx.clearRect(0,0,w,w);
+  const r=size/2, cx=r, cy=r;
+  ctx.clearRect(0,0,size,size);
   for(let deg=0;deg<360;deg++){
     const g=ctx.createRadialGradient(cx,cy, r*0.18, cx,cy, r*0.98);
     g.addColorStop(0, hslToHex(deg,20,50));
     g.addColorStop(1, hslToHex(deg,100,50));
     ctx.strokeStyle=g; ctx.beginPath();
     const a1=(deg-1)*Math.PI/180, a2=deg*Math.PI/180;
-    ctx.arc(cx,cy,r-3,a1,a2); ctx.lineWidth=Math.max(16*dpr, 14); ctx.stroke();
+    ctx.arc(cx,cy,r-3,a1,a2); ctx.lineWidth=Math.max(14*dpr, 12); ctx.stroke();
   }
   ctx.beginPath(); ctx.arc(cx,cy,r*0.2,0,Math.PI*2);
   ctx.fillStyle='rgba(255,255,255,.08)'; ctx.fill();
   positionKnob();
 }
 function positionKnob(){
-  const rect = wheelWrap.getBoundingClientRect();
+  const rect = wheelBox.getBoundingClientRect();    // ⬅️ positionner dans le conteneur
   const r = rect.width/2;
   const ang = (H-90)*Math.PI/180;
-  knob.style.left = (rect.width/2 + (r-18)*Math.cos(ang))+'px';
-  knob.style.top  = (rect.height/2 + (r-18)*Math.sin(ang))+'px';
+  knob.style.left = (rect.width/2 + (r-16)*Math.cos(ang))+'px';
+  knob.style.top  = (rect.height/2 + (r-16)*Math.sin(ang))+'px';
 }
-function hueFromPointer(x,y){
-  const rect = wheelWrap.getBoundingClientRect();
-  const dx = x - rect.left - rect.width/2;
-  const dy = y - rect.top  - rect.height/2;
+function hueFromPointer(clientX, clientY){
+  const rect = wheelBox.getBoundingClientRect();    // ⬅️ calculer par rapport au conteneur
+  const dx = clientX - rect.left - rect.width/2;
+  const dy = clientY - rect.top  - rect.height/2;
   H = (Math.round(Math.atan2(dy,dx)*180/Math.PI + 90) + 360) % 360;
   render();
 }
 let dragging=false;
-wheelWrap.addEventListener('pointerdown', e=>{ dragging=true; wheelWrap.setPointerCapture(e.pointerId); hueFromPointer(e.clientX,e.clientY) });
-wheelWrap.addEventListener('pointermove', e=>{ if(dragging) hueFromPointer(e.clientX,e.clientY) });
-wheelWrap.addEventListener('pointerup',   e=>{ dragging=false; try{wheelWrap.releasePointerCapture(e.pointerId)}catch{} });
+function startDrag(e){ dragging=true; e.preventDefault(); wheelBox.setPointerCapture?.(e.pointerId); hueFromPointer(e.clientX,e.clientY) }
+function moveDrag(e){ if(!dragging) return; e.preventDefault(); hueFromPointer(e.clientX,e.clientY) }
+function endDrag(e){ dragging=false; try{wheelBox.releasePointerCapture(e.pointerId)}catch{} }
+
+/* Listen on BOTH canvas + container (couvre tous les mobiles) */
+[wheelBox, wheel].forEach(el=>{
+  el.addEventListener('pointerdown', startDrag, {passive:false});
+  el.addEventListener('pointermove', moveDrag,   {passive:false});
+  el.addEventListener('pointerup',   endDrag);
+  el.addEventListener('pointercancel', endDrag);
+});
 
 sat.addEventListener('input', e=>{ S=+e.target.value; render() });
 lig.addEventListener('input', e=>{ L=+e.target.value; render() });
@@ -255,21 +267,16 @@ modes.querySelectorAll('.chip').forEach(b=>{
   });
 });
 
-/* ===== Build palette (toujours 5, base au CENTRE) ===== */
+/* ===== Palette (toujours 5, base au CENTRE) ===== */
 function buildSet5(){
-  // offsets en degrés autour de la base (centre = 0)
   let offsets=[];
   if(MODE==='analog')       offsets=[-30, -15, 0, 15, 30];
   else if(MODE==='complement') offsets=[-180, -30, 0, 30, 180];
   else if(MODE==='triad')   offsets=[-120, -30, 0, 30, 120];
-  else if(MODE==='tetrad')  offsets=[-90, 0, 90, 180, -45]; // 4 teintes clés + un intermédiaire
+  else if(MODE==='tetrad')  offsets=[-90, 0, 90, 180, -45];
   else if(MODE==='mono')    return [
-                               [H,S,clamp(L-24,0,100)],
-                               [H,S,clamp(L-12,0,100)],
-                               [H,S,L],                // centre = base
-                               [H,S,clamp(L+12,0,100)],
-                               [H,S,clamp(L+24,0,100)]
-                             ];
+    [H,S,clamp(L-24,0,100)],[H,S,clamp(L-12,0,100)],[H,S,L],[H,S,clamp(L+12,0,100)],[H,S,clamp(L+24,0,100)]
+  ];
   return offsets.map(d=>[rot(H,d), S, L]);
 }
 
@@ -277,7 +284,7 @@ function buildSet5(){
 function render(){
   positionKnob();
 
-  // Palette 5 colonnes (base au centre + marque ▲)
+  // Palette 5 colonnes (marque ▲ au centre)
   const set = buildSet5();
   barGrid.innerHTML='';
   set.forEach(([h,s,l],i)=>{
@@ -289,20 +296,22 @@ function render(){
     barGrid.appendChild(el);
   });
 
-  // Contraste (cohérent avec la roue : base = set[2])
+  // Contraste basé sur la couleur centrale (issue de la roue)
   const baseHex = hslToHex(H,S,L);
   demoL.style.color=baseHex; demoD.style.color=baseHex;
   wcagL.textContent='Contraste: '+wcag(contrastRatio(baseHex,'#ffffff'));
   wcagD.textContent='Contraste: '+wcag(contrastRatio(baseHex,'#0b0f16'));
 
-  // Export CSS
+  // Export CSS (5 couleurs)
+  const [c1,c2,c3,c4,c5] = set.map(([h,s,l])=>hslToHex(h,s,l));
   tokens.value = `:root{
-  --acc: ${baseHex};
-  --acc-2: ${hslToHex(rot(H,180),S,L)};
-  --acc-tri-1: ${hslToHex(rot(H,120),S,L)};
-  --acc-tri-2: ${hslToHex(rot(H,-120),S,L)};
-  --acc-analog-1: ${hslToHex(rot(H,15),S,L)};
-  --acc-analog-2: ${hslToHex(rot(H,-15),S,L)};
+  --p1: ${c1};
+  --p2: ${c2};
+  --p3: ${c3}; /* base (roue) */
+  --p4: ${c4};
+  --p5: ${c5};
+  --acc: var(--p3);
+  --acc-2: var(--p5);
 }`;
 }
 
@@ -319,18 +328,26 @@ randomBtn?.addEventListener('click', ()=>{
   render();
 });
 
+/* Appliquer au site : pousse TOUTES les couleurs (p1..p5) + acc */
 applyBtn.addEventListener('click', ()=>{
+  const set = buildSet5().map(([h,s,l])=>hslToHex(h,s,l));
   const root=document.documentElement.style;
-  root.setProperty('--acc',           hslToHex(H,S,L));
-  root.setProperty('--acc-2',         hslToHex(rot(H,180),S,L));
+  root.setProperty('--p1', set[0]);
+  root.setProperty('--p2', set[1]);
+  root.setProperty('--p3', set[2]);  // base (roue)
+  root.setProperty('--p4', set[3]);
+  root.setProperty('--p5', set[4]);
+  root.setProperty('--acc', 'var(--p3)');
+  root.setProperty('--acc-2', 'var(--p5)');
   document.documentElement.classList.add('themed-hard');
+  document.querySelector('.dot').style.background = `linear-gradient(180deg, ${set[2]}, ${set[4]})`;
 });
 
+/* Copies */
 copyCss.onclick=()=> navigator.clipboard.writeText(tokens.value);
 copyJson.onclick=()=>{
-  const obj = { acc: hslToHex(H,S,L), acc2: hslToHex(rot(H,180),S,L),
-    tri1: hslToHex(rot(H,120),S,L), tri2: hslToHex(rot(H,-120),S,L),
-    analog1: hslToHex(rot(H,15),S,L), analog2: hslToHex(rot(H,-15),S,L) };
+  const set = buildSet5().map(([h,s,l])=>hslToHex(h,s,l));
+  const obj = { p1:set[0], p2:set[1], p3:set[2], p4:set[3], p5:set[4], acc:set[2], acc2:set[4] };
   navigator.clipboard.writeText(JSON.stringify(obj,null,2));
 };
 
