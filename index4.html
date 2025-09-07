@@ -3,12 +3,11 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1, viewport-fit=cover" />
-<title>PRISM — Roue dynamique (compacte) & 5 couleurs</title>
+<title>PRISM — Roue dynamique fiable & 5 couleurs</title>
 <style>
   :root{
     --bg:#0b0f16; --ink:#f2f6ff; --muted:#9fb0d3; --ring:rgba(255,255,255,.16);
     --card:rgba(255,255,255,.06);
-    /* palette appliquée (remplie au clic) */
     --p1:#6c66fa; --p2:#cd66fa; --p3:#9d66fa; --p4:#668ffa; --p5:#fa66f4;
     --acc: var(--p3); --acc-2: var(--p5);
     --pad: clamp(14px, 5vw, 22px); --container: 1080px;
@@ -16,7 +15,6 @@
   @media (prefers-color-scheme: light){
     :root{ --bg:#f7faff; --ink:#0e1116; --muted:#4e5a73; --ring:rgba(0,0,0,.14); --card:rgba(0,0,0,.06) }
   }
-
   html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);
     font: clamp(18px,4.6vw,20px)/1.6 Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
     -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; overflow-x:hidden}
@@ -27,7 +25,7 @@
     background: color-mix(in oklab, var(--card) 82%, transparent); backdrop-filter: blur(10px) saturate(140%)}
   .head-inner{display:flex; align-items:center; justify-content:space-between; gap:12px;
     padding-block: max(10px, env(safe-area-inset-top)) 10px}
-  .brand{font-weight:900; letter-spacing:.3px; display:flex; align-items:center; gap:.6em}
+  .brand{font-weight:900; display:flex; align-items:center; gap:.6em}
   .dot{width:12px;height:12px;border-radius:50%;background:linear-gradient(180deg,var(--acc),var(--acc-2));box-shadow:0 0 14px var(--acc)}
   .btn{appearance:none; border:1px solid var(--ring); background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.06));
     color:inherit; border-radius:16px; padding:12px 16px; font-weight:900; min-height:44px}
@@ -41,20 +39,21 @@
   h2{margin:0; font-weight:900; font-size: clamp(20px,6vw,26px)}
   .sub{color:var(--muted)}
 
-  /* === ROUE : compacte, centrée, jamais coupée === */
+  /* Roue compacte, centrée, jamais coupée */
   .wheel-wrap{ width:100%; display:grid; place-items:center; gap:14px; margin-inline:auto }
   .wheel{
-    width: min(58vw, 280px);      /* ⬅️ encore réduite */
-    max-width: 280px;
+    width: min(54vw, 248px);        /* encore plus petite */
+    max-width: 248px;
     aspect-ratio:1/1; border-radius:50%;
     border:1px solid var(--ring);
     background:radial-gradient(circle, rgba(255,255,255,.06), transparent 62%);
-    position:relative; touch-action:none; margin-inline:auto; overflow:visible;
+    position:relative; touch-action:none; margin-inline:auto;
   }
-  .wheel canvas{ width:100%; height:100%; display:block }
+  .wheel canvas{ width:100%; height:100%; display:block; touch-action:none }
   .knob{ position:absolute; width:22px; height:22px; border-radius:50%; background:#fff; border:2px solid #111;
          transform:translate(-50%,-50%); box-shadow:0 0 0 6px rgba(0,0,0,.18); pointer-events:none }
-  .sliders{ width:100%; max-width:460px; display:grid; gap:12px; margin-inline:auto }
+
+  .sliders{ width:100%; max-width:420px; display:grid; gap:12px; margin-inline:auto }
   .sliders label{ color:var(--muted) }
   input[type="range"]{ width:100%; height:50px; appearance:none; background:transparent }
   input[type="range"]::-webkit-slider-runnable-track{ height:10px; border-radius:999px; background:linear-gradient(90deg,var(--acc),var(--acc-2))}
@@ -66,11 +65,11 @@
   .chip{padding:10px 14px; border-radius:14px; border:1px solid var(--ring); background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.05)); font-weight:800; min-height:42px}
   .chip.active{ outline:2px solid color-mix(in oklab, var(--acc) 34%, transparent) }
 
-  /* === PALETTE — 5 colonnes (wrap 2 lignes si étroit) === */
+  /* Palette — 5 colonnes (wrap si étroit) */
   .bar{ background:var(--card); border:1px solid var(--ring); border-radius:18px; padding: clamp(8px,3vw,12px) }
   .bar-grid{ display:grid; grid-template-columns: repeat(5, 1fr); gap: clamp(6px,2vw,10px) }
-  .slot{ border:1px solid var(--ring); border-radius:14px; overflow:hidden; display:grid; grid-template-rows: 110px auto }
-  @media (max-width: 370px){ .slot{ grid-template-rows: 95px auto } }
+  .slot{ border:1px solid var(--ring); border-radius:14px; overflow:hidden; display:grid; grid-template-rows: 100px auto }
+  @media (max-width: 360px){ .slot{ grid-template-rows: 88px auto } }
   .swatch{ width:100%; height:100% }
   .hex{ padding:8px; text-align:center; font-weight:900; letter-spacing:.3px; font-family: ui-monospace, Menlo, Consolas, monospace; position:relative }
   .baseMark{ position:absolute; left:50%; top:-6px; transform:translateX(-50%); font-size:16px }
@@ -83,7 +82,7 @@
 
   .actions{display:flex; flex-wrap:wrap; gap:8px; justify-content:center}
 
-  /* === Thème “force” : applique TOUTE la palette === */
+  /* Thème hard — applique toute la palette */
   .themed-hard *{ accent-color: var(--acc) !important; }
   .themed-hard a, .themed-hard a:visited{ color: var(--p3) !important; }
   .themed-hard button, .themed-hard .btn{
@@ -116,7 +115,6 @@
   </header>
 
   <main class="container">
-    <!-- ROUE -->
     <section class="panel">
       <h1>Roue chromatique</h1>
       <p class="sub">Glisse sur la roue pour la teinte. Ajuste Saturation / Luminosité.</p>
@@ -134,7 +132,6 @@
       </div>
     </section>
 
-    <!-- Harmonies -->
     <section class="panel">
       <div class="toolbar" id="modes">
         <button class="chip" data-mode="analog">Analogues</button>
@@ -145,12 +142,8 @@
       </div>
     </section>
 
-    <!-- Palette (5 colonnes) -->
-    <section class="bar">
-      <div class="bar-grid" id="barGrid"></div>
-    </section>
+    <section class="bar"><div class="bar-grid" id="barGrid"></div></section>
 
-    <!-- Aperçu & export -->
     <section class="panel">
       <h2>Contraste & export</h2>
       <div class="preview">
@@ -172,22 +165,22 @@
   </main>
 
 <script>
-/* ===== Helpers ===== */
+/* ==== Helpers ==== */
 const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
 const rgbToHex=(r,g,b)=>'#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');
 const hslToRgb=(h,s,l)=>{ s/=100; l/=100; const k=n=>(n+(h/30))%12; const a=s*Math.min(l,1-l);
   const f=n=> l - a*Math.max(-1, Math.min(k(n)-3, Math.min(9-k(n),1)));
   return [Math.round(255*f(0)),Math.round(255*f(8)),Math.round(255*f(4))] };
-const hslToHex=(h,s,l)=>rgbToHex(...hslToRgb(h,s,l));
+const hslToHex=(h,s,l)=>'#'+hslToRgb(h,s,l).map(x=>x.toString(16).padStart(2,'0')).join('');
 const hexToRgb=(hex)=>{ const m=/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); return m?[parseInt(m[1],16),parseInt(m[2],16),parseInt(m[3],16)]:[0,0,0] };
 const luminance=(r,g,b)=>{ const t=[r,g,b].map(v=>{v/=255; return v<=.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4)}); return 0.2126*t[0]+0.7152*t[1]+0.0722*t[2] };
 const contrastRatio=(hex1,hex2)=>{ const [r1,g1,b1]=hexToRgb(hex1),[r2,g2,b2]=hexToRgb(hex2); const L1=luminance(r1,g1,b1)+0.05, L2=luminance(r2,g2,b2)+0.05; return Math.round((L1>L2?L1/L2:L2/L1)*100)/100 };
 const wcag=r=> r>=7?'AAA': r>=4.5?'AA': r>=3?'AA (large)':'fail';
 const rot=(h,d)=>(((h+d)%360)+360)%360;
 
-/* ===== DOM ===== */
-const wheelBox = document.getElementById('wheelBox'); // conteneur circulaire
-const wheel    = document.getElementById('wheel');    // canvas
+/* ==== DOM ==== */
+const wheelBox = document.getElementById('wheelBox');
+const wheel    = document.getElementById('wheel');
 const knob     = document.getElementById('knob');
 const sat      = document.getElementById('sat');
 const lig      = document.getElementById('lig');
@@ -203,14 +196,14 @@ const applyBtn = document.getElementById('apply');
 const copyCss  = document.getElementById('copyCss');
 const copyJson = document.getElementById('copyJson');
 
-/* ===== State ===== */
+/* ==== State ==== */
 let H=264, S=80, L=60;     // base
 let MODE='analog';
 let dpr = Math.min(window.devicePixelRatio||1, 2);
 
-/* ===== Wheel drawing (uses CONTAINER width) ===== */
+/* ==== Wheel drawing ==== */
 function drawWheel(){
-  const size = Math.floor(wheelBox.clientWidth * dpr); // ⬅️ largeur du conteneur (fiable)
+  const size = Math.floor(wheelBox.clientWidth * dpr);
   if(size<=0) return;
   wheel.width=size; wheel.height=size;
   const ctx = wheel.getContext('2d', { willReadFrequently:false });
@@ -229,36 +222,36 @@ function drawWheel(){
   positionKnob();
 }
 function positionKnob(){
-  const rect = wheelBox.getBoundingClientRect();    // ⬅️ positionner dans le conteneur
+  const rect = wheelBox.getBoundingClientRect();
   const r = rect.width/2;
   const ang = (H-90)*Math.PI/180;
   knob.style.left = (rect.width/2 + (r-16)*Math.cos(ang))+'px';
   knob.style.top  = (rect.height/2 + (r-16)*Math.sin(ang))+'px';
 }
-function hueFromPointer(clientX, clientY){
-  const rect = wheelBox.getBoundingClientRect();    // ⬅️ calculer par rapport au conteneur
-  const dx = clientX - rect.left - rect.width/2;
-  const dy = clientY - rect.top  - rect.height/2;
+
+/* ==== Pointer math ==== */
+function hueFromXY(x,y){
+  const rect = wheelBox.getBoundingClientRect();
+  const dx = x - rect.left - rect.width/2;
+  const dy = y - rect.top  - rect.height/2;
   H = (Math.round(Math.atan2(dy,dx)*180/Math.PI + 90) + 360) % 360;
   render();
 }
-let dragging=false;
-function startDrag(e){ dragging=true; e.preventDefault(); wheelBox.setPointerCapture?.(e.pointerId); hueFromPointer(e.clientX,e.clientY) }
-function moveDrag(e){ if(!dragging) return; e.preventDefault(); hueFromPointer(e.clientX,e.clientY) }
-function endDrag(e){ dragging=false; try{wheelBox.releasePointerCapture(e.pointerId)}catch{} }
 
-/* Listen on BOTH canvas + container (couvre tous les mobiles) */
-[wheelBox, wheel].forEach(el=>{
-  el.addEventListener('pointerdown', startDrag, {passive:false});
-  el.addEventListener('pointermove', moveDrag,   {passive:false});
-  el.addEventListener('pointerup',   endDrag);
-  el.addEventListener('pointercancel', endDrag);
-});
+/* ==== Robust input (pointer + fallbacks souris/tactile) ==== */
+let dragging=false;
+function startDrag(e){ dragging=true; e.preventDefault(); hueFromXY(e.clientX??(e.touches?.[0]?.clientX), e.clientY??(e.touches?.[0]?.clientY)); }
+function moveDrag(e){ if(!dragging) return; e.preventDefault(); hueFromXY(e.clientX??(e.touches?.[0]?.clientX), e.clientY??(e.touches?.[0]?.clientY)); }
+function endDrag(){ dragging=false; }
+
+['pointerdown','mousedown','touchstart'].forEach(ev=> wheelBox.addEventListener(ev, startDrag, {passive:false}));
+['pointermove','mousemove','touchmove'].forEach(ev=> window.addEventListener(ev, moveDrag, {passive:false}));
+['pointerup','mouseleave','touchend','touchcancel'].forEach(ev=> window.addEventListener(ev, endDrag));
 
 sat.addEventListener('input', e=>{ S=+e.target.value; render() });
 lig.addEventListener('input', e=>{ L=+e.target.value; render() });
 
-/* ===== Modes ===== */
+/* ==== Modes ==== */
 modes.querySelectorAll('.chip').forEach(b=>{
   if(b.dataset.mode===MODE) b.classList.add('active');
   b.addEventListener('click', ()=>{
@@ -267,24 +260,21 @@ modes.querySelectorAll('.chip').forEach(b=>{
   });
 });
 
-/* ===== Palette (toujours 5, base au CENTRE) ===== */
+/* ==== Palette (5, base au centre) ==== */
+const clampL=(v)=>Math.max(0,Math.min(100,v));
 function buildSet5(){
-  let offsets=[];
-  if(MODE==='analog')       offsets=[-30, -15, 0, 15, 30];
-  else if(MODE==='complement') offsets=[-180, -30, 0, 30, 180];
-  else if(MODE==='triad')   offsets=[-120, -30, 0, 30, 120];
-  else if(MODE==='tetrad')  offsets=[-90, 0, 90, 180, -45];
-  else if(MODE==='mono')    return [
-    [H,S,clamp(L-24,0,100)],[H,S,clamp(L-12,0,100)],[H,S,L],[H,S,clamp(L+12,0,100)],[H,S,clamp(L+24,0,100)]
-  ];
-  return offsets.map(d=>[rot(H,d), S, L]);
+  if(MODE==='mono') return [[H,S,clampL(L-24)], [H,S,clampL(L-12)], [H,S,L], [H,S,clampL(L+12)], [H,S,clampL(L+24)]];
+  const off = MODE==='analog'     ? [-30,-15,0,15,30]
+            : MODE==='complement' ? [-180,-30,0,30,180]
+            : MODE==='triad'      ? [-120,-30,0,30,120]
+            : /* tetrad */          [-90,0,90,180,-45];
+  return off.map(d=>[rot(H,d), S, L]);
 }
 
-/* ===== Render ===== */
+/* ==== Render ==== */
 function render(){
   positionKnob();
 
-  // Palette 5 colonnes (marque ▲ au centre)
   const set = buildSet5();
   barGrid.innerHTML='';
   set.forEach(([h,s,l],i)=>{
@@ -296,13 +286,11 @@ function render(){
     barGrid.appendChild(el);
   });
 
-  // Contraste basé sur la couleur centrale (issue de la roue)
   const baseHex = hslToHex(H,S,L);
   demoL.style.color=baseHex; demoD.style.color=baseHex;
-  wcagL.textContent='Contraste: '+wcag(contrastRatio(baseHex,'#ffffff'));
-  wcagD.textContent='Contraste: '+wcag(contrastRatio(baseHex,'#0b0f16'));
+  wcagL.textContent='Contraste: '+(contrastRatio(baseHex,'#ffffff'))+' ('+wcag(contrastRatio(baseHex,'#ffffff'))+')';
+  wcagD.textContent='Contraste: '+(contrastRatio(baseHex,'#0b0f16'))+' ('+wcag(contrastRatio(baseHex,'#0b0f16'))+')';
 
-  // Export CSS (5 couleurs)
   const [c1,c2,c3,c4,c5] = set.map(([h,s,l])=>hslToHex(h,s,l));
   tokens.value = `:root{
   --p1: ${c1};
@@ -315,26 +303,28 @@ function render(){
 }`;
 }
 
-/* ===== Actions ===== */
+/* ==== Actions ==== */
 const curated=[ ['Vaporwave',[315,80,65],'triad'], ['Tropical',[170,75,50],'analog'],
   ['Arcade',[200,90,55],'tetrad'], ['Sunset',[18,85,58],'complement'],
   ['Aurora',[155,70,54],'analog'], ['Sakura',[340,70,66],'mono'], ['Cyber',[190,90,55],'tetrad'] ];
-randomBtn?.addEventListener('click', ()=>{
-  if(Math.random()<0.6){ const [_,[h,s,l],m]=curated[Math.floor(Math.random()*curated.length)]; [H,S,L]=[h,s,l]; MODE=m; }
-  else{ H=Math.floor(Math.random()*360); S=[65,70,75,80,85][Math.floor(Math.random()*5)];
-        L=[48,52,56,60,64][Math.floor(Math.random()*5)];
-        MODE=['analog','complement','triad','tetrad','mono'][Math.floor(Math.random()*5)]; }
+document.getElementById('random')?.addEventListener('click', ()=>{
+  const pick = Math.random()<0.6
+    ? curated[Math.floor(Math.random()*curated.length)]
+    : [[Math.floor(Math.random()*360), [65,70,75,80,85][Math.floor(Math.random()*5)], [48,52,56,60,64][Math.floor(Math.random()*5)]],
+       ['analog','complement','triad','tetrad','mono'][Math.floor(Math.random()*5)]];
+  if(pick.length===3){ const [_,[h,s,l],m]=pick; H=h;S=s;L=l;MODE=m; }
+  else{ const [[h,s,l],m]=pick; H=h;S=s;L=l;MODE=m; }
   modes.querySelectorAll('.chip').forEach(x=>x.classList.toggle('active', x.dataset.mode===MODE));
   render();
 });
 
-/* Appliquer au site : pousse TOUTES les couleurs (p1..p5) + acc */
+/* Appliquer : pousse toute la palette */
 applyBtn.addEventListener('click', ()=>{
   const set = buildSet5().map(([h,s,l])=>hslToHex(h,s,l));
   const root=document.documentElement.style;
   root.setProperty('--p1', set[0]);
   root.setProperty('--p2', set[1]);
-  root.setProperty('--p3', set[2]);  // base (roue)
+  root.setProperty('--p3', set[2]);
   root.setProperty('--p4', set[3]);
   root.setProperty('--p5', set[4]);
   root.setProperty('--acc', 'var(--p3)');
@@ -351,8 +341,9 @@ copyJson.onclick=()=>{
   navigator.clipboard.writeText(JSON.stringify(obj,null,2));
 };
 
-/* ===== Init & Resize ===== */
-function onResize(){ dpr=Math.min(window.devicePixelRatio||1,2); drawWheel(); render(); }
+/* ==== Init & Resize ==== */
+let dpr = Math.min(window.devicePixelRatio||1, 2);
+function onResize(){ dpr = Math.min(window.devicePixelRatio||1, 2); drawWheel(); render(); }
 window.addEventListener('resize', onResize, {passive:true});
 onResize();
 </script>
